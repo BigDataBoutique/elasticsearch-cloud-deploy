@@ -1,0 +1,51 @@
+{
+  "variables": {
+  },
+  "description": "Elasticsarch Image",
+  "builders": [
+    {
+      "ami_name": "elasticsearch-{{isotime | clean_ami_name}}",
+      "availability_zone": "eu-central-1a",
+      "iam_instance_profile": "packer",
+      "instance_type": "c4.large",
+      "region": "eu-central-1",
+      "run_tags": {
+        "role": "packer"
+      },
+      "source_ami": "ami-8504fdea",
+      "ssh_timeout": "10m",
+      "ssh_username": "ubuntu",
+      "tags": {
+        "Name": "elasticsearch-packer-image"
+      },
+      "type": "amazon-ebs",
+      "enhanced_networking": true
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [ "sleep 10" ]
+    },
+    {
+      "type": "shell",
+      "script": "update-machine.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "script": "install-java8.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "script": "install-elasticsearch.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "script": "install-awsplugin.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    }
+  ]
+}
