@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Get the PGP Key
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 
@@ -8,5 +9,4 @@ echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | sudo tee 
 
 sudo apt-get update && sudo apt-get install elasticsearch
 
-sudo /bin/systemctl daemon-reload
-sudo /bin/systemctl enable elasticsearch.service
+sudo mv elasticsearch.yml /etc/elasticsearch/elasticsearch.yml

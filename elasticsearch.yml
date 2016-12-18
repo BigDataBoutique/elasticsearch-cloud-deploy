@@ -1,0 +1,2 @@
+bootstrap.memory_lock: true
+node.name: ${HOSTNAME}

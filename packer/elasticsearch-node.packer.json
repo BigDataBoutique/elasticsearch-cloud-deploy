@@ -5,14 +5,14 @@
   "builders": [
     {
       "ami_name": "elasticsearch-{{isotime | clean_ami_name}}",
-      "availability_zone": "eu-central-1a",
+      "availability_zone": "us-east-1a",
       "iam_instance_profile": "packer",
       "instance_type": "c4.large",
-      "region": "eu-central-1",
+      "region": "us-east-1",
       "run_tags": {
         "role": "packer"
       },
-      "source_ami": "ami-8504fdea",
+      "source_ami": "ami-06c4cb11",
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
@@ -25,12 +25,13 @@
   "provisioners": [
     {
       "type": "shell",
-      "inline": [ "sleep 10" ]
-    },
-    {
-      "type": "shell",
       "script": "update-machine.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "file",
+      "source": "../elasticsearch.yml",
+      "destination": "elasticsearch.yml"
     },
     {
       "type": "shell",
