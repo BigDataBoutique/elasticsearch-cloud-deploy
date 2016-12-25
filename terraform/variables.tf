@@ -12,9 +12,18 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "vpc_id" {
+  description = "VPC ID to create the Elasticsearch cluster in"
+  type = "string"
+}
+
 variable "availability_zones" {
   description = "AWS region to launch servers."
   default = "us-east-1a,us-east-1c,us-east-1d"
+}
+
+variable "key_name" {
+  description = "Key name to be used with the launched EC2 instances."
 }
 
 variable "environment" {
@@ -32,7 +41,7 @@ variable "elasticsearch_volume_size" {
 }
 
 variable "volume_name" {
-  default = "/dev/sdh"
+  default = "/dev/xvdh"
 }
 
 variable "volume_encryption" {
