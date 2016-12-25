@@ -42,7 +42,6 @@ resource "aws_security_group_rule" "es_ports" {
   security_group_id = "${aws_security_group.elasticsearch-security-group.id}"
 }
 
-
 resource "aws_security_group_rule" "egress" {
   type              = "egress"
   from_port         = 0
@@ -61,7 +60,7 @@ resource "template_file" "user_data" {
     elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
     heap_size               = "${var.heap_size}"
     es_cluster              = "${var.es_cluster}"
-    es_environment          = "${var.environment}"
+    es_environment          = "${var.environment}-${var.es_cluster}"
     security_groups         = "${aws_security_group.elasticsearch-security-group.id}"
     aws_region              = "${var.aws_region}"
     availability_zones      = "${var.availability_zones}"
@@ -77,9 +76,8 @@ resource "aws_launch_configuration" "elasticsearch" {
   image_id = "${var.elasticsearch_ami_id}"
   instance_type = "${var.elasticsearch_instance_type}"
   security_groups = ["${aws_security_group.elasticsearch-security-group.id}"]
-//  security_groups = ["${split(",", replace(concat(aws_security_group.elasticsearch-security-group.id, ",", var.additional_security_groups), "/,\\s?$/", ""))}"]
   associate_public_ip_address = false
-  iam_instance_profile = "${var.iam_profile}"
+  iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${template_file.user_data.rendered}"
   key_name = "${var.key_name}"
 
@@ -111,6 +109,11 @@ resource "aws_autoscaling_group" "elasticsearch-data-nodes" {
   tag {
     key = "Environment"
     value = "${var.environment}"
+    propagate_at_launch = true
+  }
+  tag {
+    key = "Cluster"
+    value = "${var.environment}-${var.es_cluster}"
     propagate_at_launch = true
   }
 
