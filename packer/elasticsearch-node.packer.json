@@ -30,7 +30,7 @@
     },
     {
       "type": "file",
-      "source": "../elasticsearch.yml",
+      "source": "../templates/elasticsearch.yml",
       "destination": "elasticsearch.yml"
     },
     {
