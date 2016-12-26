@@ -1,5 +1,4 @@
 terraform.tfstate
 .idea/
-terraform/private_variables.tf
 *.pem
 *.backup

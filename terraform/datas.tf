@@ -14,6 +14,7 @@ data "template_file" "data_userdata_script" {
     minimum_master_nodes    = "${format("%d", var.masters_count / 2 + 1)}"
     master                  = "false"
     data                    = "true"
+    http_enabled            = "true"
   }
 }
 

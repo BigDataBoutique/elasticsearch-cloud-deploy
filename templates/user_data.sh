@@ -9,7 +9,7 @@ cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 cluster.name: ${es_cluster}
 
 discovery.zen.minimum_master_nodes: ${minimum_master_nodes}
-network.host: _ec2:privateIpv4_
+network.host: _ec2:privateIpv4_,localhost
 
 plugin.mandatory: discovery-ec2
 cloud.aws.region: ${aws_region}
@@ -25,7 +25,7 @@ discovery:
 node.master: ${master}
 node.data: ${data}
 node.ingest: ${data}
-http.enabled: ${data}
+http.enabled: ${http_enabled}
 
 path.logs: ${elasticsearch_logs_dir}
 
