@@ -26,6 +26,7 @@ resource "aws_launch_configuration" "data" {
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.data_userdata_script.rendered}"
   key_name = "${var.key_name}"
+  ebs_optimized = true
 
   lifecycle {
     create_before_destroy = true
