@@ -1,10 +1,11 @@
 {
   "variables": {
+    "base_ami": "ami-280d1e3f"
   },
-  "description": "Elasticsarch Image",
+  "description": "Kibana Image",
   "builders": [
     {
-      "ami_name": "elasticsearch-{{isotime | clean_ami_name}}",
+      "ami_name": "kibana-{{isotime | clean_ami_name}}",
       "availability_zone": "us-east-1a",
       "iam_instance_profile": "packer",
       "instance_type": "c4.large",
@@ -12,11 +13,11 @@
       "run_tags": {
         "role": "packer"
       },
-      "source_ami": "ami-06c4cb11",
+      "source_ami": "{{user `base_ami`}}",
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "Name": "elasticsearch-packer-image"
+        "Name": "kibana-packer-image"
       },
       "type": "amazon-ebs",
       "enhanced_networking": true
@@ -25,32 +26,27 @@
   "provisioners": [
     {
       "type": "shell",
-      "script": "update-machine.sh",
+      "inline": [ "sleep 10" ]
+    },
+    {
+      "type": "shell",
+      "script": "install-kopf.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
       "type": "file",
-      "source": "../elasticsearch.yml",
-      "destination": "elasticsearch.yml"
+      "source": "../templates/nginx-client.conf",
+      "destination": "nginx-client.conf"
     },
     {
       "type": "shell",
-      "script": "install-java8.sh",
+      "script": "install-nginx.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
       "type": "shell",
-      "script": "install-elasticsearch.sh",
+      "script": "install-kibana.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
-    },
-    {
-      "type": "shell",
-      "script": "install-awsplugin.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
-    },
-    {
-      "type": "shell",
-      "inline": [ "sleep 10" ]
     }
   ]
 }
