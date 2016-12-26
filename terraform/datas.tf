@@ -8,7 +8,7 @@ data "template_file" "data_userdata_script" {
     heap_size               = "${var.data_heap_size}"
     es_cluster              = "${var.es_cluster}"
     es_environment          = "${var.environment}-${var.es_cluster}"
-    security_groups         = "${aws_security_group.elasticsearch-security-group.id}"
+    security_groups         = "${aws_security_group.elasticsearch_security_group.id}"
     aws_region              = "${var.aws_region}"
     availability_zones      = "${var.availability_zones}"
     minimum_master_nodes    = "${format("%d", var.masters_count / 2 + 1)}"
@@ -21,7 +21,7 @@ data "template_file" "data_userdata_script" {
 resource "aws_launch_configuration" "data" {
   image_id = "${var.elasticsearch_ami_id}"
   instance_type = "${var.data_instance_type}"
-  security_groups = ["${aws_security_group.elasticsearch-security-group.id}"]
+  security_groups = ["${aws_security_group.elasticsearch_security_group.id}"]
   associate_public_ip_address = false
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.data_userdata_script.rendered}"

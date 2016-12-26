@@ -6,7 +6,7 @@ provider "aws" {
 # Elasticsearch
 ##############################################################################
 
-resource "aws_security_group" "elasticsearch-security-group" {
+resource "aws_security_group" "elasticsearch_security_group" {
   name = "elasticsearch-${var.es_cluster}-security-group"
   description = "Elasticsearch ports with ssh"
   vpc_id = "${var.vpc_id}"
@@ -21,8 +21,8 @@ resource "aws_security_group" "elasticsearch-security-group" {
   }
 }
 
-resource "aws_security_group" "kibana-security-group" {
-  name = "kibana-${var.es_cluster}-security-group"
+resource "aws_security_group" "elasticsearch_clients_security_group" {
+  name = "elasticsearch-${var.es_cluster}-clients-security-group"
   description = "Kibana HTTP access from outside"
   vpc_id = "${var.vpc_id}"
 
@@ -43,16 +43,25 @@ resource "aws_security_group_rule" "ssh_access" {
   to_port           = 22
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.elasticsearch-security-group.id}"
+  security_group_id = "${aws_security_group.elasticsearch_security_group.id}"
 }
 
-resource "aws_security_group_rule" "egress" {
+resource "aws_security_group_rule" "es_egress" {
   type              = "egress"
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.elasticsearch-security-group.id}"
+  security_group_id = "${aws_security_group.elasticsearch_security_group.id}"
+}
+
+resource "aws_security_group_rule" "es_client_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.elasticsearch_clients_security_group.id}"
 }
 
 # Allow 9200-9400 access between nodes in the cluster
@@ -61,9 +70,8 @@ resource "aws_security_group_rule" "internal_cluster_access" {
   from_port         = 9200
   to_port           = 9400
   protocol          = "tcp"
-
-  security_group_id = "${aws_security_group.elasticsearch-security-group.id}"
-  source_security_group_id = "${aws_security_group.elasticsearch-security-group.id}"
+  self              = true
+  security_group_id = "${aws_security_group.elasticsearch_security_group.id}"
 }
 
 # HTTP access to standard HTTP port from anywhere
@@ -72,9 +80,8 @@ resource "aws_security_group_rule" "external_http_access" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.kibana-security-group.id}"
+  security_group_id = "${aws_security_group.elasticsearch_clients_security_group.id}"
 }
 
 # HTTPS access to standard HTTPS port from anywhere
@@ -84,5 +91,5 @@ resource "aws_security_group_rule" "external_https_access" {
   to_port           = 8443
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.kibana-security-group.id}"
+  security_group_id = "${aws_security_group.elasticsearch_clients_security_group.id}"
 }

@@ -69,6 +69,12 @@ variable "master_heap_size" {
 }
 
 variable "elasticsearch_ami_id" {
+  description = "The AMI ID for the Elasticsearch nodes"
+  type = "string"
+}
+
+variable "kibana_ami_id" {
+  description = "The AMI ID for the Kibana / Client nodes"
   type = "string"
 }
 
