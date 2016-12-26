@@ -1,6 +1,7 @@
 ### MANDATORY ###
 variable "es_cluster" {
   description = "Name of the elasticsearch cluster, used in node discovery"
+  default = "test-es"
 }
 
 variable "aws_region" {
@@ -11,6 +12,7 @@ variable "aws_region" {
 variable "vpc_id" {
   description = "VPC ID to create the Elasticsearch cluster in"
   type = "string"
+  default = "vpc-2651fd42"
 }
 
 variable "availability_zones" {
@@ -20,6 +22,7 @@ variable "availability_zones" {
 
 variable "key_name" {
   description = "Key name to be used with the launched EC2 instances."
+  default = "telemetry"
 }
 
 variable "environment" {
@@ -71,11 +74,13 @@ variable "master_heap_size" {
 variable "elasticsearch_ami_id" {
   description = "The AMI ID for the Elasticsearch nodes"
   type = "string"
+  default = "ami-280d1e3f"
 }
 
 variable "kibana_ami_id" {
   description = "The AMI ID for the Kibana / Client nodes"
   type = "string"
+  default = "ami-17352600"
 }
 
 variable "masters_count" {
