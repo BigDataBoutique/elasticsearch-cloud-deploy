@@ -19,6 +19,7 @@ data "template_file" "client_userdata_script" {
 }
 
 resource "aws_launch_configuration" "client" {
+  name = "elasticsearch-${var.es_cluster}-client-nodes"
   image_id = "${data.aws_ami.kibana_client.id}"
   instance_type = "${var.master_instance_type}"
   security_groups = ["${aws_security_group.elasticsearch_security_group.id}","${aws_security_group.elasticsearch_clients_security_group.id}"]
@@ -33,6 +34,7 @@ resource "aws_launch_configuration" "client" {
 }
 
 resource "aws_autoscaling_group" "client_nodes" {
+  name = "elasticsearch-${var.es_cluster}-client-nodes"
   availability_zones = ["${split(",", var.availability_zones)}"]
   max_size = "${var.clients_count}"
   min_size = "${var.clients_count}"

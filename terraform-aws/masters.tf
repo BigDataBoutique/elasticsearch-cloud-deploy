@@ -19,6 +19,7 @@ data "template_file" "master_userdata_script" {
 }
 
 resource "aws_launch_configuration" "master" {
+  name = "elasticsearch-${var.es_cluster}-master-nodes"
   image_id = "${data.aws_ami.elasticsearch.id}"
   instance_type = "${var.master_instance_type}"
   security_groups = ["${aws_security_group.elasticsearch_security_group.id}"]
@@ -33,6 +34,7 @@ resource "aws_launch_configuration" "master" {
 }
 
 resource "aws_autoscaling_group" "master_nodes" {
+  name = "elasticsearch-${var.es_cluster}-master-nodes"
   availability_zones = ["${split(",", var.availability_zones)}"]
   max_size = "${var.masters_count}"
   min_size = "${var.masters_count}"
