@@ -30,12 +30,12 @@ variable "environment" {
 
 variable "data_instance_type" {
   type = "string"
-  default = "c4.2xlarge"
+  default = "t2.micro"
 }
 
 variable "master_instance_type" {
   type = "string"
-  default = "t2.medium"
+  default = "t2.micro"
 }
 
 variable "elasticsearch_volume_size" {
@@ -71,15 +71,15 @@ variable "master_heap_size" {
 }
 
 variable "masters_count" {
-  default = "3"
+  default = "0"
 }
 
 variable "datas_count" {
-  default = "2"
+  default = "0"
 }
 
 variable "clients_count" {
-  default = "1"
+  default = "0"
 }
 
 # the ability to add additional existing security groups. In our case
