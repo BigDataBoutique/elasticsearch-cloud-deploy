@@ -19,13 +19,14 @@ data "template_file" "data_userdata_script" {
 }
 
 resource "aws_launch_configuration" "data" {
-  image_id = "${var.elasticsearch_ami_id}"
+  image_id = "${data.aws_ami.elasticsearch.id}"
   instance_type = "${var.data_instance_type}"
   security_groups = ["${aws_security_group.elasticsearch_security_group.id}"]
   associate_public_ip_address = false
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.data_userdata_script.rendered}"
   key_name = "${var.key_name}"
+
   ebs_optimized = true
 
   lifecycle {

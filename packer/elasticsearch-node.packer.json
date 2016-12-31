@@ -1,24 +1,23 @@
 {
-  "variables": {
-  },
   "description": "Elasticsarch Image",
   "builders": [
     {
-      "ami_name": "elasticsearch-{{isotime | clean_ami_name}}",
-      "availability_zone": "us-east-1a",
+      "type": "amazon-ebs",
+
+      "ami_name": "elasticsearch5-{{isotime | clean_ami_name}}",
+      "availability_zone": "{{user `aws_region`}}a",
       "iam_instance_profile": "packer",
-      "instance_type": "c4.large",
-      "region": "us-east-1",
+      "instance_type": "t2.micro",
+      "region": "{{user `aws_region`}}",
       "run_tags": {
         "role": "packer"
       },
-      "source_ami": "ami-06c4cb11",
+      "source_ami": "{{user `aws_base_ami`}}",
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
         "Name": "elasticsearch-packer-image"
       },
-      "type": "amazon-ebs",
       "enhanced_networking": true
     }
   ],

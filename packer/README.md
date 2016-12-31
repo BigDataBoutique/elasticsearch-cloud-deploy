@@ -45,5 +45,13 @@ aws iam add-role-to-instance-profile  --instance-profile-name packer --role-name
 Getting the latest Ubuntu image on AWS (depending on region):
 
 ```bash
-LATEST_UBUNTU_IMAGE=$(curl http://cloud-images.ubuntu.com/locator/ec2/releasesTable | grep us-east-1 | grep trusty | grep amd64 | grep "\"hvm:ebs\"" | awk -F "[<>]" '{print $3}')
+curl http://cloud-images.ubuntu.com/locator/ec2/releasesTable | grep us-east-1 | grep xenial | grep hvm:ebs  | grep amd64| awk -F "[<>]" '{print $3}'
+```
+
+Then run it via
+
+```bash
+packer build -var-file=variables.json elasticsearch-node.packer.json
+export ES5_AMI=$
+packer build -var-file=variables.json kibana-node.packer.json
 ```

@@ -1,0 +1,12 @@
+{
+  "aws_region": "eu-central-1",
+  "aws_base_ami": "ami-fe408091",
+
+  "azure_client_id": "",
+  "azure_client_secret": "",
+  "azure_resource_group_name": "",
+  "azure_storage_account": "",
+  "azure_subscription_id": "",
+  "azure_tenant_id": "",
+  "azure_location": "East US"
+}

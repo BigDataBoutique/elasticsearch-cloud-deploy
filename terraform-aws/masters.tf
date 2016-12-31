@@ -19,7 +19,7 @@ data "template_file" "master_userdata_script" {
 }
 
 resource "aws_launch_configuration" "master" {
-  image_id = "${var.elasticsearch_ami_id}"
+  image_id = "${data.aws_ami.elasticsearch.id}"
   instance_type = "${var.master_instance_type}"
   security_groups = ["${aws_security_group.elasticsearch_security_group.id}"]
   associate_public_ip_address = false

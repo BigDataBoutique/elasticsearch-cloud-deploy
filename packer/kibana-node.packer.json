@@ -1,33 +1,30 @@
 {
   "variables": {
-    "base_ami": "ami-280d1e3f"
+    "aws_elasticsearch_ami": "{{env `ES5_AMI`}}"
   },
   "description": "Kibana Image",
   "builders": [
     {
-      "ami_name": "kibana-{{isotime | clean_ami_name}}",
-      "availability_zone": "us-east-1a",
+      "type": "amazon-ebs",
+
+      "ami_name": "kibana5-{{isotime | clean_ami_name}}",
+      "availability_zone": "{{user `aws_region`}}a",
       "iam_instance_profile": "packer",
-      "instance_type": "c4.large",
-      "region": "us-east-1",
+      "instance_type": "t2.micro",
+      "region": "{{user `aws_region`}}",
       "run_tags": {
         "role": "packer"
       },
-      "source_ami": "{{user `base_ami`}}",
+      "source_ami": "{{user `aws_elasticsearch_ami`}}",
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
         "Name": "kibana-packer-image"
       },
-      "type": "amazon-ebs",
       "enhanced_networking": true
     }
   ],
   "provisioners": [
-    {
-      "type": "shell",
-      "inline": [ "sleep 10" ]
-    },
     {
       "type": "shell",
       "script": "install-kopf.sh",

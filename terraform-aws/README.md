@@ -1,30 +1,8 @@
 ## AWS deployment
 
-### Create IAM roles for Packer
+### Create the AMIs with Packer
 
-```shell
-aws iam create-role --role-name=packer --assume-role-policy-document '{
-                                                                                 "Version": "2012-10-17",
-                                                                                 "Statement": [
-                                                                                     {
-                                                                                         "Action": "sts:AssumeRole",
-                                                                                         "Principal": {
-                                                                                             "Service": "ec2.amazonaws.com"
-                                                                                         },
-                                                                                         "Effect": "Allow",
-                                                                                         "Sid": ""
-                                                                                     }
-                                                                                 ]
-                                                                             }'
-aws iam create-instance-profile --instance-profile-name=packer
-aws iam add-role-to-instance-profile --instance-profile-name=packer --role-name=packer
-```
-
-### Create the AMI with Packer
-
-From `./packer`, do `packer build elasticsearch-node.packer.json` and wait.
-
-When Packer is done, take the ami and update variables.tf
+Go to the packer folder and see the README there. Once you have the AMI IDs, return here and continue the steps.
 
 ### Create key-pair
 

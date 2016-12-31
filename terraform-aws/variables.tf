@@ -71,18 +71,6 @@ variable "master_heap_size" {
   default = "2g"
 }
 
-variable "elasticsearch_ami_id" {
-  description = "The AMI ID for the Elasticsearch nodes"
-  type = "string"
-  default = "ami-280d1e3f"
-}
-
-variable "kibana_ami_id" {
-  description = "The AMI ID for the Kibana / Client nodes"
-  type = "string"
-  default = "ami-17352600"
-}
-
 variable "masters_count" {
   default = "3"
 }
