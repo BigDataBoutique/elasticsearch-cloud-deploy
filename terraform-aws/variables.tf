@@ -1,28 +1,27 @@
 ### MANDATORY ###
 variable "es_cluster" {
   description = "Name of the elasticsearch cluster, used in node discovery"
-  default = "test-es"
 }
 
 variable "aws_region" {
   type = "string"
-  default = "us-east-1"
+  default = "eu-central-1"
 }
 
 variable "vpc_id" {
   description = "VPC ID to create the Elasticsearch cluster in"
   type = "string"
-  default = "vpc-2651fd42"
+  default = ""
 }
 
 variable "availability_zones" {
   description = "AWS region to launch servers."
-  default = "us-east-1a,us-east-1c,us-east-1d"
+  default = "eu-central-1a,eu-central-1b"
 }
 
 variable "key_name" {
   description = "Key name to be used with the launched EC2 instances."
-  default = "telemetry"
+  default = "elasticsearch"
 }
 
 variable "environment" {
