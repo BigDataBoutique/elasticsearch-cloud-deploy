@@ -9,7 +9,7 @@ provider "aws" {
 resource "aws_security_group" "elasticsearch_security_group" {
   name = "elasticsearch-${var.es_cluster}-security-group"
   description = "Elasticsearch ports with ssh"
-  vpc_id = "${module.vpc.vpc_id}"
+  vpc_id = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
 
   tags {
     Name = "${var.es_cluster}-elasticsearch"
@@ -24,7 +24,7 @@ resource "aws_security_group" "elasticsearch_security_group" {
 resource "aws_security_group" "elasticsearch_clients_security_group" {
   name = "elasticsearch-${var.es_cluster}-clients-security-group"
   description = "Kibana HTTP access from outside"
-  vpc_id = "${module.vpc.vpc_id}"
+  vpc_id = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
 
   tags {
     Name = "${var.es_cluster}-kibana"

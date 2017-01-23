@@ -47,7 +47,7 @@ resource "aws_autoscaling_group" "single_node" {
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.single_node.id}"
-  vpc_zone_identifier = ["${module.vpc.private_subnets}"]
+  vpc_zone_identifier = ["${module.vpc.public_subnets}"]
 
   tag {
     key = "Name"
