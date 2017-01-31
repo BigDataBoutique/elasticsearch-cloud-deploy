@@ -5,19 +5,28 @@
       "type": "amazon-ebs",
 
       "ami_name": "elasticsearch5-{{isotime | clean_ami_name}}",
-      "availability_zone": "{{user `aws_region`}}a",
+      "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
       "instance_type": "t2.micro",
       "region": "{{user `aws_region`}}",
       "run_tags": {
         "role": "packer"
       },
-      "source_ami": "{{user `aws_base_ami`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "*ubuntu-xenial-16.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["099720109477"],
+        "most_recent": true
+      },
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
         "Name": "elasticsearch-packer-image"
       },
+      "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
       "enhanced_networking": true
     }
   ],
