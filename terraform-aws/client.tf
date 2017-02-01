@@ -35,13 +35,14 @@ resource "aws_launch_configuration" "client" {
 
 resource "aws_autoscaling_group" "client_nodes" {
   name = "elasticsearch-${var.es_cluster}-client-nodes"
-  availability_zones = ["${split(",", var.availability_zones)}"]
   max_size = "${var.clients_count}"
   min_size = "${var.clients_count}"
   desired_capacity = "${var.clients_count}"
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.client.id}"
+
+  vpc_zone_identifier = ["${module.vpc.private_subnets}"]
 
   tag {
     key = "Name"

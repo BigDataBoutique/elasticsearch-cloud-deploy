@@ -43,13 +43,14 @@ resource "aws_launch_configuration" "data" {
 
 resource "aws_autoscaling_group" "data_nodes" {
   name = "elasticsearch-${var.es_cluster}-data-nodes"
-  availability_zones = ["${split(",", var.availability_zones)}"]
   max_size = "${var.datas_count}"
   min_size = "${var.datas_count}"
   desired_capacity = "${var.datas_count}"
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.data.id}"
+
+  vpc_zone_identifier = ["${module.vpc.private_subnets}"]
 
   depends_on = ["aws_autoscaling_group.master_nodes"]
 

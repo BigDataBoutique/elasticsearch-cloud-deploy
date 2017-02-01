@@ -35,13 +35,14 @@ resource "aws_launch_configuration" "master" {
 
 resource "aws_autoscaling_group" "master_nodes" {
   name = "elasticsearch-${var.es_cluster}-master-nodes"
-  availability_zones = ["${split(",", var.availability_zones)}"]
   max_size = "${var.masters_count}"
   min_size = "${var.masters_count}"
   desired_capacity = "${var.masters_count}"
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.master.id}"
+
+  vpc_zone_identifier = ["${module.vpc.private_subnets}"]
 
   tag {
     key = "Name"
