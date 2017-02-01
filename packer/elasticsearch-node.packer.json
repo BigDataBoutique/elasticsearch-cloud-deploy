@@ -3,7 +3,6 @@
   "builders": [
     {
       "type": "amazon-ebs",
-
       "ami_name": "elasticsearch5-{{isotime | clean_ami_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
@@ -24,7 +23,7 @@
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "Name": "elasticsearch-packer-image"
+        "ImageType": "elasticsearch-packer-image"
       },
       "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
       "enhanced_networking": true

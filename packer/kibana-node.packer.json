@@ -20,7 +20,7 @@
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "Name": "kibana-packer-image"
+        "ImageType": "kibana-packer-image"
       },
       "enhanced_networking": true
     }
