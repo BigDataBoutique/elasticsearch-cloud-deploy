@@ -16,8 +16,35 @@ resource "aws_security_group" "elasticsearch_security_group" {
     cluster = "${var.es_cluster}"
   }
 
-  lifecycle {
-    create_before_destroy = true
+  # ssh access from everywhere
+  ingress {
+    from_port         = 22
+    to_port           = 22
+    protocol          = "tcp"
+    cidr_blocks       = ["0.0.0.0/0"]
+  }
+
+  # inter-cluster communication over ports 9200-9400
+  ingress {
+    from_port         = 9200
+    to_port           = 9400
+    protocol          = "tcp"
+    self              = true
+  }
+
+  # allow inter-cluster ping
+  ingress {
+    from_port         = 8
+    to_port           = 0
+    protocol          = "icmp"
+    self              = true
+  }
+
+  egress {
+    from_port         = 0
+    to_port           = 0
+    protocol          = "-1"
+    cidr_blocks       = ["0.0.0.0/0"]
   }
 }
 
@@ -31,74 +58,26 @@ resource "aws_security_group" "elasticsearch_clients_security_group" {
     cluster = "${var.es_cluster}"
   }
 
-  lifecycle {
-    create_before_destroy = true
+  # allow HTTP access to client nodes via port 8080 - better to disable, and either way always password protect!
+  ingress {
+    from_port         = 8080
+    to_port           = 8080
+    protocol          = "tcp"
+    cidr_blocks       = ["0.0.0.0/0"]
   }
-}
 
-# SSH access from anywhere
-resource "aws_security_group_rule" "ssh_access" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.elasticsearch_security_group.id}"
-}
+  # allow HTTPS access to client nodes via port 8080 - better to disable, and either way always password protect!
+  ingress {
+    from_port         = 8443
+    to_port           = 8443
+    protocol          = "tcp"
+    cidr_blocks       = ["0.0.0.0/0"]
+  }
 
-resource "aws_security_group_rule" "ping_within_vpc" {
-  type              = "ingress"
-  from_port         = 8
-  to_port           = 0
-  protocol          = "icmp"
-  self              = true
-  security_group_id = "${aws_security_group.elasticsearch_security_group.id}"
-}
-
-resource "aws_security_group_rule" "es_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.elasticsearch_security_group.id}"
-}
-
-resource "aws_security_group_rule" "es_client_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.elasticsearch_clients_security_group.id}"
-}
-
-# Allow 9200-9400 access between nodes in the cluster
-resource "aws_security_group_rule" "internal_cluster_access" {
-  type              = "ingress"
-  from_port         = 9200
-  to_port           = 9400
-  protocol          = "tcp"
-  self              = true
-  security_group_id = "${aws_security_group.elasticsearch_security_group.id}"
-}
-
-# HTTP access to standard HTTP port from anywhere
-resource "aws_security_group_rule" "external_http_access" {
-  type              = "ingress"
-  from_port         = 8080
-  to_port           = 8080
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.elasticsearch_clients_security_group.id}"
-}
-
-# HTTPS access to standard HTTPS port from anywhere
-resource "aws_security_group_rule" "external_https_access" {
-  type              = "ingress"
-  from_port         = 8443
-  to_port           = 8443
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.elasticsearch_clients_security_group.id}"
+  egress {
+    from_port         = 0
+    to_port           = 0
+    protocol          = "-1"
+    cidr_blocks       = ["0.0.0.0/0"]
+  }
 }
