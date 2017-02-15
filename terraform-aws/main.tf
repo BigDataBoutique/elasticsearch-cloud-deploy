@@ -81,3 +81,41 @@ resource "aws_security_group" "elasticsearch_clients_security_group" {
     cidr_blocks       = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_elb" "es_client_lb" {
+  name            = "${format("%s-client-lb", var.es_cluster)}"
+  security_groups = ["${aws_security_group.elasticsearch_clients_security_group.id}"]
+  subnets         = ["${var.vpc_subnets}"]
+  internal        = true
+
+  cross_zone_load_balancing   = true
+  idle_timeout                = 400
+  connection_draining         = true
+  connection_draining_timeout = 400
+
+  listener {
+    instance_port     = 8080
+    instance_protocol = "http"
+    lb_port           = 80
+    lb_protocol       = "http"
+  }
+
+  listener {
+    instance_port     = 9200
+    instance_protocol = "http"
+    lb_port           = 9200
+    lb_protocol       = "http"
+  }
+
+  health_check {
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 3
+    target              = "HTTP:9200/"
+    interval            = 6
+  }
+
+  tags {
+    Name = "${format("%s-client-lb", var.es_cluster)}"
+  }
+}
