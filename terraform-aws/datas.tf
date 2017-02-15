@@ -55,20 +55,23 @@ resource "aws_autoscaling_group" "data_nodes" {
   depends_on = ["aws_autoscaling_group.master_nodes"]
 
   tag {
-    key = "Name"
-    value = "${format("%s-elasticsearch", var.es_cluster)}"
+    key                 = "Name"
+    value               = "${format("%s-data-node", var.es_cluster)}"
     propagate_at_launch = true
   }
+
   tag {
     key = "Environment"
     value = "${var.environment}"
     propagate_at_launch = true
   }
+
   tag {
     key = "Cluster"
     value = "${var.environment}-${var.es_cluster}"
     propagate_at_launch = true
   }
+
   tag {
     key = "Role"
     value = "data"

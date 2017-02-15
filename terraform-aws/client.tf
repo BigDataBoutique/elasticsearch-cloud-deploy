@@ -45,20 +45,23 @@ resource "aws_autoscaling_group" "client_nodes" {
   vpc_zone_identifier = ["${var.vpc_subnets}"]
 
   tag {
-    key = "Name"
-    value = "${format("%s-elasticsearch", var.es_cluster)}"
+    key                 = "Name"
+    value               = "${format("%s-client-node", var.es_cluster)}"
     propagate_at_launch = true
   }
+
   tag {
     key = "Environment"
     value = "${var.environment}"
     propagate_at_launch = true
   }
+
   tag {
     key = "Cluster"
     value = "${var.environment}-${var.es_cluster}"
     propagate_at_launch = true
   }
+
   tag {
     key = "Role"
     value = "client"
