@@ -48,7 +48,7 @@ resource "aws_autoscaling_group" "single_node" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.single_node.id}"
 
-  vpc_zone_identifier = "${var.vpc_id == "" ? module.vpc.private_subnets : var.vpc_subnets}"
+  vpc_zone_identifier = ["${var.vpc_id == "" ? module.vpc.private_subnets : var.vpc_subnets}"]
 
   tag {
     key = "Name"
