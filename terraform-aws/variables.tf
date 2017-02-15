@@ -5,7 +5,12 @@ variable "es_cluster" {
 
 variable "aws_region" {
   type = "string"
-  default = "eu-central-1"
+  default = "us-east-1"
+}
+
+variable "vpc_cidr" {
+  type = "string"
+  default = "10.0.0.0/16"
 }
 
 variable "vpc_id" {
@@ -16,7 +21,7 @@ variable "vpc_id" {
 
 variable "availability_zones" {
   description = "AWS region to launch servers."
-  default = "eu-central-1a,eu-central-1b"
+  default = "us-east-1a,us-east-1b,us-east-1d"
 }
 
 variable "key_name" {
@@ -30,12 +35,12 @@ variable "environment" {
 
 variable "data_instance_type" {
   type = "string"
-  default = "t2.micro"
+  default = "c4.2xlarge"
 }
 
 variable "master_instance_type" {
   type = "string"
-  default = "t2.micro"
+  default = "m4.large"
 }
 
 variable "elasticsearch_volume_size" {
