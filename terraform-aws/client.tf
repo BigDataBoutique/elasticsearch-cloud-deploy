@@ -42,7 +42,7 @@ resource "aws_autoscaling_group" "client_nodes" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.client.id}"
 
-  vpc_zone_identifier = ["${module.vpc.private_subnets}"]
+  vpc_zone_identifier = "${var.vpc_id == "" ? module.vpc.private_subnets : var.vpc_subnets}"
 
   tag {
     key = "Name"

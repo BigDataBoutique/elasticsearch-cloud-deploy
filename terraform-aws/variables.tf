@@ -19,6 +19,13 @@ variable "vpc_id" {
   default = ""
 }
 
+
+variable "vpc_subnets" {
+  description = "VPC subnet IDs to create the Elasticsearch cluster in"
+  type = "list"
+  default = [""]
+}
+
 variable "availability_zones" {
   description = "AWS region to launch servers."
   default = "us-east-1a,us-east-1b,us-east-1d"
