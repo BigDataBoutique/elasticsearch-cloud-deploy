@@ -9,3 +9,7 @@ Features:
 * Sealed from external access, only accessible via password-protected external facing client nodes
 * AWS deployment support
 * Azure deployment (coming soon)
+
+## tfstate
+
+Managing the tfstate
