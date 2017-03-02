@@ -6,10 +6,20 @@ Features:
 
 * Deployment of data and master nodes as separate nodes
 * Client node with Kibana, Kopf and authenticated Elasticsearch access
+* DNS and load-balancing access to client nodes
 * Sealed from external access, only accessible via password-protected external facing client nodes
 * AWS deployment support
 * Azure deployment (coming soon)
+* Google Cloud Platform deployment (coming soon)
+
+## Usage
+
+Clone this repo, and work locally. You might want to fork it in case you need to apply some additional configurations or commit changes to the variables file.
+
+Create images with Packer (see `packer` folder in this repo), and then go into the terraform folder and run `terraform plan`. See README files in each respective folder. 
 
 ## tfstate
 
-Managing the tfstate
+Once you run `terraform apply` on any of the terraform folders in this repo, a file `terraform.tfstate` will be created. This file contains the mapping between your cloud elements to the terraform configuration. Make sure to keep this file safe.
+  
+See [this guide](https://blog.gruntwork.io/how-to-manage-terraform-state-28f5697e68fa#.fbb2nalw6) for a discussion on tfstate management and locking between team members.
