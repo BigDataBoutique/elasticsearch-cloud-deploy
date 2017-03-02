@@ -1,4 +1,17 @@
-You need to have a "packer" IAM Role defined.
+# Elasticsearch and Kibana machine images
+
+This Packer configuration will generate Ubuntu images with Elasticsearch, Kibana and other important tools for deploying and managing Elasticsearch clusters on the cloud.
+ 
+The output of running Packer here would be two machine images, as below:
+
+* elasticsearch node image, containing latest Elasticsearch installed (latest version 5.x) and configured with best-practices.
+* kibana node image, based on the elasticsearch node image, and with Kibana (5.x, latest), nginx with basic proxy and authentication setip, and Kopf.
+
+## On Amazon Web Services (AWS)
+
+Using the AWS builder will create the two images and store them as AMIs.
+
+As a convention the Packer builders will use a dedicated IAM roles, which you will need to have present. 
 
 ```bash
 aws iam create-role --role-name packer --assume-role-policy-document '{
@@ -36,19 +49,17 @@ Response will look something like this:
 }
 ```
 
+Follow up by execting the following
+
 ```bash
 aws iam create-instance-profile --instance-profile-name packer
 aws iam add-role-to-instance-profile  --instance-profile-name packer --role-name packer
 
 ```
 
-Getting the latest Ubuntu image on AWS (depending on region):
+## Building
 
-```bash
-curl http://cloud-images.ubuntu.com/locator/ec2/releasesTable | grep us-east-1 | grep xenial | grep hvm:ebs  | grep amd64| awk -F "[<>]" '{print $3}'
-```
-
-Then run it via
+Building the AMIs is done using the following commands:
 
 ```bash
 packer build -var-file=variables.json elasticsearch-node.packer.json
