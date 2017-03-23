@@ -14,7 +14,7 @@ Features:
 
 ## Usage
 
-Clone this repo, and work locally. You might want to fork it in case you need to apply some additional configurations or commit changes to the variables file.
+Clone this repo to work locally. You might want to fork it in case you need to apply some additional configurations or commit changes to the variables file.
 
 Create images with Packer (see `packer` folder in this repo), and then go into the terraform folder and run `terraform plan`. See README files in each respective folder. 
 
