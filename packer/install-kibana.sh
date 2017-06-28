@@ -10,3 +10,4 @@ sudo apt-get update && sudo apt-get install kibana
 
 sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable kibana.service
+echo "xpack.security.enabled: false" | sudo tee -a /etc/kibana/kibana.yml
