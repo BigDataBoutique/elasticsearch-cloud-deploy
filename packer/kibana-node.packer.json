@@ -10,7 +10,7 @@
       "ami_name": "kibana5-{{isotime | clean_ami_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
-      "instance_type": "t2.micro",
+      "instance_type": "t2.medium",
       "region": "{{user `aws_region`}}",
       "run_tags": {
         "role": "packer"
@@ -28,7 +28,12 @@
   "provisioners": [
     {
       "type": "shell",
-      "script": "install-kopf.sh",
+      "script": "install-grafana.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "script": "install-cerebro.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
