@@ -12,5 +12,5 @@ resource "aws_iam_role_policy" "elasticsearch" {
 resource "aws_iam_instance_profile" "elasticsearch" {
   name = "${var.es_cluster}-elasticsearch-discovery-profile"
   path = "/"
-  roles = ["${aws_iam_role.elasticsearch.name}"]
+  role = "${aws_iam_role.elasticsearch.name}"
 }
