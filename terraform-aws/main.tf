@@ -83,6 +83,9 @@ resource "aws_security_group" "elasticsearch_clients_security_group" {
 }
 
 resource "aws_elb" "es_client_lb" {
+  // Only create an ELB if it's not a single-node configuration
+  count = "${var.masters_count == "0" && var.datas_count == "0" ? "0" : "1"}"
+
   name            = "${format("%s-client-lb", var.es_cluster)}"
   security_groups = ["${aws_security_group.elasticsearch_clients_security_group.id}"]
   subnets         = ["${var.vpc_subnets}"]
