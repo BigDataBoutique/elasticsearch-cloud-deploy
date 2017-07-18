@@ -54,10 +54,6 @@
       "type": "shell",
       "script": "install-awsplugin.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
-    },
-    {
-      "type": "shell",
-      "inline": [ "sleep 10" ]
     }
   ]
 }
