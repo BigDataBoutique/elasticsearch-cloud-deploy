@@ -2,11 +2,12 @@
 
 # Get the PGP Key
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list
 
-sudo apt-get install apt-transport-https
+apt-get update && apt-get install elasticsearch
 
-echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-5.x.list
+cd /usr/share/elasticsearch/
+bin/elasticsearch-plugin install --batch x-pack
+cd -
 
-sudo apt-get update && sudo apt-get install elasticsearch
-
-sudo mv elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
+mv elasticsearch.yml /etc/elasticsearch/elasticsearch.yml

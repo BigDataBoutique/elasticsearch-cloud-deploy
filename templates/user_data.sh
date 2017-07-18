@@ -26,6 +26,7 @@ node.master: ${master}
 node.data: ${data}
 node.ingest: ${data}
 http.enabled: ${http_enabled}
+xpack.security.enabled: ${security_enabled}
 
 path.logs: ${elasticsearch_logs_dir}
 
@@ -57,6 +58,11 @@ if [ -n "${elasticsearch_data_dir}" ]; then
     sudo mount ${volume_name} ${elasticsearch_data_dir}
     sudo echo "${volume_name} ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" >> /etc/fstab
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
+fi
+
+# Setup x-pack security also on Kibana configs where applicable
+if [ -f "/etc/kibana/kibana.yml" ]; then
+    echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
 fi
 
 # Start Elasticsearch

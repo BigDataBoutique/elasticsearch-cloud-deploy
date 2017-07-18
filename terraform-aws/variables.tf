@@ -94,6 +94,11 @@ variable "clients_count" {
   default = "0"
 }
 
+# whether or not to enable x-pack security on the cluster
+variable "security_enabled" {
+  default = "false"
+}
+
 # the ability to add additional existing security groups. In our case
 # we have consul running as agents on the box
 variable "additional_security_groups" {

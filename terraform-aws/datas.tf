@@ -15,6 +15,7 @@ data "template_file" "data_userdata_script" {
     master                  = "false"
     data                    = "true"
     http_enabled            = "true"
+    security_enabled        = "${var.security_enabled}"
   }
 }
 
