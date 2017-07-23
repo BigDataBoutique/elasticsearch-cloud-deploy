@@ -99,6 +99,14 @@ variable "security_enabled" {
   default = "false"
 }
 
+# client nodes have nginx installed on them, these credentials are used for basic auth
+variable "client_user" {
+  default = "exampleuser"
+}
+variable "client_pwd" {
+  default = "changeme"
+}
+
 # the ability to add additional existing security groups. In our case
 # we have consul running as agents on the box
 variable "additional_security_groups" {

@@ -63,6 +63,13 @@ fi
 # Setup x-pack security also on Kibana configs where applicable
 if [ -f "/etc/kibana/kibana.yml" ]; then
     echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
+
+fi
+
+if [ -f "/etc/nginx/nginx.conf" ]; then
+    # Setup basic auth for nginx web front and start the service if exists
+    sudo htpasswd -bc /etc/nginx/conf.d/search.htpasswd ${client_user} ${client_pwd}
+    sudo service nginx start
 fi
 
 # Start Elasticsearch

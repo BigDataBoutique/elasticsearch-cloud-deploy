@@ -16,6 +16,8 @@ data "template_file" "single_node_userdata_script" {
     data                    = "true"
     http_enabled            = "true"
     security_enabled        = "${var.security_enabled}"
+    client_user             = "${var.client_user}"
+    client_pwd              = "${var.client_pwd}"
   }
 }
 
