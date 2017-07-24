@@ -22,6 +22,9 @@ data "template_file" "single_node_userdata_script" {
 }
 
 resource "aws_launch_configuration" "single_node" {
+  // Only create if it's a single-node configuration
+  count = "${var.masters_count == "0" && var.datas_count == "0" ? "1" : "0"}"
+
   name = "elasticsearch-${var.es_cluster}-single-node"
   image_id = "${data.aws_ami.kibana_client.id}"
   instance_type = "${var.data_instance_type}"
