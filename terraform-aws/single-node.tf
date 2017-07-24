@@ -43,9 +43,12 @@ resource "aws_launch_configuration" "single_node" {
 }
 
 resource "aws_autoscaling_group" "single_node" {
+  // Only create if it's a single-node configuration
+  count = "${var.masters_count == "0" && var.datas_count == "0" ? "1" : "0"}"
+
   name = "elasticsearch-${var.es_cluster}-single-node"
   min_size = "0"
-  max_size = "${var.masters_count == "0" && var.datas_count == "0" ? "1" : "0"}"
+  max_size = "1"
   desired_capacity = "${var.masters_count == "0" && var.datas_count == "0" ? "1" : "0"}"
   default_cooldown = 30
   force_delete = true
