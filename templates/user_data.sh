@@ -39,12 +39,16 @@ elasticsearch soft memlock unlimited
 elasticsearch hard memlock unlimited
 EOF
 
+cat <<'EOF' >>/etc/systemd/system/elasticsearch.service.d/override.conf
+[Service]
+LimitMEMLOCK=infinity
+EOF
+
 # Setup heap size and memory locking
 sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/init.d/elasticsearch
 sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/default/elasticsearch
 sudo sed -i "s/^-Xms2g/-Xms${heap_size}/" /etc/elasticsearch/jvm.options
 sudo sed -i "s/^-Xmx2g/-Xmx${heap_size}/" /etc/elasticsearch/jvm.options
-sudo sed -i "s/#LimitMEMLOCK=infinity/LimitMEMLOCK=infinity/" /usr/lib/systemd/system/elasticsearch.service
 
 # Storage
 sudo mkdir -p ${elasticsearch_logs_dir}
@@ -63,7 +67,6 @@ fi
 # Setup x-pack security also on Kibana configs where applicable
 if [ -f "/etc/kibana/kibana.yml" ]; then
     echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
-
 fi
 
 if [ -f "/etc/nginx/nginx.conf" ]; then
