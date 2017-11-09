@@ -22,7 +22,7 @@ data "template_file" "master_userdata_script" {
 }
 
 resource "aws_launch_configuration" "master" {
-  name = "elasticsearch-${var.es_cluster}-master-nodes"
+  name_prefix = "elasticsearch-${var.es_cluster}-master-nodes"
   image_id = "${data.aws_ami.elasticsearch.id}"
   instance_type = "${var.master_instance_type}"
   security_groups = ["${aws_security_group.elasticsearch_security_group.id}"]

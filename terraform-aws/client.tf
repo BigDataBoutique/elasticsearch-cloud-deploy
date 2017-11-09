@@ -25,7 +25,7 @@ resource "aws_launch_configuration" "client" {
   // Only create if it's not a single-node configuration
   count = "${var.masters_count == "0" && var.datas_count == "0" ? "0" : "1"}"
 
-  name = "elasticsearch-${var.es_cluster}-client-nodes"
+  name_prefix = "elasticsearch-${var.es_cluster}-client-nodes"
   image_id = "${data.aws_ami.kibana_client.id}"
   instance_type = "${var.master_instance_type}"
   security_groups = ["${aws_security_group.elasticsearch_security_group.id}","${aws_security_group.elasticsearch_clients_security_group.id}"]
