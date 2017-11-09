@@ -27,8 +27,9 @@ variable "vpc_subnets" {
 }
 
 variable "availability_zones" {
-  description = "AWS region to launch servers."
-  default = "us-east-1a,us-east-1b,us-east-1d"
+  type = "list"
+  description = "AWS region to launch servers; if not set the available zones will be detected automatically"
+  default = []
 }
 
 variable "key_name" {
