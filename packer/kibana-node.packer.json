@@ -22,7 +22,7 @@
       "tags": {
         "ImageType": "kibana-packer-image"
       },
-      "enhanced_networking": true
+      "ena_support": true
     }
   ],
   "provisioners": [

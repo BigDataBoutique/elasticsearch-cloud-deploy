@@ -26,7 +26,7 @@
         "ImageType": "elasticsearch-packer-image"
       },
       "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
-      "enhanced_networking": true
+      "ena_support": true
     }
   ],
   "provisioners": [
