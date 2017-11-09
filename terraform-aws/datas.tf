@@ -53,7 +53,7 @@ resource "aws_autoscaling_group" "data_nodes" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.data.id}"
 
-  vpc_zone_identifier = ["${var.vpc_subnets}"]
+  vpc_zone_identifier = ["${data.aws_subnet_ids.selected.ids}"]
 
   depends_on = ["aws_autoscaling_group.master_nodes"]
 

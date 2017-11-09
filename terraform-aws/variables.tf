@@ -5,25 +5,11 @@ variable "es_cluster" {
 
 variable "aws_region" {
   type = "string"
-  default = "us-east-1"
-}
-
-variable "vpc_cidr" {
-  type = "string"
-  default = "10.0.0.0/16"
 }
 
 variable "vpc_id" {
   description = "VPC ID to create the Elasticsearch cluster in"
   type = "string"
-  default = ""
-}
-
-
-variable "vpc_subnets" {
-  description = "VPC subnet IDs to create the Elasticsearch cluster in"
-  type = "list"
-  default = [""]
 }
 
 variable "availability_zones" {

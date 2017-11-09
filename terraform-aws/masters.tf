@@ -45,7 +45,7 @@ resource "aws_autoscaling_group" "master_nodes" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.master.id}"
 
-  vpc_zone_identifier = ["${var.vpc_subnets}"]
+  vpc_zone_identifier = ["${data.aws_subnet_ids.selected.ids}"]
 
   tag {
     key                 = "Name"

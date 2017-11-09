@@ -57,8 +57,8 @@ resource "aws_autoscaling_group" "single_node" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.single_node.id}"
 
-  vpc_zone_identifier = ["${var.vpc_subnets}"]
-
+  vpc_zone_identifier = ["${data.aws_subnet_ids.selected.ids}"]
+  
   tag {
     key = "Name"
     value = "${format("%s-elasticsearch", var.es_cluster)}"
