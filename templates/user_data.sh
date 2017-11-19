@@ -9,17 +9,6 @@ cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 cluster.name: ${es_cluster}
 
 discovery.zen.minimum_master_nodes: ${minimum_master_nodes}
-network.host: _ec2:privateIpv4_,localhost
-
-plugin.mandatory: discovery-ec2
-cloud.aws.region: ${aws_region}
-cloud.aws.protocol: http # no need in HTTPS for internal AWS calls
-discovery:
-    zen.hosts_provider: ec2
-    ec2.groups: ${security_groups}
-    ec2.host_type: private_ip
-    ec2.tag.Cluster: ${es_environment}
-    ec2.availability_zones: ${availability_zones}
 
 # only data nodes should have ingest and http capabilities
 node.master: ${master}
@@ -31,6 +20,30 @@ xpack.security.enabled: ${security_enabled}
 path.logs: ${elasticsearch_logs_dir}
 
 EOF
+
+# add AWS-specific configs only if running on AWS
+if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
+cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+network.host: _ec2:privateIpv4_,localhost
+
+plugin.mandatory: discovery-ec2
+cloud.aws.region: ${aws_region}
+cloud.aws.protocol: http # no need in HTTPS for internal AWS calls
+discovery:
+    zen.hosts_provider: ec2
+    ec2.groups: ${security_groups}
+    ec2.host_type: private_ip
+    ec2.tag.Cluster: ${es_environment}
+    ec2.availability_zones: ${availability_zones}
+EOF
+fi
+
+# add Azure-specific configs only if running on Azure
+if `grep -q unknown-245 /var/lib/dhcp/dhclient.eth0.leases`; then
+cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+network.host: _site_,localhost
+EOF
+fi
 
 cat <<'EOF' >>/etc/security/limits.conf
 

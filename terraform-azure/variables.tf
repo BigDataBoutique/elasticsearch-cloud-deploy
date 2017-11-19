@@ -5,20 +5,25 @@ variable "azure_location" {
 }
 
 variable "azure_subscription_id" {
-  default = ""
+  type = "string"
 }
 variable "azure_client_id" {
-  default = ""
+  type = "string"
 }
 variable "azure_client_secret" {
-  default = ""
+  type = "string"
 }
 variable "azure_tenant_id" {
-  default = ""
+  type = "string"
 }
 
 variable "es_cluster" {
   description = "Name of the elasticsearch cluster, used in node discovery"
+}
+
+variable "resource_group_name" {
+  type = "string"
+  default = "elasticsearch-cluster"
 }
 
 variable "key_name" {
