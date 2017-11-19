@@ -23,6 +23,29 @@
         "ImageType": "kibana-packer-image"
       },
       "ena_support": true
+    },
+    {
+      "type": "azure-arm",
+
+      "client_id": "{{user `azure_client_id`}}",
+      "client_secret": "{{user `azure_client_secret`}}",
+      "tenant_id": "{{user `azure_tenant_id`}}",
+      "subscription_id": "{{user `azure_subscription_id`}}",
+
+      "managed_image_resource_group_name": "{{user `azure_resource_group_name`}}",
+      "managed_image_name": "kibana5-{{isotime \"2006-01-02T030405\"}}",
+
+      "os_type": "Linux",
+      "custom_managed_image_name": "{{user `azure_elasticsearch_image_name`}}",
+      "custom_managed_image_resource_group_name":"{{user `azure_resource_group_name`}}",
+
+      "azure_tags": {
+          "dept": "Engineering",
+          "task": "Image deployment"
+      },
+
+      "location": "{{user `azure_location`}}",
+      "vm_size": "Standard_DS2_v2"
     }
   ],
   "provisioners": [
