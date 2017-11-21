@@ -5,7 +5,6 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
 # Configure elasticsearch
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-
 cluster.name: ${es_cluster}
 
 discovery.zen.minimum_master_nodes: ${minimum_master_nodes}
@@ -21,9 +20,10 @@ path.logs: ${elasticsearch_logs_dir}
 
 EOF
 
-# add AWS-specific configs only if running on AWS
-if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
+
+if [ "${cloud_provider}" == "aws" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+
 network.host: _ec2:privateIpv4_,localhost
 
 plugin.mandatory: discovery-ec2
@@ -38,8 +38,7 @@ discovery:
 EOF
 fi
 
-# add Azure-specific configs only if running on Azure
-if `grep -q unknown-245 /var/lib/dhcp/dhclient.eth0.leases`; then
+if [ "${cloud_provider}" == "azure" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 network.host: _site_,localhost
 EOF
@@ -52,6 +51,7 @@ elasticsearch soft memlock unlimited
 elasticsearch hard memlock unlimited
 EOF
 
+sudo mkdir -p /etc/systemd/system/elasticsearch.service.d
 cat <<'EOF' >>/etc/systemd/system/elasticsearch.service.d/override.conf
 [Service]
 LimitMEMLOCK=infinity
@@ -69,12 +69,14 @@ sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 
 # we are assuming volume is declared and attached when data_dir is passed to the script
 if [ -n "${elasticsearch_data_dir}" ]; then
-    sudo sed -i '$ a path.data: ${elasticsearch_data_dir}' /etc/elasticsearch/elasticsearch.yml
-    sudo mkfs -t ext4 ${volume_name}
     sudo mkdir -p ${elasticsearch_data_dir}
-    sudo mount ${volume_name} ${elasticsearch_data_dir}
-    sudo echo "${volume_name} ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" >> /etc/fstab
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
+    sudo sed -i '$ a path.data: ${elasticsearch_data_dir}' /etc/elasticsearch/elasticsearch.yml
+    if [ "${cloud_provider}" == "aws" ]; then
+        sudo mkfs -t ext4 ${volume_name}
+        sudo mount ${volume_name} ${elasticsearch_data_dir}
+        sudo echo "${volume_name} ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" >> /etc/fstab
+    fi
 fi
 
 # Setup x-pack security also on Kibana configs where applicable

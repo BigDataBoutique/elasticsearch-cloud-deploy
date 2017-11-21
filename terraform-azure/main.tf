@@ -32,13 +32,13 @@ resource "azurerm_subnet" "elasticsearch_subnet" {
   address_prefix       = "10.1.0.0/24"
 }
 
-resource "azurerm_public_ip" "elasticsearch_ip" {
-  name                         = "es-${var.es_cluster}-public-ip"
-  location                     = "${var.azure_location}"
-  resource_group_name          = "${azurerm_resource_group.elasticsearch.name}"
-  public_ip_address_allocation = "static"
-  domain_name_label            = "${azurerm_resource_group.elasticsearch.name}"
-}
+//resource "azurerm_public_ip" "elasticsearch_ip" {
+//  name                         = "es-${var.es_cluster}-public-ip"
+//  location                     = "${var.azure_location}"
+//  resource_group_name          = "${azurerm_resource_group.elasticsearch.name}"
+//  public_ip_address_allocation = "static"
+//  domain_name_label            = "${azurerm_resource_group.elasticsearch.name}"
+//}
 
 //resource "azurerm_availability_set" "data-nodes" {
 //  location = "${var.azure_location}"

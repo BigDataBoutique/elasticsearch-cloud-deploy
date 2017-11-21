@@ -1,4 +1,3 @@
-### MANDATORY ###
 variable "azure_location" {
   type = "string"
   default = "East US"
@@ -7,18 +6,22 @@ variable "azure_location" {
 variable "azure_subscription_id" {
   type = "string"
 }
+
 variable "azure_client_id" {
   type = "string"
 }
+
 variable "azure_client_secret" {
   type = "string"
 }
+
 variable "azure_tenant_id" {
   type = "string"
 }
 
 variable "es_cluster" {
   description = "Name of the elasticsearch cluster, used in node discovery"
+  default = "test"
 }
 
 variable "resource_group_name" {
@@ -26,9 +29,9 @@ variable "resource_group_name" {
   default = "elasticsearch-cluster"
 }
 
-variable "key_name" {
+variable "key_path" {
   description = "Key name to be used with the launched EC2 instances."
-  default = "elasticsearch"
+  default = "~/.ssh/id_rsa.pub"
 }
 
 variable "environment" {
@@ -37,12 +40,12 @@ variable "environment" {
 
 variable "data_instance_type" {
   type = "string"
-  default = "c4.2xlarge"
+  default = "Standard_D12_v2"
 }
 
 variable "master_instance_type" {
   type = "string"
-  default = "m4.large"
+  default = "Standard_A2_v2"
 }
 
 variable "elasticsearch_volume_size" {
@@ -50,16 +53,12 @@ variable "elasticsearch_volume_size" {
   default = "100" # gb
 }
 
-variable "volume_name" {
-  default = "/dev/xvdh"
-}
-
-variable "volume_encryption" {
+variable "use_instance_storage" {
   default = true
 }
 
 variable "elasticsearch_data_dir" {
-  default = "/opt/elasticsearch/data"
+  default = "/mnt/elasticsearch/data"
 }
 
 variable "elasticsearch_logs_dir" {
@@ -78,15 +77,15 @@ variable "master_heap_size" {
 }
 
 variable "masters_count" {
-  default = "0"
+  default = "1"
 }
 
 variable "datas_count" {
-  default = "0"
+  default = "1"
 }
 
 variable "clients_count" {
-  default = "0"
+  default = "1"
 }
 
 # whether or not to enable x-pack security on the cluster
@@ -97,9 +96,6 @@ variable "security_enabled" {
 # client nodes have nginx installed on them, these credentials are used for basic auth
 variable "client_user" {
   default = "exampleuser"
-}
-variable "client_pwd" {
-  default = "changeme"
 }
 
 # the ability to add additional existing security groups. In our case

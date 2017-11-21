@@ -2,6 +2,7 @@ data "template_file" "client_userdata_script" {
   template = "${file("${path.root}/../templates/user_data.sh")}"
 
   vars {
+    cloud_provider          = "azure"
     volume_name             = ""
     elasticsearch_data_dir  = ""
     elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
@@ -17,18 +18,21 @@ data "template_file" "client_userdata_script" {
     http_enabled            = "true"
     security_enabled        = "${var.security_enabled}"
     client_user             = "${var.client_user}"
-    client_pwd              = "${var.client_pwd}"
+    client_pwd              = "${random_string.vm-login-password.result}"
   }
 }
 
 resource "azurerm_virtual_machine_scale_set" "client-nodes" {
+//  count = "${var.clients_count == "0" ? "0" : "1"}"
+  count = 0
+
   name = "es-${var.es_cluster}-client-nodes"
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
   location = "${var.azure_location}"
   "sku" {
-    name = "Standard_DS4_v2" # TODO sizing & put in variables.tf
+    name = "Standard_A2_v2" # TODO sizing & put in variables.tf
     tier = "Standard"
-    capacity = "${var.datas_count}"
+    capacity = "${var.clients_count}"
   }
   upgrade_policy_mode = "Manual"
   overprovision = false
@@ -61,27 +65,13 @@ resource "azurerm_virtual_machine_scale_set" "client-nodes" {
     managed_disk_type = "Standard_LRS" # TODO
   }
 
-  // TODO use the below to replace password login with ssh keys
-  // https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed
-  //  os_profile_linux_config {
-  //    disable_password_authentication = true
-  //    ssh_keys {
-  //      path     = "/home/azureuser/.ssh/authorized_keys"
-  //      key_data = "${file("~/.ssh/id_rsa.pub")}"
-  //    }
-  //  }
-
-  extension {
-    name = "CustomScriptForLinux"
-    publisher = "Microsoft.OSTCExtensions"
-    type = "CustomScriptForLinux"
-    type_handler_version = "1.5"
-    settings = <<SETTINGS
-    {
-      "commandToExecute" : "echo 'hello'"
+    os_profile_linux_config {
+      disable_password_authentication = true
+      ssh_keys {
+        path     = "/home/ubuntu/.ssh/authorized_keys"
+        key_data = "${file(var.key_path)}"
+      }
     }
-    SETTINGS
-  }
 }
 
 # TODO keyvault https://docs.microsoft.com/en-us/azure/virtual-machines/linux/tutorial-automate-vm-deployment

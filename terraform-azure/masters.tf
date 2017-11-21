@@ -1,47 +1,47 @@
-data "template_file" "data_userdata_script" {
+data "template_file" "master_userdata_script" {
   template = "${file("${path.root}/../templates/user_data.sh")}"
 
   vars {
     cloud_provider          = "azure"
     volume_name             = ""
-    elasticsearch_data_dir  = "${var.elasticsearch_data_dir}"
+    elasticsearch_data_dir  = ""
     elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
-    heap_size               = "${var.data_heap_size}"
+    heap_size               = "${var.master_heap_size}"
     es_cluster              = "${var.es_cluster}"
     es_environment          = "${var.environment}-${var.es_cluster}"
     security_groups         = ""
     aws_region              = "${var.azure_location}"
     availability_zones      = ""
     minimum_master_nodes    = "${format("%d", var.masters_count / 2 + 1)}"
-    master                  = "false"
-    data                    = "true"
-    http_enabled            = "true"
+    master                  = "true"
+    data                    = "false"
+    http_enabled            = "false"
     security_enabled        = "${var.security_enabled}"
     client_user             = ""
     client_pwd              = ""
   }
 }
 
-resource "azurerm_virtual_machine_scale_set" "data-nodes" {
-//  count = "${var.datas_count == "0" ? "0" : "1"}"
-  count = 0
+resource "azurerm_virtual_machine_scale_set" "master-nodes" {
+//  count = "${var.masters_count == "0" ? "0" : "1"}"
+//  count = 0
 
-  name = "es-${var.es_cluster}-data-nodes"
+  name = "es-${var.es_cluster}-master-nodes"
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
   location = "${var.azure_location}"
   "sku" {
-    name = "${var.data_instance_type}"
+    name = "${var.master_instance_type}"
     tier = "Standard"
-    capacity = "${var.datas_count}"
+    capacity = "${var.masters_count}"
   }
   upgrade_policy_mode = "Manual"
   overprovision = false
 
   "os_profile" {
-    computer_name_prefix = "es-${var.es_cluster}-d-"
+    computer_name_prefix = "es-${var.es_cluster}-m-"
     admin_username = "ubuntu"
     admin_password = "${random_string.vm-login-password.result}"
-    custom_data = "${data.template_file.data_userdata_script.rendered}"
+    custom_data = "${data.template_file.master_userdata_script.rendered}"
   }
 
   "network_profile" {
@@ -51,7 +51,6 @@ resource "azurerm_virtual_machine_scale_set" "data-nodes" {
     "ip_configuration" {
       name = "es-${var.es_cluster}-ip-profile"
       subnet_id = "${azurerm_subnet.elasticsearch_subnet.id}"
-      //      load_balancer_backend_address_pool_ids = ["${azurerm_lb_backend_address_pool.elasticsearch.id}"]
     }
   }
 
@@ -72,12 +71,4 @@ resource "azurerm_virtual_machine_scale_set" "data-nodes" {
       key_data = "${file(var.key_path)}"
     }
   }
-
-//  storage_profile_data_disk {
-//    lun            = 0
-//    caching        = "ReadWrite"
-//    create_option  = "Empty"
-//    disk_size_gb   = "${var.elasticsearch_volume_size}"
-//    // managed_disk_type = "" TODO
-//  }
 }

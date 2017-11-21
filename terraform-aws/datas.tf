@@ -2,6 +2,7 @@ data "template_file" "data_userdata_script" {
   template = "${file("${path.root}/../templates/user_data.sh")}"
 
   vars {
+    cloud_provider          = "aws"
     volume_name             = "${var.volume_name}"
     elasticsearch_data_dir  = "${var.elasticsearch_data_dir}"
     elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
