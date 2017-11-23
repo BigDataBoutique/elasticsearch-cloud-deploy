@@ -41,6 +41,7 @@ fi
 if [ "${cloud_provider}" == "azure" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 network.host: _site_,localhost
+discovery.zen.ping.unicast.hosts: ["10.1.0.4", "10.1.0.5", "10.1.0.6", "10.1.0.7", "10.1.0.8"]
 EOF
 fi
 
@@ -86,7 +87,7 @@ fi
 
 if [ -f "/etc/nginx/nginx.conf" ]; then
     # Setup basic auth for nginx web front and start the service if exists
-    sudo htpasswd -bc /etc/nginx/conf.d/search.htpasswd ${client_user} ${client_pwd}
+    sudo htpasswd -bc /etc/nginx/conf.d/search.htpasswd "${client_user}" "${client_pwd}"
     sudo service nginx start
 fi
 

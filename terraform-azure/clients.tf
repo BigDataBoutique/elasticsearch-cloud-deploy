@@ -38,7 +38,7 @@ resource "azurerm_virtual_machine_scale_set" "client-nodes" {
   overprovision = false
 
   "os_profile" {
-    computer_name_prefix = "es-${var.es_cluster}-c-"
+    computer_name_prefix = "${var.es_cluster}-client"
     admin_username = "ubuntu"
     admin_password = "${random_string.vm-login-password.result}"
     custom_data = "${data.template_file.client_userdata_script.rendered}"
@@ -62,7 +62,7 @@ resource "azurerm_virtual_machine_scale_set" "client-nodes" {
   "storage_profile_os_disk" {
     caching        = "ReadWrite"
     create_option  = "FromImage"
-    managed_disk_type = "Standard_LRS" # TODO
+    managed_disk_type = "Standard_LRS"
   }
 
     os_profile_linux_config {

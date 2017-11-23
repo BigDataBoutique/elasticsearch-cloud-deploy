@@ -24,7 +24,6 @@ data "template_file" "master_userdata_script" {
 
 resource "azurerm_virtual_machine_scale_set" "master-nodes" {
 //  count = "${var.masters_count == "0" ? "0" : "1"}"
-//  count = 0
 
   name = "es-${var.es_cluster}-master-nodes"
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
@@ -38,7 +37,7 @@ resource "azurerm_virtual_machine_scale_set" "master-nodes" {
   overprovision = false
 
   "os_profile" {
-    computer_name_prefix = "es-${var.es_cluster}-m-"
+    computer_name_prefix = "${var.es_cluster}-master"
     admin_username = "ubuntu"
     admin_password = "${random_string.vm-login-password.result}"
     custom_data = "${data.template_file.master_userdata_script.rendered}"
