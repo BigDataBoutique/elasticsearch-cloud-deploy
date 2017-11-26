@@ -5,9 +5,9 @@
 
   "azure_client_id": "",
   "azure_client_secret": "",
-  "azure_resource_group_name": "",
-  "azure_storage_account": "",
   "azure_subscription_id": "",
   "azure_tenant_id": "",
-  "azure_location": "East US"
+  "azure_elasticsearch_image_name": "",
+  "azure_location": "East US",
+  "azure_resource_group_name": "packer-elasticsearch-images"
 }

@@ -1,4 +1,5 @@
 terraform.tfstate
+terraform.tfvars
 .idea/
 *.pem
 *.backup
