@@ -1,4 +1,6 @@
 {
+  "elasticsearch_version": "",
+
   "aws_region": "us-east-1",
   "aws_az": "us-east-1d",
   "aws_elasticsearch_ami": "",

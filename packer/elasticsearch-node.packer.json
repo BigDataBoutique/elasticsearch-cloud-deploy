@@ -72,6 +72,7 @@
     {
       "type": "shell",
       "script": "install-elasticsearch.sh",
+      "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
