@@ -13,3 +13,9 @@ chown kibana:kibana * -R
 systemctl daemon-reload
 systemctl enable kibana.service
 sudo service kibana start
+
+printf 'Waiting for Kibana to initialize...'
+until $(curl --output /dev/null --silent --head --fail http://localhost:5601); do
+    printf '.'
+    sleep 5
+done
