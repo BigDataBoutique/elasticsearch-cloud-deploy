@@ -97,7 +97,7 @@ if [ -f "/etc/kibana/kibana.yml" ]; then
     echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
     systemctl daemon-reload
     systemctl enable kibana.service
-    sudo service kibana start
+    sudo service kibana restart
 fi
 
 if [ -f "/etc/nginx/nginx.conf" ]; then

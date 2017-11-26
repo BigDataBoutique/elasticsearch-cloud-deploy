@@ -8,3 +8,8 @@ apt-get update && apt-get install kibana
 cd /usr/share/kibana/
 bin/kibana-plugin install x-pack
 chown kibana:kibana * -R
+
+# This needs to be here explicitly because of a long first-initialization time of Kibana
+systemctl daemon-reload
+systemctl enable kibana.service
+sudo service kibana start

@@ -10,18 +10,6 @@ Go to the packer folder and see the README there. Once you have the AMI IDs, ret
 aws ec2 create-key-pair --key-name elasticsearch --query 'KeyMaterial' --output text > elasticsearch.pem
 ```
 
-## Region and availability zones
-
-Specify the region to operate on, and at least 2 availability zones in that region.
-
-You can find the availability zones available to you by running:
-
-```
-aws ec2 describe-availability-zones
-```
-
-(first make sure awscli is installed and configured correctly to your account and default region)
-
 ## VPC
 
 Create a VPC, or use existing. You will need the VPC ID and private subnets IDs in it. 
@@ -32,6 +20,7 @@ Edit `variables.tf` to specify the following:
 
 * `aws_region` - the region where to launch the cluster in.
 * `availability_zones` - at least 2 availability zones in that region.
+* `es_cluster` - the name of the Elasticsearch cluster to launch.
 * `key_name` - the name of the key to use - that key needs to be handy so you can access the machines if needed.
 * `vpc_id` - the ID of the VPC to launch the cluster in.
 * `vpc_subnets` - the private subnet IDs within the VPC. The order in which you type these need to match the order of their availability zones as typed in `availability_zones` above.
@@ -92,7 +81,7 @@ Client nodes listen on port 8080 and are password protected. Access is managed b
 On client nodes you will find:
 
 * Kibana access is direct on port 8080 (http://host:8080)
-* [Kopf](https://github.com/lmenezes/elasticsearch-kopf) (a cluster management UI) is available on host:8080/kopf/
+* [Cerebro](https://github.com/lmenezes/cerebro) (a cluster management UI) is available on http://host:8080/cerebro/
 * For direct Elasticsearch access, go to host:8080/es/
 
 You can pull the list of instances by their state and role using aws-cli:
