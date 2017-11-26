@@ -82,7 +82,7 @@ fi
 
 if [ -f "/etc/nginx/nginx.conf" ]; then
     # Setup basic auth for nginx web front and start the service if exists
-    sudo htpasswd -bc /etc/nginx/conf.d/search.htpasswd ${client_user} ${client_pwd}
+    sudo htpasswd -bc /etc/nginx/conf.d/search.htpasswd ${client_user} "${client_pwd}"
     sudo service nginx start
 fi
 
