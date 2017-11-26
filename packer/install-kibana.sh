@@ -8,7 +8,3 @@ apt-get update && apt-get install kibana
 cd /usr/share/kibana/
 bin/kibana-plugin install x-pack
 chown kibana:kibana * -R
-
-systemctl daemon-reload
-systemctl enable kibana.service
-systemctl start kibana

@@ -5,10 +5,3 @@ echo "deb https://packagecloud.io/grafana/stable/debian/ jessie main" | tee -a /
 curl https://packagecloud.io/gpg.key | apt-key add -
 
 sudo apt-get update && sudo apt-get install grafana
-
-rm /etc/grafana/grafana.ini
-printf "[server]\ndomain = elasticsearch-cluster-test-ssh.eastus.cloudapp.azure.com\nroot_url = %(protocol)s://%(domain)s:/grafana\n" | tee -a /etc/grafana/grafana.ini
-
-systemctl daemon-reload
-systemctl enable grafana-server.service
-systemctl start grafana-server

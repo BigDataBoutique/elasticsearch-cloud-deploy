@@ -23,7 +23,7 @@ data "template_file" "master_userdata_script" {
 }
 
 resource "azurerm_virtual_machine_scale_set" "master-nodes" {
-//  count = "${var.masters_count == "0" ? "0" : "1"}"
+  count = "${var.masters_count == "0" ? "0" : "1"}"
 
   name = "es-${var.es_cluster}-master-nodes"
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
@@ -60,7 +60,7 @@ resource "azurerm_virtual_machine_scale_set" "master-nodes" {
   "storage_profile_os_disk" {
     caching        = "ReadWrite"
     create_option  = "FromImage"
-    managed_disk_type = "Standard_LRS" # TODO
+    managed_disk_type = "Standard_LRS"
   }
 
   os_profile_linux_config {

@@ -22,15 +22,10 @@ data "template_file" "singlenode_userdata_script" {
   }
 }
 
-resource "azurerm_public_ip" "single-node" {
-  name                         = "es-${var.es_cluster}-singlenode-public-ip"
-  location                     = "${var.azure_location}"
-  resource_group_name          = "${azurerm_resource_group.elasticsearch.name}"
-  public_ip_address_allocation = "static"
-  domain_name_label            = "${azurerm_resource_group.elasticsearch.name}-ssh"
-}
-
 resource "azurerm_network_interface" "single-node" {
+  // Only create if it's a single-node configuration
+  count = "${var.masters_count == "0" && var.datas_count == "0" ? "1" : "0"}"
+
   name                = "es-${var.es_cluster}-singlenode-nic"
   location            = "${var.azure_location}"
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
@@ -39,13 +34,13 @@ resource "azurerm_network_interface" "single-node" {
     name                          = "es-${var.es_cluster}-singlenode-ip"
     subnet_id                     = "${azurerm_subnet.elasticsearch_subnet.id}"
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id          = "${azurerm_public_ip.single-node.id}"
+    public_ip_address_id          = "${azurerm_public_ip.clients.id}"
   }
 }
 
 resource "azurerm_virtual_machine" "single-node" {
   // Only create if it's a single-node configuration
-  //  count = "${var.masters_count == "0" && var.datas_count == "0" ? "1" : "0"}"
+  count = "${var.masters_count == "0" && var.datas_count == "0" ? "1" : "0"}"
 
   name                  = "es-${var.es_cluster}-singlenode"
   location              = "${var.azure_location}"

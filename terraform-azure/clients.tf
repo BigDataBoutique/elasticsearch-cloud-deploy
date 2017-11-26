@@ -23,14 +23,13 @@ data "template_file" "client_userdata_script" {
 }
 
 resource "azurerm_virtual_machine_scale_set" "client-nodes" {
-//  count = "${var.clients_count == "0" ? "0" : "1"}"
-  count = 0
+  count = "${var.clients_count == "0" ? "0" : "1"}"
 
   name = "es-${var.es_cluster}-client-nodes"
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
   location = "${var.azure_location}"
   "sku" {
-    name = "Standard_A2_v2" # TODO sizing & put in variables.tf
+    name = "${var.client_instance_type}"
     tier = "Standard"
     capacity = "${var.clients_count}"
   }
@@ -51,7 +50,7 @@ resource "azurerm_virtual_machine_scale_set" "client-nodes" {
     "ip_configuration" {
       name = "es-${var.es_cluster}-ip-profile"
       subnet_id = "${azurerm_subnet.elasticsearch_subnet.id}"
-      //      load_balancer_backend_address_pool_ids = ["${azurerm_lb_backend_address_pool.elasticsearch.id}"]
+      load_balancer_backend_address_pool_ids = ["${azurerm_lb_backend_address_pool.clients-lb-backend.id}"]
     }
   }
 
@@ -65,13 +64,11 @@ resource "azurerm_virtual_machine_scale_set" "client-nodes" {
     managed_disk_type = "Standard_LRS"
   }
 
-    os_profile_linux_config {
-      disable_password_authentication = true
-      ssh_keys {
-        path     = "/home/ubuntu/.ssh/authorized_keys"
-        key_data = "${file(var.key_path)}"
-      }
+  os_profile_linux_config {
+    disable_password_authentication = true
+    ssh_keys {
+      path     = "/home/ubuntu/.ssh/authorized_keys"
+      key_data = "${file(var.key_path)}"
     }
+  }
 }
-
-# TODO keyvault https://docs.microsoft.com/en-us/azure/virtual-machines/linux/tutorial-automate-vm-deployment

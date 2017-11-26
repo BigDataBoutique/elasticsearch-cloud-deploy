@@ -21,12 +21,7 @@ variable "azure_tenant_id" {
 
 variable "es_cluster" {
   description = "Name of the elasticsearch cluster, used in node discovery"
-  default = "test"
-}
-
-variable "resource_group_name" {
-  type = "string"
-  default = "elasticsearch-cluster"
+  default = "my-cluster"
 }
 
 variable "key_path" {
@@ -48,13 +43,22 @@ variable "master_instance_type" {
   default = "Standard_A2_v2"
 }
 
+variable "client_instance_type" {
+  type = "string"
+  default = "Standard_A2_v2"
+}
+
 variable "elasticsearch_volume_size" {
   type = "string"
   default = "100" # gb
 }
 
 variable "use_instance_storage" {
-  default = true
+  default = "true"
+}
+
+variable "associate_public_ip" {
+  default = "true"
 }
 
 variable "elasticsearch_data_dir" {
@@ -77,11 +81,11 @@ variable "master_heap_size" {
 }
 
 variable "masters_count" {
-  default = "3"
+  default = "1"
 }
 
 variable "datas_count" {
-  default = "2"
+  default = "1"
 }
 
 variable "clients_count" {
@@ -96,10 +100,4 @@ variable "security_enabled" {
 # client nodes have nginx installed on them, these credentials are used for basic auth
 variable "client_user" {
   default = "exampleuser"
-}
-
-# the ability to add additional existing security groups. In our case
-# we have consul running as agents on the box
-variable "additional_security_groups" {
-  default = ""
 }

@@ -23,8 +23,7 @@ data "template_file" "data_userdata_script" {
 }
 
 resource "azurerm_virtual_machine_scale_set" "data-nodes" {
-//  count = "${var.datas_count == "0" ? "0" : "1"}"
-  count = 0
+  count = "${var.datas_count == "0" ? "0" : "1"}"
 
   name = "es-${var.es_cluster}-data-nodes"
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
@@ -47,11 +46,11 @@ resource "azurerm_virtual_machine_scale_set" "data-nodes" {
   "network_profile" {
     name = "es-${var.es_cluster}-net-profile"
     primary = true
+    accelerated_networking = true
 
     "ip_configuration" {
       name = "es-${var.es_cluster}-ip-profile"
       subnet_id = "${azurerm_subnet.elasticsearch_subnet.id}"
-      //      load_balancer_backend_address_pool_ids = ["${azurerm_lb_backend_address_pool.elasticsearch.id}"]
     }
   }
 
@@ -73,11 +72,12 @@ resource "azurerm_virtual_machine_scale_set" "data-nodes" {
     }
   }
 
+
 //  storage_profile_data_disk {
 //    lun            = 0
 //    caching        = "ReadWrite"
 //    create_option  = "Empty"
 //    disk_size_gb   = "${var.elasticsearch_volume_size}"
-//    // managed_disk_type = "" TODO
+//    managed_disk_type = "Standard_LRS"
 //  }
 }

@@ -15,9 +15,7 @@ node.data: ${data}
 node.ingest: ${data}
 http.enabled: ${http_enabled}
 xpack.security.enabled: ${security_enabled}
-
 path.logs: ${elasticsearch_logs_dir}
-
 EOF
 
 
@@ -25,7 +23,6 @@ if [ "${cloud_provider}" == "aws" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 
 network.host: _ec2:privateIpv4_,localhost
-
 plugin.mandatory: discovery-ec2
 cloud.aws.region: ${aws_region}
 cloud.aws.protocol: http # no need in HTTPS for internal AWS calls
@@ -41,7 +38,10 @@ fi
 if [ "${cloud_provider}" == "azure" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 network.host: _site_,localhost
-discovery.zen.ping.unicast.hosts: ["10.1.0.4", "10.1.0.5", "10.1.0.6", "10.1.0.7", "10.1.0.8"]
+
+# For discovery we are using predictable hostnames (thanks for the computer name prefix), but could just as well use the
+# predictable subnet addresses starting at 10.1.0.5.
+discovery.zen.ping.unicast.hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-master000002", "${es_cluster}-data000000", "${es_cluster}-data000001"]
 EOF
 fi
 
@@ -80,14 +80,9 @@ if [ -n "${elasticsearch_data_dir}" ]; then
     fi
 fi
 
-# Setup x-pack security also on Kibana configs where applicable
-if [ -f "/etc/kibana/kibana.yml" ]; then
-    echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
-fi
-
 if [ -f "/etc/nginx/nginx.conf" ]; then
     # Setup basic auth for nginx web front and start the service if exists
-    sudo htpasswd -bc /etc/nginx/conf.d/search.htpasswd "${client_user}" "${client_pwd}"
+    sudo htpasswd -bc /etc/nginx/conf.d/search.htpasswd ${client_user} ${client_pwd}
     sudo service nginx start
 fi
 
@@ -95,3 +90,24 @@ fi
 sudo /bin/systemctl daemon-reload
 sudo /bin/systemctl enable elasticsearch.service
 sudo service elasticsearch start
+
+
+# Setup x-pack security also on Kibana configs where applicable
+if [ -f "/etc/kibana/kibana.yml" ]; then
+    echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
+    systemctl daemon-reload
+    systemctl enable kibana.service
+    sudo service kibana start
+fi
+
+if [ -f "/etc/nginx/nginx.conf" ]; then
+    sudo rm /etc/grafana/grafana.ini
+    cat <<'EOF' >>/etc/grafana/grafana.ini
+[security]
+admin_user = ${client_user}
+admin_password = ${client_pwd}
+EOF
+    sudo /bin/systemctl daemon-reload
+    sudo /bin/systemctl enable grafana-server.service
+    sudo service grafana-server start
+fi

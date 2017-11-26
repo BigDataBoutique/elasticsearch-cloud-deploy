@@ -6,14 +6,14 @@ output "kibana_image_id" {
   value = "${data.azurerm_image.kibana.name}"
 }
 
-output "singlenode_public_dns" {
-  value = "${azurerm_public_ip.single-node.fqdn}"
+output "public_dns" {
+  value = "${azurerm_public_ip.clients.fqdn}"
 }
 
-output "singlenode_public_ip" {
-  value = "${azurerm_public_ip.single-node.public_ip_address_allocation}"
+output "public_ip_address" {
+  value = "${azurerm_public_ip.clients.ip_address}"
 }
 
-output "vm-password" {
+output "vm_password" {
   value = "${random_string.vm-login-password.result}"
 }
