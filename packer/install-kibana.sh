@@ -4,7 +4,16 @@
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 
 echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list
-apt-get update && apt-get install kibana
+
+apt-get update
+if [ -z "$ES_VERSION" ]; then
+    echo "Installing latest Kibana version"
+    apt-get install kibana
+else
+    echo "Installing Kibana version $ES_VERSION"
+    apt-get install kibana=$ES_VERSION
+fi
+
 cd /usr/share/kibana/
 bin/kibana-plugin install x-pack
 chown kibana:kibana * -R
