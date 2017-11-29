@@ -2,3 +2,4 @@ bootstrap.memory_lock: true
 node.name: ${HOSTNAME}
 
 action.destructive_requires_name: true
+indices.fielddata.cache.size: 1% # default is unbounded
