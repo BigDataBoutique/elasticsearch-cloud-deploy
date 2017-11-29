@@ -1,4 +1,4 @@
 bootstrap.memory_lock: true
 node.name: ${HOSTNAME}
 
-action.disable_delete_all_indices: true
+action.destructive_requires_name: true
