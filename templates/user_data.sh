@@ -87,9 +87,9 @@ if [ -f "/etc/nginx/nginx.conf" ]; then
 fi
 
 # Start Elasticsearch
-sudo /bin/systemctl daemon-reload
-sudo /bin/systemctl enable elasticsearch.service
-sudo service elasticsearch start
+systemctl daemon-reload
+systemctl enable elasticsearch.service
+systemctl start elasticsearch.service
 
 
 # Setup x-pack security also on Kibana configs where applicable
@@ -110,4 +110,11 @@ EOF
     sudo /bin/systemctl daemon-reload
     sudo /bin/systemctl enable grafana-server.service
     sudo service grafana-server start
+fi
+
+sleep 60
+if [ `systemctl is-failed elasticsearch.service` == 'failed' ];
+then
+    log "Elasticsearch unit failed to start"
+    exit 1
 fi
