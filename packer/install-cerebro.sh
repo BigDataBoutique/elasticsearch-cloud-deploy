@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export CEREBRO_VERSION="0.7.1"
+export CEREBRO_VERSION="0.7.2"
 
 wget https://github.com/lmenezes/cerebro/releases/download/v${CEREBRO_VERSION}/cerebro-${CEREBRO_VERSION}.tgz
 mkdir /usr/share/cerebro
