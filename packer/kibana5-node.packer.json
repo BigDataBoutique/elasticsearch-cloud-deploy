@@ -15,7 +15,17 @@
       "run_tags": {
         "role": "packer"
       },
-      "source_ami": "{{user `aws_elasticsearch_ami`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "elasticsearch5-*",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "self"
+        ],
+        "most_recent": true
+      },
       "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
