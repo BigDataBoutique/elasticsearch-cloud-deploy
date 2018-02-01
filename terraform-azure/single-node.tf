@@ -17,6 +17,7 @@ data "template_file" "singlenode_userdata_script" {
     data                    = "true"
     http_enabled            = "true"
     security_enabled        = "${var.security_enabled}"
+    monitoring_enabled      = "${var.monitoring_enabled}"
     client_user             = "${var.client_user}"
     client_pwd              = "${random_string.vm-login-password.result}"
   }

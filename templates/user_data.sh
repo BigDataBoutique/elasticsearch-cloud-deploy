@@ -15,6 +15,7 @@ node.data: ${data}
 node.ingest: ${data}
 http.enabled: ${http_enabled}
 xpack.security.enabled: ${security_enabled}
+xpack.monitoring.enabled: ${monitoring_enabled}
 path.data: ${elasticsearch_data_dir}
 path.logs: ${elasticsearch_logs_dir}
 EOF
@@ -106,6 +107,7 @@ systemctl start elasticsearch.service
 # Setup x-pack security also on Kibana configs where applicable
 if [ -f "/etc/kibana/kibana.yml" ]; then
     echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
+    echo "xpack.monitoring.enabled: ${monitoring_enabled}" | sudo tee -a /etc/kibana/kibana.yml
     systemctl daemon-reload
     systemctl enable kibana.service
     sudo service kibana restart

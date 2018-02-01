@@ -17,6 +17,7 @@ data "template_file" "master_userdata_script" {
     data                    = "false"
     http_enabled            = "false"
     security_enabled        = "${var.security_enabled}"
+    monitoring_enabled      = "${var.monitoring_enabled}"
     client_user             = ""
     client_pwd              = ""
   }
