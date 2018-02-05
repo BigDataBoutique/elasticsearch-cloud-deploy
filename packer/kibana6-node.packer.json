@@ -1,0 +1,81 @@
+{
+  "variables": {
+    "aws_elasticsearch_ami": "{{env `ES5_AMI`}}"
+  },
+  "description": "Kibana Image",
+  "builders": [
+    {
+      "type": "amazon-ebs",
+
+      "ami_name": "kibana6-{{isotime | clean_ami_name}}",
+      "availability_zone": "{{user `aws_az`}}",
+      "iam_instance_profile": "packer",
+      "instance_type": "t2.medium",
+      "region": "{{user `aws_region`}}",
+      "run_tags": {
+        "role": "packer"
+      },
+      "source_ami": "{{user `aws_elasticsearch_ami`}}",
+      "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
+      "ssh_timeout": "10m",
+      "ssh_username": "ubuntu",
+      "tags": {
+        "ImageType": "kibana-packer-image"
+      },
+      "ena_support": true
+    },
+    {
+      "type": "azure-arm",
+
+      "client_id": "{{user `azure_client_id`}}",
+      "client_secret": "{{user `azure_client_secret`}}",
+      "tenant_id": "{{user `azure_tenant_id`}}",
+      "subscription_id": "{{user `azure_subscription_id`}}",
+
+      "managed_image_resource_group_name": "{{user `azure_resource_group_name`}}",
+      "managed_image_name": "kibana6-{{isotime \"2006-01-02T030405\"}}",
+
+      "os_type": "Linux",
+      "custom_managed_image_name": "{{user `azure_elasticsearch_image_name`}}",
+      "custom_managed_image_resource_group_name":"{{user `azure_resource_group_name`}}",
+
+      "location": "{{user `azure_location`}}",
+      "vm_size": "Standard_DS2_v2"
+    },
+    {
+      "type": "googlecompute",
+      "account_file": "{{user `gcp_account_file`}}",
+      "project_id": "{{user `gcp_project_id`}}",
+      "source_image": "{{user `gcp_elasticsearch_image`}}",
+      "zone": "{{user `gcp_zone`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "install-kibana6.sh",
+      "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "script": "install-grafana.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "script": "install-cerebro.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "file",
+      "source": "../templates/nginx-client.conf",
+      "destination": "nginx-client.conf"
+    },
+    {
+      "type": "shell",
+      "script": "install-nginx.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    }
+  ]
+}

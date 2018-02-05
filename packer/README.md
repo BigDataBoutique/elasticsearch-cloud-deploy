@@ -81,7 +81,9 @@ To learn more about using Packer on Azure see https://docs.microsoft.com/en-us/a
 Similarly, using the Azure CLI is going to look something like below:
 
 ```bash
-az group create -n packer-elasticsearch-images -l eastus
+export rgName=packer-elasticsearch-images
+az group create -n ${rgName} -l eastus
+
 az ad sp create-for-rbac --query "{ client_id: appId, client_secret: password, tenant_id: tenant }"
 # outputs client_id, client_secret and tenant_id
 az account show --query "{ subscription_id: id }"
@@ -93,8 +95,8 @@ az account show --query "{ subscription_id: id }"
 Building the AMIs is done using the following commands:
 
 ```bash
-packer build -only=amazon-ebs -var-file=variables.json elasticsearch-node.packer.json
-packer build -only=amazon-ebs -var-file=variables.json kibana-node.packer.json
+packer build -only=amazon-ebs -var-file=variables.json elasticsearch6-node.packer.json
+packer build -only=amazon-ebs -var-file=variables.json kibana6-node.packer.json
 ```
 
 Replace the `-only` parameter to `azure-arm` to build images for Azure instead of AWS.

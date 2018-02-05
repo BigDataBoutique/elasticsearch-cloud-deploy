@@ -3,7 +3,7 @@
   "builders": [
     {
       "type": "amazon-ebs",
-      "ami_name": "elasticsearch5-{{isotime | clean_ami_name}}",
+      "ami_name": "elasticsearch6-{{isotime | clean_ami_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
       "instance_type": "t2.micro",
@@ -37,7 +37,7 @@
       "subscription_id": "{{user `azure_subscription_id`}}",
 
       "managed_image_resource_group_name": "{{user `azure_resource_group_name`}}",
-      "managed_image_name": "elasticsearch5-{{isotime \"2006-01-02T030405\"}}",
+      "managed_image_name": "elasticsearch6-{{isotime \"2006-01-02T030405\"}}",
 
       "os_type": "Linux",
       "image_publisher": "Canonical",
@@ -46,6 +46,13 @@
 
       "location": "{{user `azure_location`}}",
       "vm_size": "Standard_DS2_v2"
+    },
+    {
+      "type": "googlecompute",
+      "account_file": "{{user `gcp_account_file`}}",
+      "project_id": "{{user `gcp_project_id`}}",
+      "source_image": "ubuntu-1604-xenial-v20180126",
+      "zone": "{{user `gcp_zone`}}"
     }
   ],
   "provisioners": [
@@ -66,7 +73,7 @@
     },
     {
       "type": "shell",
-      "script": "install-elasticsearch.sh",
+      "script": "install-elasticsearch6.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },

@@ -15,6 +15,7 @@ node.data: ${data}
 node.ingest: ${data}
 http.enabled: ${http_enabled}
 xpack.security.enabled: ${security_enabled}
+path.data: ${elasticsearch_data_dir}
 path.logs: ${elasticsearch_logs_dir}
 EOF
 
@@ -35,14 +36,25 @@ discovery:
 EOF
 fi
 
+# Azure doesn't have a proper discovery plugin, hence we are going old-school and relying on scaleset name prefixes
 if [ "${cloud_provider}" == "azure" ]; then
-cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+        cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 network.host: _site_,localhost
 
 # For discovery we are using predictable hostnames (thanks for the computer name prefix), but could just as well use the
 # predictable subnet addresses starting at 10.1.0.5.
+EOF
+
+    # avoiding discovery noise in single-node scenario
+    if [ "${minimum_master_nodes}" == "1" ]; then
+        cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+discovery.zen.ping.unicast.hosts: ["${es_cluster}-master000000", "${es_cluster}-data000000"]
+EOF
+    else
+        cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 discovery.zen.ping.unicast.hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-master000002", "${es_cluster}-data000000", "${es_cluster}-data000001"]
 EOF
+    fi
 fi
 
 cat <<'EOF' >>/etc/security/limits.conf
@@ -69,11 +81,10 @@ sudo mkdir -p ${elasticsearch_logs_dir}
 sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 
 # we are assuming volume is declared and attached when data_dir is passed to the script
-if [ -n "${elasticsearch_data_dir}" ]; then
+if [ "true" == "${data}" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
-    sudo sed -i '$ a path.data: ${elasticsearch_data_dir}' /etc/elasticsearch/elasticsearch.yml
-    if [ "${cloud_provider}" == "aws" ]; then
+    if [[ "${cloud_provider}" == "aws" && -n "${volume_name}" ]]; then
         sudo mkfs -t ext4 ${volume_name}
         sudo mount ${volume_name} ${elasticsearch_data_dir}
         sudo echo "${volume_name} ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" >> /etc/fstab

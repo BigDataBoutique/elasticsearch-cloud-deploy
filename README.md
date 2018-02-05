@@ -8,8 +8,8 @@ Features:
 * Client node with Kibana, Kopf and authenticated Elasticsearch access
 * DNS and load-balancing access to client nodes
 * Sealed from external access, only accessible via password-protected external facing client nodes
-* AWS deployment support
-* Azure deployment (coming soon)
+* AWS deployment support (under `terraform-aws`)
+* Azure deployment (under `terraform-azure`)
 * Google Cloud Platform deployment (coming soon)
 
 ## Usage
