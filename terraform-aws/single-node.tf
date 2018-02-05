@@ -1,5 +1,5 @@
 data "template_file" "single_node_userdata_script" {
-  template = "${file("${path.root}/../templates/user_data.sh")}"
+  template = "${file("${path.module}/../templates/user_data.sh")}"
 
   vars {
     cloud_provider          = "aws"
