@@ -46,6 +46,13 @@
 
       "location": "{{user `azure_location`}}",
       "vm_size": "Standard_DS2_v2"
+    },
+    {
+      "type": "googlecompute",
+      "account_file": "{{user `gcp_account_file`}}",
+      "project_id": "{{user `gcp_project_id`}}",
+      "source_image": "ubuntu-1604-xenial-v20180126",
+      "zone": "{{user `gcp_zone`}}"
     }
   ],
   "provisioners": [
