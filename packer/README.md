@@ -81,7 +81,9 @@ To learn more about using Packer on Azure see https://docs.microsoft.com/en-us/a
 Similarly, using the Azure CLI is going to look something like below:
 
 ```bash
-az group create -n packer-elasticsearch-images -l eastus
+export rgName=packer-elasticsearch-images
+az group create -n ${rgName} -l eastus
+
 az ad sp create-for-rbac --query "{ client_id: appId, client_secret: password, tenant_id: tenant }"
 # outputs client_id, client_secret and tenant_id
 az account show --query "{ subscription_id: id }"
