@@ -1,12 +1,11 @@
-# TODO pull via a prefix query
-# https://github.com/terraform-providers/terraform-provider-azurerm/issues/577
-
 data "azurerm_image" "elasticsearch" {
-  name                = "elasticsearch5-2017-11-17T013212"
   resource_group_name = "packer-elasticsearch-images"
+  name_regex          = "^elasticsearch6-\\d{4,4}-\\d{2,2}-\\d{2,2}T\\d{6,6}"
+  sort_descending     = true
 }
 
 data "azurerm_image" "kibana" {
-  name                = "kibana5-2017-11-23T074321"
   resource_group_name = "packer-elasticsearch-images"
+  name_regex          = "^kibana6-\\d{4,4}-\\d{2,2}-\\d{2,2}T\\d{6,6}"
+  sort_descending     = true
 }

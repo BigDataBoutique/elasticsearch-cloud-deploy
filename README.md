@@ -2,6 +2,8 @@
 
 This repository contains a set of tools and scripts to deploy an Elasticsearch cluster on the cloud, using best-practices and state of the art tooling.
 
+You need to use the latest version of Terraform and Packer for all features to work correctly.
+
 Features:
 
 * Deployment of data and master nodes as separate nodes
