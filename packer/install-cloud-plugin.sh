@@ -14,3 +14,9 @@ if `grep -q unknown-245 /var/lib/dhcp/dhclient.eth0.leases`; then
   bin/elasticsearch-plugin install --batch repository-azure
   bin/elasticsearch-plugin install --batch discovery-azure-classic
 fi
+
+# install Google Compute specific plugins only if running on GCP
+if (dmidecode -s system-product-name | grep -q "Google Compute Engine"); then
+  bin/elasticsearch-plugin install --batch discovery-gce
+  bin/elasticsearch-plugin install --batch repository-gcs
+fi

@@ -8,10 +8,10 @@
   "azure_client_secret": "",
   "azure_subscription_id": "",
   "azure_tenant_id": "",
+
   "gcp_zone": "us-central1-a",
   "gcp_project_id": "elasticsearch",
   "gcp_account_file": ".gcp_account.json",
-  "gcp_elasticsearch_image": "",
 
   "azure_location": "East US",
   "azure_resource_group_name": "packer-elasticsearch-images",

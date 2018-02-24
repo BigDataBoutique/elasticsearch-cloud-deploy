@@ -51,6 +51,17 @@
 
       "location": "{{user `azure_location`}}",
       "vm_size": "Standard_DS2_v2"
+    },
+    {
+      "type": "googlecompute",
+      "account_file": "{{user `gcp_account_file`}}",
+      "project_id": "{{user `gcp_project_id`}}",
+      "source_image_family": "elasticsearch-5",
+      "zone": "{{user `gcp_zone`}}",
+      "image_family": "kibana-5",
+      "image_name": "kibana5-{{isotime \"20060102t030405\"}}",
+      "preemptible": true,
+      "ssh_username": "ubuntu"
     }
   ],
   "provisioners": [

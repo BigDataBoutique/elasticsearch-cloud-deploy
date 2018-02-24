@@ -56,8 +56,12 @@
       "type": "googlecompute",
       "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
-      "source_image": "{{user `gcp_elasticsearch_image`}}",
-      "zone": "{{user `gcp_zone`}}"
+      "source_image_family": "elasticsearch-6",
+      "zone": "{{user `gcp_zone`}}",
+      "image_family": "kibana-6",
+      "image_name": "kibana6-{{isotime \"20060102t030405\"}}",
+      "preemptible": true,
+      "ssh_username": "ubuntu"
     }
   ],
   "provisioners": [

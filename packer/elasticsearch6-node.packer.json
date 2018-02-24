@@ -51,8 +51,12 @@
       "type": "googlecompute",
       "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
-      "source_image": "ubuntu-1604-xenial-v20180126",
-      "zone": "{{user `gcp_zone`}}"
+      "source_image_family": "ubuntu-1604-lts",
+      "zone": "{{user `gcp_zone`}}",
+      "image_family": "elasticsearch-6",
+      "image_name": "elasticsearch6-{{isotime \"20060102t030405\"}}",
+      "preemptible": true,
+      "ssh_username": "ubuntu"
     }
   ],
   "provisioners": [
