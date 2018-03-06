@@ -90,6 +90,10 @@ az account show --query "{ subscription_id: id }"
 # outputs subscription_id
 ```
 
+## Google Cloud Platform
+
+gcloud and retrieving the account.json file
+
 ## Building
 
 Building the AMIs is done using the following commands:
