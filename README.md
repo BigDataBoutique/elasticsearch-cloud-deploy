@@ -2,12 +2,14 @@
 
 This repository contains a set of tools and scripts to deploy an Elasticsearch cluster on the cloud, using best-practices and state of the art tooling.
 
+***Note:*** This branch supports Elasticsearch 6.x only. For Elasticsearch 5.x see the [elasticsearch-5.x](https://github.com/synhershko/elasticsearch-cloud-deploy/tree/elasticsearch-5.x) branch.
+
 You need to use the latest version of Terraform and Packer for all features to work correctly.
 
 Features:
 
 * Deployment of data and master nodes as separate nodes
-* Client node with Kibana, Kopf and authenticated Elasticsearch access
+* Client node with Kibana, Cerebro, Grafana and authenticated Elasticsearch access
 * DNS and load-balancing access to client nodes
 * Sealed from external access, only accessible via password-protected external facing client nodes
 * AWS deployment support (under `terraform-aws`)
