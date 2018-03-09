@@ -5,7 +5,7 @@ provider "aws" {
 resource "random_string" "vm-login-password" {
   length = 16
   special = true
-  override_special = "!@#$%&-_"
+  override_special = "!@#%&-_"
 }
 
 data "aws_availability_zones" "available" {}
