@@ -25,14 +25,13 @@ cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 
 network.host: _ec2:privateIpv4_,localhost
 plugin.mandatory: discovery-ec2
-cloud.aws.region: ${aws_region}
-cloud.aws.protocol: http # no need in HTTPS for internal AWS calls
 discovery:
     zen.hosts_provider: ec2
     ec2.groups: ${security_groups}
     ec2.host_type: private_ip
     ec2.tag.Cluster: ${es_environment}
     ec2.availability_zones: ${availability_zones}
+    ec2.protocol: http # no need in HTTPS for internal AWS calls
 EOF
 fi
 

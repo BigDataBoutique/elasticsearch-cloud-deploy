@@ -9,7 +9,6 @@ data "template_file" "client_userdata_script" {
     es_cluster              = "${var.es_cluster}"
     es_environment          = "${var.environment}-${var.es_cluster}"
     security_groups         = "${aws_security_group.elasticsearch_security_group.id}"
-    aws_region              = "${var.aws_region}"
     availability_zones      = "${join(",", coalescelist(var.availability_zones, data.aws_availability_zones.available.names))}"
     minimum_master_nodes    = "${format("%d", var.masters_count / 2 + 1)}"
     master                  = "false"
