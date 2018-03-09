@@ -19,7 +19,7 @@ data "template_file" "single_node_userdata_script" {
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"
     client_user             = "${var.client_user}"
-    client_pwd              = "${var.client_pwd}"
+    client_pwd              = "${random_string.vm-login-password.result}"
   }
 }
 

@@ -95,9 +95,6 @@ variable "monitoring_enabled" {
 variable "client_user" {
   default = "exampleuser"
 }
-variable "client_pwd" {
-  default = "changeme"
-}
 
 # the ability to add additional existing security groups. In our case
 # we have consul running as agents on the box
