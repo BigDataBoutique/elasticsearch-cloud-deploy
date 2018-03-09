@@ -29,21 +29,17 @@ variable "environment" {
 
 variable "data_instance_type" {
   type = "string"
-  default = "c4.2xlarge"
+  default = "c5.2xlarge"
 }
 
 variable "master_instance_type" {
   type = "string"
-  default = "m4.large"
+  default = "c5.large"
 }
 
 variable "elasticsearch_volume_size" {
   type = "string"
   default = "100" # gb
-}
-
-variable "volume_name" {
-  default = "/dev/xvdh"
 }
 
 variable "volume_encryption" {
@@ -61,7 +57,7 @@ variable "elasticsearch_logs_dir" {
 # default elasticsearch heap size
 variable "data_heap_size" {
   type = "string"
-  default = "7g"
+  default = "8g"
 }
 
 variable "master_heap_size" {

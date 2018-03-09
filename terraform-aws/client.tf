@@ -3,7 +3,6 @@ data "template_file" "client_userdata_script" {
 
   vars {
     cloud_provider          = "aws"
-    volume_name             = ""
     elasticsearch_data_dir  = "/var/lib/elasticsearch"
     elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
     heap_size               = "1g"

@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
@@ -84,12 +83,13 @@ sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 # we are assuming volume is declared and attached when data_dir is passed to the script
 if [ "true" == "${data}" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
-    sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
-    if [[ "${cloud_provider}" == "aws" && -n "${volume_name}" ]]; then
-        sudo mkfs -t ext4 ${volume_name}
-        sudo mount ${volume_name} ${elasticsearch_data_dir}
-        sudo echo "${volume_name} ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" >> /etc/fstab
+    # TODO should behave smarter to identify local disk or name of EBS instance, see https://serverfault.com/a/602225
+    if [[ "${cloud_provider}" == "aws" && -n "/dev/nvme1n1" ]]; then
+        sudo mkfs -t ext4 /dev/nvme1n1
+        sudo mount /dev/nvme1n1 ${elasticsearch_data_dir}
+        echo "/dev/nvme1n1 ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
     fi
+    sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
 fi
 
 if [ -f "/etc/nginx/nginx.conf" ]; then
@@ -128,6 +128,6 @@ fi
 sleep 60
 if [ `systemctl is-failed elasticsearch.service` == 'failed' ];
 then
-    log "Elasticsearch unit failed to start"
+    echo "Elasticsearch unit failed to start"
     exit 1
 fi

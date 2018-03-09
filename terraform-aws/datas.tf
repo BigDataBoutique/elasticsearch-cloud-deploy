@@ -3,7 +3,6 @@ data "template_file" "data_userdata_script" {
 
   vars {
     cloud_provider          = "aws"
-    volume_name             = "${var.volume_name}"
     elasticsearch_data_dir  = "${var.elasticsearch_data_dir}"
     elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
     heap_size               = "${var.data_heap_size}"
@@ -40,7 +39,7 @@ resource "aws_launch_configuration" "data" {
   }
 
   ebs_block_device {
-    device_name = "${var.volume_name}"
+    device_name = "/dev/xvdh"
     volume_size = "${var.elasticsearch_volume_size}"
     encrypted = "${var.volume_encryption}"
   }
