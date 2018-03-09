@@ -66,10 +66,17 @@ resource "aws_security_group" "elasticsearch_clients_security_group" {
     cluster = "${var.es_cluster}"
   }
 
-  # allow HTTP access to client nodes via port 8080 - better to disable, and either way always password protect!
+  # allow HTTP access to client nodes via ports 8080 and 80 (ELB)
+  # better to disable, and either way always password protect!
   ingress {
     from_port         = 8080
     to_port           = 8080
+    protocol          = "tcp"
+    cidr_blocks       = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port         = 80
+    to_port           = 80
     protocol          = "tcp"
     cidr_blocks       = ["0.0.0.0/0"]
   }
