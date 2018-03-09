@@ -1,7 +1,4 @@
 {
-  "variables": {
-    "aws_elasticsearch_ami": "{{env `ES5_AMI`}}"
-  },
   "description": "Kibana Image",
   "builders": [
     {
