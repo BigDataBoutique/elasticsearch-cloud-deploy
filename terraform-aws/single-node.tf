@@ -29,7 +29,7 @@ resource "aws_launch_configuration" "single_node" {
   image_id = "${data.aws_ami.kibana_client.id}"
   instance_type = "${var.data_instance_type}"
   security_groups = ["${aws_security_group.elasticsearch_security_group.id}","${aws_security_group.elasticsearch_clients_security_group.id}"]
-  associate_public_ip_address = true
+  associate_public_ip_address = "${var.public_facing}"
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.single_node_userdata_script.rendered}"
   key_name = "${var.key_name}"

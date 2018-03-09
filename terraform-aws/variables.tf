@@ -77,19 +77,25 @@ variable "clients_count" {
   default = "0"
 }
 
-# whether or not to enable x-pack security on the cluster
 variable "security_enabled" {
+  description = "Whether or not to enable x-pack security on the cluster"
   default = "false"
 }
 
-# whether or not to enable x-pack monitoring on the cluster
 variable "monitoring_enabled" {
+  description = "Whether or not to enable x-pack monitoring on the cluster"
   default = "true"
 }
 
 # client nodes have nginx installed on them, these credentials are used for basic auth
 variable "client_user" {
   default = "exampleuser"
+}
+
+variable "public_facing" {
+  description = "Whether or not the created cluster should be accessible from the public internet"
+  type = "string"
+  default = "true"
 }
 
 # the ability to add additional existing security groups. In our case

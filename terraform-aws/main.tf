@@ -103,8 +103,8 @@ resource "aws_elb" "es_client_lb" {
 
   name            = "${format("%s-client-lb", var.es_cluster)}"
   security_groups = ["${aws_security_group.elasticsearch_clients_security_group.id}"]
-  subnets = ["${data.aws_subnet_ids.selected.ids}"]
-  internal        = true
+  subnets         = ["${data.aws_subnet_ids.selected.ids}"]
+  internal        = "${var.public_facing == "true" ? "false" : "true"}"
 
   cross_zone_load_balancing   = true
   idle_timeout                = 400
