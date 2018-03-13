@@ -12,7 +12,7 @@ aws ec2 create-key-pair --key-name elasticsearch --query 'KeyMaterial' --output 
 
 ## VPC
 
-Create a VPC, or use existing. You will need the VPC ID and private subnets IDs in it. 
+Create a VPC, or use existing. You will need the VPC ID we will use the available subnets within it. 
 
 ## Configurations
 
@@ -23,7 +23,6 @@ Edit `variables.tf` to specify the following:
 * `es_cluster` - the name of the Elasticsearch cluster to launch.
 * `key_name` - the name of the key to use - that key needs to be handy so you can access the machines if needed.
 * `vpc_id` - the ID of the VPC to launch the cluster in.
-* `vpc_subnets` - the private subnet IDs within the VPC. The order in which you type these need to match the order of their availability zones as typed in `availability_zones` above.
 
 The rest of the configurations are mostly around cluster topology and  machine types and sizes.
 
@@ -47,6 +46,10 @@ By default we create two security groups - one for the internal cluster nodes (d
 If you prefer using a security group of your own, you can add it to `additional_security_groups` in variables.tf.
 
 ## Launch the cluster with Terraform
+
+On first usage, you will need to execute `terraform init` to initialize the terraform providers used.
+
+To deploy the cluster, or apply any changes to an existing cluster deployed using this project, run:
 
 ```bash
 terraform plan
