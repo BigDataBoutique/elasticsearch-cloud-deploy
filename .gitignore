@@ -4,4 +4,4 @@ terraform.tfvars
 *.pem
 *.backup
 .terraform/
-packer/.gcp*
+.gcp*
