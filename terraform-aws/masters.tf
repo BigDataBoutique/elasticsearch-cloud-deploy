@@ -25,7 +25,7 @@ resource "aws_launch_configuration" "master" {
   name_prefix = "elasticsearch-${var.es_cluster}-master-nodes"
   image_id = "${data.aws_ami.elasticsearch.id}"
   instance_type = "${var.master_instance_type}"
-  security_groups = ["${aws_security_group.elasticsearch_security_group.id}"]
+  security_groups = ["${concat(list(aws_security_group.elasticsearch_security_group.id), var.additional_security_groups)}"]
   associate_public_ip_address = false
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.master_userdata_script.rendered}"
