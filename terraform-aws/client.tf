@@ -51,8 +51,6 @@ resource "aws_autoscaling_group" "client_nodes" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.client.id}"
 
-  load_balancers = ["${aws_elb.es_client_lb.id}"]
-
   vpc_zone_identifier = ["${data.aws_subnet_ids.selected.ids}"]
 
   tag {

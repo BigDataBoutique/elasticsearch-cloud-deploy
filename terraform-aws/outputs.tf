@@ -1,5 +1,5 @@
 output "clients_dns" {
-  value = "${aws_elb.es_client_lb.*.dns_name}"
+  value = "${aws_lb.es_client_lb.*.dns_name}"
 }
 
 output "vm_password" {

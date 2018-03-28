@@ -58,22 +58,52 @@ resource "aws_security_group" "elasticsearch_security_group" {
 
 resource "aws_security_group" "elasticsearch_clients_security_group" {
   name = "elasticsearch-${var.es_cluster}-clients-security-group"
-  description = "Kibana HTTP access from outside"
+  description = "Allow access from LB"
   vpc_id = "${var.vpc_id}"
 
   tags {
-    Name = "${var.es_cluster}-kibana"
+    Name = "${var.es_cluster}-client"
     cluster = "${var.es_cluster}"
   }
 
-  # allow HTTP access to client nodes via ports 8080 and 80 (ELB)
-  # better to disable, and either way always password protect!
   ingress {
     from_port         = 8080
     to_port           = 8080
     protocol          = "tcp"
+    security_groups   = ["${aws_security_group.elasticsearch_client_lb_security_group.id}"]
+  }
+
+  ingress {
+    from_port         = 3000
+    to_port           = 3000
+    protocol          = "tcp"
+    security_groups   = ["${aws_security_group.elasticsearch_client_lb_security_group.id}"]
+  }
+
+  ingress {
+    from_port         = 9200
+    to_port           = 9200
+    protocol          = "tcp"
+    security_groups   = ["${aws_security_group.elasticsearch_client_lb_security_group.id}"]
+  }
+
+  egress {
+    from_port         = 0
+    to_port           = 0
+    protocol          = "-1"
     cidr_blocks       = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_security_group" "elasticsearch_client_lb_security_group" {
+  name = "elasticsearch-${var.es_cluster}-client-lb-security-group"
+  description = "Kibana and Grafana HTTP access from outside"
+  vpc_id = "${var.vpc_id}"
+
+  tags {
+    cluster = "${var.es_cluster}"
+  }
+
   ingress {
     from_port         = 80
     to_port           = 80
@@ -81,7 +111,6 @@ resource "aws_security_group" "elasticsearch_clients_security_group" {
     cidr_blocks       = ["0.0.0.0/0"]
   }
 
-  # allow HTTP access to client nodes via port 3000 for Grafana which has it's own login screen
   ingress {
     from_port         = 3000
     to_port           = 3000
@@ -97,50 +126,102 @@ resource "aws_security_group" "elasticsearch_clients_security_group" {
   }
 }
 
-resource "aws_elb" "es_client_lb" {
-  // Only create an ELB if it's not a single-node configuration
+resource "aws_lb" "es_client_lb" {
+  // Only create a LB if it's not a single-node configuration
   count = "${var.masters_count == "0" && var.datas_count == "0" ? "0" : "1"}"
 
   name            = "${format("%s-client-lb", var.es_cluster)}"
-  security_groups = ["${aws_security_group.elasticsearch_clients_security_group.id}"]
+  security_groups = ["${aws_security_group.elasticsearch_client_lb_security_group.id}"]
   subnets         = ["${data.aws_subnet_ids.selected.ids}"]
   internal        = "${var.public_facing == "true" ? "false" : "true"}"
 
-  cross_zone_load_balancing   = true
-  idle_timeout                = 400
-  connection_draining         = true
-  connection_draining_timeout = 400
-
-  listener {
-    instance_port     = 8080
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
-  }
-
-  listener {
-    instance_port     = 3000
-    instance_protocol = "http"
-    lb_port           = 3000
-    lb_protocol       = "http"
-  }
-
-  listener {
-    instance_port     = 9200
-    instance_protocol = "http"
-    lb_port           = 9200
-    lb_protocol       = "http"
-  }
-
-  health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 3
-    target              = "HTTP:8080/status"
-    interval            = 6
-  }
+  load_balancer_type = "application"
 
   tags {
     Name = "${format("%s-client-lb", var.es_cluster)}"
   }
+}
+
+resource "aws_lb_listener" "kibana" {
+  load_balancer_arn = "${aws_lb.es_client_lb.arn}"
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.kibana.arn}"
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_listener" "grafana" {
+  load_balancer_arn = "${aws_lb.es_client_lb.arn}"
+  port              = "3000"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.grafana.arn}"
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_listener" "es" {
+  load_balancer_arn = "${aws_lb.es_client_lb.arn}"
+  port              = "9200"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_lb_target_group.es.arn}"
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_target_group" "kibana" {
+  name     = "${format("%s-client-lb-tg-kibana", var.es_cluster)}"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = "${var.vpc_id}"
+
+  health_check {
+    protocol = "HTTP"
+    path = "/status"
+  }
+}
+
+resource "aws_lb_target_group" "grafana" {
+  name     = "${format("%s-client-lb-tg-grafana", var.es_cluster)}"
+  port     = 3000
+  protocol = "HTTP"
+  vpc_id   = "${var.vpc_id}"
+
+  health_check {
+    protocol = "HTTP"
+    path = "/login"
+  }
+}
+
+resource "aws_lb_target_group" "es" {
+  name     = "${format("%s-client-lb-tg-es", var.es_cluster)}"
+  port     = 9200
+  protocol = "HTTP"
+  vpc_id   = "${var.vpc_id}"
+
+  health_check {
+    protocol = "HTTP"
+    path = "/"
+  }
+}
+
+resource "aws_autoscaling_attachment" "kibana" {
+  autoscaling_group_name = "${aws_autoscaling_group.client_nodes.id}"
+  alb_target_group_arn   = "${aws_lb_target_group.kibana.arn}"
+}
+
+resource "aws_autoscaling_attachment" "grafana" {
+  autoscaling_group_name = "${aws_autoscaling_group.client_nodes.id}"
+  alb_target_group_arn   = "${aws_lb_target_group.grafana.arn}"
+}
+
+resource "aws_autoscaling_attachment" "es" {
+  autoscaling_group_name = "${aws_autoscaling_group.client_nodes.id}"
+  alb_target_group_arn   = "${aws_lb_target_group.es.arn}"
 }
