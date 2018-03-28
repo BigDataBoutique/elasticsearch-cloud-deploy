@@ -38,6 +38,7 @@ resource "aws_launch_configuration" "data" {
   }
 
   ebs_block_device {
+    volume_type = "gp2"
     device_name = "/dev/xvdh"
     volume_size = "${var.elasticsearch_volume_size}"
     encrypted = "${var.volume_encryption}"
