@@ -65,6 +65,11 @@ variable "master_heap_size" {
   default = "2g"
 }
 
+variable "client_heap_size" {
+  type = "string"
+  default = "1g"
+}
+
 variable "masters_count" {
   default = "0"
 }
