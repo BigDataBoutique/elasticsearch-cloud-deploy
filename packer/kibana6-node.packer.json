@@ -27,7 +27,7 @@
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "ImageType": "kibana-packer-image"
+        "ImageType": "kibana6-packer-image"
       },
       "ena_support": true
     },

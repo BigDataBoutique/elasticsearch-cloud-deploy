@@ -6,7 +6,7 @@ data "aws_ami" "elasticsearch" {
   }
   filter {
     name = "tag:ImageType"
-    values = ["elasticsearch-packer-image"]
+    values = ["elasticsearch6-packer-image"]
   }
   most_recent = true
 }
@@ -19,7 +19,7 @@ data "aws_ami" "kibana_client" {
   }
   filter {
     name = "tag:ImageType"
-    values = ["kibana-packer-image"]
+    values = ["kibana6-packer-image"]
   }
   most_recent = true
 }

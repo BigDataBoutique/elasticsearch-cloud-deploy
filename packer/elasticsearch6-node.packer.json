@@ -23,7 +23,7 @@
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "ImageType": "elasticsearch-packer-image"
+        "ImageType": "elasticsearch6-packer-image"
       },
       "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
       "ena_support": true
