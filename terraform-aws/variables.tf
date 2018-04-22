@@ -106,5 +106,6 @@ variable "public_facing" {
 # the ability to add additional existing security groups. In our case
 # we have consul running as agents on the box
 variable "additional_security_groups" {
+  type = "list"
   default = []
 }
