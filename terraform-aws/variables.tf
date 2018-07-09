@@ -109,3 +109,8 @@ variable "additional_security_groups" {
   type = "list"
   default = []
 }
+
+variable "ebs_optimized" {
+  description = "Whether data instances are EBS optimized or not"
+  default = "true"
+}

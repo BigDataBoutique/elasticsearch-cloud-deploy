@@ -31,7 +31,7 @@ resource "aws_launch_configuration" "data" {
   user_data = "${data.template_file.data_userdata_script.rendered}"
   key_name = "${var.key_name}"
 
-  ebs_optimized = true
+  ebs_optimized = "${var.ebs_optimized}"
 
   lifecycle {
     create_before_destroy = true
