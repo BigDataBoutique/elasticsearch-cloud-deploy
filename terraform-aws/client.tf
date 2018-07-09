@@ -50,6 +50,7 @@ resource "aws_autoscaling_group" "client_nodes" {
   default_cooldown = 30
   force_delete = true
   launch_configuration = "${aws_launch_configuration.client.id}"
+  health_check_type = "${var.health_check_type}"
 
   load_balancers = ["${aws_elb.es_client_lb.id}"]
 

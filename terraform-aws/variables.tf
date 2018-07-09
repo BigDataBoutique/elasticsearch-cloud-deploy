@@ -119,3 +119,8 @@ variable "lb_port" {
   description = "The port the load balancer should listen on for API requests."
   default     = 80
 }
+
+variable "health_check_type" {
+  description = "Controls how health checking is done. Must be one of EC2 or ELB."
+  default     = "EC2"
+}
