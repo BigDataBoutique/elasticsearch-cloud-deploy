@@ -26,7 +26,7 @@
         "ImageType": "elasticsearch6-packer-image"
       },
       "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
-      "ena_support": true
+      "spot_price": "auto"
     },
     {
       "type": "azure-arm",
