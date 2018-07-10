@@ -119,3 +119,8 @@ variable "lb_port" {
   description = "The port the load balancer should listen on for API requests."
   default     = 80
 }
+
+variable "client_pwd" {
+  description = "Set admin password for kibana, generated if not provided"
+  default = "GENERATE"
+}

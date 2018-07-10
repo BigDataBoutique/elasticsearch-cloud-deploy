@@ -106,3 +106,8 @@ variable "monitoring_enabled" {
 variable "client_user" {
   default = "exampleuser"
 }
+
+variable "client_pwd" {
+  description = "Set admin password for kibana, generated if not provided"
+  default = "GENERATE"
+}

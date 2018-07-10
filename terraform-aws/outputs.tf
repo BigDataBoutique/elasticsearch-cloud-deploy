@@ -3,5 +3,5 @@ output "clients_dns" {
 }
 
 output "vm_password" {
-  value = "${random_string.vm-login-password.result}"
+  value = "${local.client_pwd}"
 }

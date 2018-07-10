@@ -11,6 +11,10 @@ resource "random_string" "vm-login-password" {
   override_special = "!@#%&-_"
 }
 
+locals {
+  client_pwd = "${var.client_pwd != "GENERATE" ? var.client_pwd : format("%s", random_string.vm-login-password.result)}"
+}
+
 resource "azurerm_resource_group" "elasticsearch" {
   location = "${var.azure_location}"
   name = "elasticsearch-cluster-${var.es_cluster}"

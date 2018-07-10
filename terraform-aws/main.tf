@@ -8,6 +8,10 @@ resource "random_string" "vm-login-password" {
   override_special = "!@#%&-_"
 }
 
+locals {
+  client_pwd = "${var.client_pwd != "GENERATE" ? var.client_pwd : format("%s", random_string.vm-login-password.result)}"
+}
+
 data "aws_availability_zones" "available" {}
 
 ##############################################################################
