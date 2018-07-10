@@ -114,3 +114,8 @@ variable "ebs_optimized" {
   description = "Whether data instances are EBS optimized or not"
   default = "true"
 }
+
+variable "lb_port" {
+  description = "The port the load balancer should listen on for API requests."
+  default     = 80
+}
