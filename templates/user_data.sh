@@ -25,6 +25,8 @@ cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 
 network.host: _ec2:privateIpv4_,localhost
 plugin.mandatory: discovery-ec2
+cloud.node.auto_attributes: true
+cluster.routing.allocation.awareness.attributes: aws_availability_zone
 discovery:
     zen.hosts_provider: ec2
     ec2.groups: ${security_groups}
