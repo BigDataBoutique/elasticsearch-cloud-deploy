@@ -43,6 +43,10 @@
       "managed_image_name": "kibana6-{{isotime \"2006-01-02T030405\"}}",
 
       "os_type": "Linux",
+      "image_publisher": "Canonical",
+      "image_offer": "UbuntuServer",
+      "image_sku": "16.04-LTS",
+      
       "custom_managed_image_name": "{{user `azure_elasticsearch_image_name`}}",
       "custom_managed_image_resource_group_name":"{{user `azure_resource_group_name`}}",
 
