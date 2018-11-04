@@ -85,10 +85,10 @@ sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 if [ "true" == "${data}" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
     # TODO should behave smarter to identify local disk or name of EBS instance, see https://serverfault.com/a/602225
-    if [[ "${cloud_provider}" == "aws" && -n "/dev/nvme1n1" ]]; then
-        sudo mkfs -t ext4 /dev/nvme1n1
+    if [[ "${cloud_provider}" == "aws" && -n "/dev/nvme0n1" ]]; then
+        sudo mkfs -t ext4 /dev/nvme0n1
         sudo mount /dev/nvme1n1 ${elasticsearch_data_dir}
-        echo "/dev/nvme1n1 ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
+        echo "/dev/nvme0n1 ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
     fi
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
 fi
