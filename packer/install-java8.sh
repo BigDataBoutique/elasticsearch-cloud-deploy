@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Add the Java 8 repository.
 sudo echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | sudo tee /etc/apt/sources.list.d/webupd8team-java.list

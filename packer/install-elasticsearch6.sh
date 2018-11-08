@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Get the PGP Key
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
