@@ -16,7 +16,7 @@ else
 fi
 
 cd /usr/share/kibana/
-bin/kibana-plugin install x-pack
+bin/kibana-plugin install x-pack || true
 chown kibana:kibana * -R
 
 # This needs to be here explicitly because of a long first-initialization time of Kibana

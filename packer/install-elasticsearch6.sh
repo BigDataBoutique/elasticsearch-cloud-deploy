@@ -15,7 +15,7 @@ else
 fi
 
 cd /usr/share/elasticsearch/
-bin/elasticsearch-plugin install --batch x-pack
+bin/elasticsearch-plugin install --batch x-pack || true
 cd -
 
 mv elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
