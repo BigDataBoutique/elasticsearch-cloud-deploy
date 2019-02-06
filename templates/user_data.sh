@@ -69,6 +69,8 @@ sudo mkdir -p /etc/systemd/system/elasticsearch.service.d
 cat <<'EOF' >>/etc/systemd/system/elasticsearch.service.d/override.conf
 [Service]
 LimitMEMLOCK=infinity
+Restart=always
+RestartSec=10
 EOF
 
 # Setup heap size and memory locking
