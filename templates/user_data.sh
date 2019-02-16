@@ -86,12 +86,16 @@ sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 # we are assuming volume is declared and attached when data_dir is passed to the script
 if [ "true" == "${data}" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
-    # TODO should behave smarter to identify local disk or name of EBS instance, see https://serverfault.com/a/602225
-    if [[ "${cloud_provider}" == "aws" && -n "/dev/nvme0n1" ]]; then
-        sudo mkfs -t ext4 /dev/nvme0n1
-        sudo mount /dev/nvme1n1 ${elasticsearch_data_dir}
-        echo "/dev/nvme0n1 ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
+    
+    export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | grep -v MOUNTEDPART)
+    if sudo mount -o defaults -t ext4 ${DEVICE_NAME} ${elasticsearch_data_dir}; then
+        echo 'Successfully mounted existing disk'
+    else
+        echo 'Trying to mount a fresh disk'
+        sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard ${DEVICE_NAME}
+        sudo mount -o defaults -t ext4 ${DEVICE_NAME} ${elasticsearch_data_dir} && echo 'Successfully mounted a fresh disk'
     fi
+    echo "$DEVICE_NAME ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
 fi
 
