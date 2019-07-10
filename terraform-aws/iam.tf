@@ -9,6 +9,17 @@ resource "aws_iam_role_policy" "elasticsearch" {
   role     = "${aws_iam_role.elasticsearch.id}"
 }
 
+resource "aws_iam_role_policy" "s3_backup" {
+  count    = "${var.s3_backup_bucket != "" ? 1 : 0}"
+  name     = "${var.es_cluster}-elasticsearch-backup-policy"
+  policy   = "${file("${path.module}/../templates/s3-backup.json")}"
+  role     = "${aws_iam_role.elasticsearch.id}"
+
+  vars {
+    s3_backup_bucket = "${s3_backup_bucket}"
+  }
+}
+
 resource "aws_iam_instance_profile" "elasticsearch" {
   name = "${var.es_cluster}-elasticsearch-discovery-profile"
   path = "/"

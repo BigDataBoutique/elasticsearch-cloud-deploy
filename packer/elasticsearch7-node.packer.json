@@ -1,13 +1,12 @@
 {
-  "description": "Kibana Image",
+  "description": "Elasticsarch Image",
   "builders": [
     {
       "type": "amazon-ebs",
-
-      "ami_name": "kibana6-{{isotime | clean_ami_name}}",
+      "ami_name": "elasticsearch7-{{isotime | clean_ami_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
-      "instance_type": "t2.medium",
+      "instance_type": "t2.micro",
       "region": "{{user `aws_region`}}",
       "run_tags": {
         "role": "packer"
@@ -15,21 +14,19 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "elasticsearch6-*",
+          "name": "*ubuntu-xenial-16.04-amd64-server-*",
           "root-device-type": "ebs"
         },
-        "owners": [
-          "self"
-        ],
+        "owners": ["099720109477"],
         "most_recent": true
       },
-      "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
-      "spot_price": "auto",
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "ImageType": "kibana6-packer-image"
-      }
+        "ImageType": "elasticsearch7-packer-image"
+      },
+      "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
+      "spot_price": "auto"
     },
     {
       "type": "azure-arm",
@@ -40,11 +37,12 @@
       "subscription_id": "{{user `azure_subscription_id`}}",
 
       "managed_image_resource_group_name": "{{user `azure_resource_group_name`}}",
-      "managed_image_name": "kibana6-{{isotime \"2006-01-02T030405\"}}",
+      "managed_image_name": "elasticsearch7-{{isotime \"2006-01-02T030405\"}}",
 
       "os_type": "Linux",
-      "custom_managed_image_name": "{{user `azure_elasticsearch_image_name`}}",
-      "custom_managed_image_resource_group_name":"{{user `azure_resource_group_name`}}",
+      "image_publisher": "Canonical",
+      "image_offer": "UbuntuServer",
+      "image_sku": "16.04-LTS",
 
       "location": "{{user `azure_location`}}",
       "vm_size": "Standard_DS2_v2"
@@ -53,10 +51,10 @@
       "type": "googlecompute",
       "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
-      "source_image_family": "elasticsearch-6",
+      "source_image_family": "ubuntu-1604-lts",
       "zone": "{{user `gcp_zone`}}",
-      "image_family": "kibana-6",
-      "image_name": "kibana6-{{isotime \"20060102t030405\"}}",
+      "image_family": "elasticsearch-6",
+      "image_name": "elasticsearch7-{{isotime \"20060102t030405\"}}",
       "preemptible": true,
       "ssh_username": "ubuntu"
     }
@@ -64,29 +62,41 @@
   "provisioners": [
     {
       "type": "shell",
-      "script": "install-kibana6.sh",
+      "script": "update-machine.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "file",
+      "source": "../templates/elasticsearch.yml",
+      "destination": "elasticsearch.yml"
+    },
+    {
+      "type": "shell",
+      "script": "install-openjdk11.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "script": "install-elasticsearch7.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
       "type": "shell",
-      "script": "install-grafana.sh",
+      "script": "install-cloud-plugin.sh"
+    },
+    {
+      "type": "shell",
+      "script": "install-beats.sh"
+    },
+    {
+      "type": "shell",
+      "script": "install-esrally.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
       "type": "shell",
-      "script": "install-cerebro.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
-    },
-    {
-      "type": "file",
-      "source": "../templates/nginx-client.conf",
-      "destination": "nginx-client.conf"
-    },
-    {
-      "type": "shell",
-      "script": "install-nginx.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "script": "install-custom.sh"
     }
   ]
 }

@@ -6,19 +6,31 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 cluster.name: ${es_cluster}
 
-discovery.zen.minimum_master_nodes: ${minimum_master_nodes}
-
 # only data nodes should have ingest and http capabilities
 node.master: ${master}
 node.data: ${data}
 node.ingest: ${data}
-http.enabled: ${http_enabled}
 xpack.security.enabled: ${security_enabled}
 xpack.monitoring.enabled: ${monitoring_enabled}
 path.data: ${elasticsearch_data_dir}
 path.logs: ${elasticsearch_logs_dir}
 EOF
 
+if [ "${xpack_monitoring_host}" == "self" ]; then
+cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+
+xpack.monitoring.exporters.xpack_local:
+  type: local
+EOF
+else
+cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+
+xpack.monitoring.exporters.xpack_remote:
+  type: http
+  host: "${xpack_monitoring_host}"
+
+EOF
+fi
 
 if [ "${cloud_provider}" == "aws" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
@@ -28,7 +40,7 @@ plugin.mandatory: discovery-ec2
 cloud.node.auto_attributes: true
 cluster.routing.allocation.awareness.attributes: aws_availability_zone
 discovery:
-    zen.hosts_provider: ec2
+    seed_providers: ec2
     ec2.groups: ${security_groups}
     ec2.host_type: private_ip
     ec2.tag.Cluster: ${es_environment}
@@ -47,7 +59,7 @@ network.host: _site_,localhost
 EOF
 
     # avoiding discovery noise in single-node scenario
-    if [ "${minimum_master_nodes}" == "1" ]; then
+    if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
         cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 discovery.zen.ping.unicast.hosts: ["${es_cluster}-master000000", "${es_cluster}-data000000"]
 EOF
@@ -88,12 +100,12 @@ if [ "true" == "${data}" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
     
     export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | grep -v MOUNTEDPART)
-    if sudo mount -o defaults -t ext4 ${DEVICE_NAME} ${elasticsearch_data_dir}; then
+    if sudo mount -o defaults -t ext4 $DEVICE_NAME ${elasticsearch_data_dir}; then
         echo 'Successfully mounted existing disk'
     else
         echo 'Trying to mount a fresh disk'
-        sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard ${DEVICE_NAME}
-        sudo mount -o defaults -t ext4 ${DEVICE_NAME} ${elasticsearch_data_dir} && echo 'Successfully mounted a fresh disk'
+        sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard $DEVICE_NAME
+        sudo mount -o defaults -t ext4 $DEVICE_NAME ${elasticsearch_data_dir} && echo 'Successfully mounted a fresh disk'
     fi
     echo "$DEVICE_NAME ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
