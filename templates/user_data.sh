@@ -42,6 +42,7 @@ cluster.routing.allocation.awareness.attributes: aws_availability_zone
 discovery:
     seed_providers: ec2
     ec2.groups: ${security_groups}
+    ec2.endpoint: ec2.${aws_region}.amazonaws.com
     ec2.host_type: private_ip
     ec2.tag.Cluster: ${es_environment}
     ec2.availability_zones: ${availability_zones}
@@ -96,7 +97,7 @@ sudo mkdir -p ${elasticsearch_logs_dir}
 sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 
 # we are assuming volume is declared and attached when data_dir is passed to the script
-if [ "true" == "${data}" ]; then
+if [ "${master}" == "true"  ] || [ "${data}" == "true" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
     
     export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | grep -v MOUNTEDPART)

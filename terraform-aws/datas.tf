@@ -12,6 +12,7 @@ data "template_file" "data_userdata_script" {
     availability_zones      = "${join(",", coalescelist(var.availability_zones, data.aws_availability_zones.available.names))}"
     master                  = "false"
     data                    = "true"
+    aws_region              = "${var.aws_region}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"
     client_user             = ""
