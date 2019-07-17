@@ -16,30 +16,41 @@ data "template_file" "master_userdata_script" {
     availability_zones      = "${join(",", coalescelist(var.availability_zones, data.aws_availability_zones.available.names))}"
     master                  = "true"
     data                    = "false"
+    bootstrap_node          = "false"
     aws_region              = "${var.aws_region}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"
+    masters_count           = "${var.masters_count}"
     client_user             = ""
     client_pwd              = ""
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
+    asg_id                  = ""
   }
 }
 
 data "template_file" "bootstrap_userdata_script" {
-  template = "${file("${path.module}/../templates/bootstrap_user_data.sh")}"
+  template = "${file("${path.module}/../templates/user_data.sh")}"
 
   vars {
     cloud_provider          = "aws"
-    es_cluster              = "${var.es_cluster}"
     elasticsearch_data_dir  = "/var/lib/elasticsearch"
     elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
     heap_size               = "${var.master_heap_size}"
+    es_cluster              = "${var.es_cluster}"
     es_environment          = "${var.environment}-${var.es_cluster}"
     security_groups         = "${aws_security_group.elasticsearch_security_group.id}"
-    availability_zones      = "${join(",", coalescelist(var.availability_zones, data.aws_availability_zones.available.names))}"
     asg_id                  = "${aws_autoscaling_group.master_nodes.id}"
+    availability_zones      = "${join(",", coalescelist(var.availability_zones, data.aws_availability_zones.available.names))}"
+    master                  = "true"
+    data                    = "false"
+    bootstrap_node          = "true"
     aws_region              = "${var.aws_region}"
+    security_enabled        = "${var.security_enabled}"
+    monitoring_enabled      = "${var.monitoring_enabled}"
     masters_count           = "${var.masters_count}"
+    client_user             = ""
+    client_pwd              = ""
+    xpack_monitoring_host   = "self"
   }
 }
 
@@ -105,7 +116,9 @@ resource "aws_autoscaling_group" "master_nodes" {
 }
 
 resource "aws_instance" "bootstrap_node" {
-  count = "${data.local_file.cluster_bootstrap_state.content == "0" ? "1" : "0"}"
+  // Only create if cluster was not bootstrapped before, and not in single-node mode
+  count = "${(var.masters_count == "0" && var.datas_count == "0") || data.local_file.cluster_bootstrap_state.content == "1" ? "0" : "1"}"
+
   ami   = "${data.aws_ami.elasticsearch.id}"
   instance_type = "${var.master_instance_type}"
   instance_initiated_shutdown_behavior = "terminate"

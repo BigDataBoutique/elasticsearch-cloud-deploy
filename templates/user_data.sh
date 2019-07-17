@@ -2,6 +2,32 @@
 
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
+if [ "${bootstrap_node}" == "true"  ]; then
+    while true
+    do
+        echo "Fetching masters..."
+        MASTER_INSTANCES="$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} --auto-scaling-group-names ${asg_id} | jq -r '.AutoScalingGroups[0].Instances[].InstanceId' | sort)"
+        COUNT=`echo "$MASTER_INSTANCES" | wc -l`
+
+        if [ "$COUNT" -eq "${masters_count}" ]; then
+            echo "Masters count is correct... Rechecking in 60 sec"
+            sleep 60
+            MASTER_INSTANCES_RECHECK="$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} --auto-scaling-group-names ${asg_id} | jq -r '.AutoScalingGroups[0].Instances[].InstanceId' | sort)"
+        
+            if [ "$MASTER_INSTANCES" = "$MASTER_INSTANCES_RECHECK" ]; then
+                break
+            fi
+        fi
+    
+        sleep 5
+    done
+
+    echo "Fetched masters"
+    MASTER_IPS="$(aws ec2 describe-instances --region ${aws_region} --instance-ids $MASTER_INSTANCES | jq -r '.Reservations[].Instances[].PrivateIpAddress')"
+    SEED_HOSTS=`echo "$MASTER_IPS" | paste -sd ',' -`
+    INITIAL_MASTER_NODES=`echo "$MASTER_IPS" | awk '{print "ip-" $0}' | tr . - | paste -sd ',' -`
+fi
+
 # Configure elasticsearch
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 cluster.name: ${es_cluster}
@@ -16,6 +42,15 @@ path.data: ${elasticsearch_data_dir}
 path.logs: ${elasticsearch_logs_dir}
 EOF
 
+if [ "${bootstrap_node}" == "true"  ]; then
+    echo "discovery.seed_hosts: $SEED_HOSTS" >>/etc/elasticsearch/elasticsearch.yml
+    echo "cluster.initial_master_nodes: $HOSTNAME,$INITIAL_MASTER_NODES" >>/etc/elasticsearch/elasticsearch.yml
+fi
+
+if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
+    echo "discovery.type: single-node"
+fi
+
 if [ "${xpack_monitoring_host}" == "self" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 
@@ -24,11 +59,9 @@ xpack.monitoring.exporters.xpack_local:
 EOF
 else
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-
 xpack.monitoring.exporters.xpack_remote:
   type: http
   host: "${xpack_monitoring_host}"
-
 EOF
 fi
 
@@ -62,11 +95,11 @@ EOF
     # avoiding discovery noise in single-node scenario
     if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
         cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-discovery.zen.ping.unicast.hosts: ["${es_cluster}-master000000", "${es_cluster}-data000000"]
+discovery.seed_hosts: ["${es_cluster}-master000000", "${es_cluster}-data000000"]
 EOF
     else
         cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-discovery.zen.ping.unicast.hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-master000002", "${es_cluster}-data000000", "${es_cluster}-data000001"]
+discovery.seed_hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-master000002", "${es_cluster}-data000000", "${es_cluster}-data000001"]
 EOF
     fi
 fi
@@ -123,31 +156,43 @@ systemctl daemon-reload
 systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
+if [ "${bootstrap_node}" == "true"  ]; then
+    while true
+    do
+        echo "Checking cluster health"
+        HEALTH="$(curl --silent http://localhost:9200/_cluster/health | jq -r '.status')"
+        if [ "$HEALTH" = "green" ]; then
+            break
+        fi
+        sleep 5
+    done
+    shutdown -h now
+else
+    # Setup x-pack security also on Kibana configs where applicable
+    if [ -f "/etc/kibana/kibana.yml" ]; then
+        echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
+        echo "xpack.monitoring.enabled: ${monitoring_enabled}" | sudo tee -a /etc/kibana/kibana.yml
+        systemctl daemon-reload
+        systemctl enable kibana.service
+        sudo service kibana restart
+    fi
 
-# Setup x-pack security also on Kibana configs where applicable
-if [ -f "/etc/kibana/kibana.yml" ]; then
-    echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
-    echo "xpack.monitoring.enabled: ${monitoring_enabled}" | sudo tee -a /etc/kibana/kibana.yml
-    systemctl daemon-reload
-    systemctl enable kibana.service
-    sudo service kibana restart
-fi
-
-if [ -f "/etc/nginx/nginx.conf" ]; then
-    sudo rm /etc/grafana/grafana.ini
-    cat <<'EOF' >>/etc/grafana/grafana.ini
+    if [ -f "/etc/nginx/nginx.conf" ]; then
+        sudo rm /etc/grafana/grafana.ini
+        cat <<'EOF' >>/etc/grafana/grafana.ini
 [security]
 admin_user = ${client_user}
 admin_password = ${client_pwd}
 EOF
-    sudo /bin/systemctl daemon-reload
-    sudo /bin/systemctl enable grafana-server.service
-    sudo service grafana-server start
-fi
+        sudo /bin/systemctl daemon-reload
+        sudo /bin/systemctl enable grafana-server.service
+        sudo service grafana-server start
+    fi
 
-sleep 60
-if [ `systemctl is-failed elasticsearch.service` == 'failed' ];
-then
-    echo "Elasticsearch unit failed to start"
-    exit 1
+    sleep 60
+    if [ `systemctl is-failed elasticsearch.service` == 'failed' ];
+    then
+        echo "Elasticsearch unit failed to start"
+        exit 1
+    fi
 fi

@@ -12,12 +12,15 @@ data "template_file" "data_userdata_script" {
     availability_zones      = "${join(",", coalescelist(var.availability_zones, data.aws_availability_zones.available.names))}"
     master                  = "false"
     data                    = "true"
+    bootstrap_node          = "false"
     aws_region              = "${var.aws_region}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"
+    masters_count           = "${var.masters_count}"
     client_user             = ""
     client_pwd              = ""
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
+    asg_id                  = ""
   }
 }
 
