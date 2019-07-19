@@ -130,7 +130,7 @@ sudo mkdir -p ${elasticsearch_logs_dir}
 sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 
 # we are assuming volume is declared and attached when data_dir is passed to the script
-if [ [ "${master}" == "true" ] || [ "${data}" == "true" ] ] && [ "${bootstrap_node}" != "true" ]; then
+if { [ "${master}" == "true" ] || [ "${data}" == "true" ]; } && [ "${bootstrap_node}" != "true" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
     
     export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | grep -v MOUNTEDPART)
