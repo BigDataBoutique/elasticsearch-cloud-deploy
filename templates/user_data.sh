@@ -51,13 +51,7 @@ if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
     echo "discovery.type: single-node"
 fi
 
-if [ "${xpack_monitoring_host}" == "self" ]; then
-cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-
-xpack.monitoring.exporters.xpack_local:
-  type: local
-EOF
-else
+if [ "${xpack_monitoring_host}" != "self" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 xpack.monitoring.exporters.xpack_remote:
   type: http
@@ -75,11 +69,14 @@ cluster.routing.allocation.awareness.attributes: aws_availability_zone
 discovery:
     seed_providers: ec2
     ec2.groups: ${security_groups}
-    ec2.endpoint: ec2.${aws_region}.amazonaws.com
     ec2.host_type: private_ip
     ec2.tag.Cluster: ${es_environment}
     ec2.availability_zones: ${availability_zones}
     ec2.protocol: http # no need in HTTPS for internal AWS calls
+
+    # manually set the endpoint because of auto-discovery issues
+    # https://github.com/elastic/elasticsearch/issues/27464
+    ec2.endpoint: ec2.${aws_region}.amazonaws.com
 EOF
 fi
 
@@ -124,6 +121,9 @@ sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/init.d/
 sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/default/elasticsearch
 sudo sed -i "s/^-Xms.*/-Xms${heap_size}/" /etc/elasticsearch/jvm.options
 sudo sed -i "s/^-Xmx.*/-Xmx${heap_size}/" /etc/elasticsearch/jvm.options
+
+# Setup GC
+sudo sed -i "s/^-XX:+UseConcMarkSweepGC/-XX:+UseG1GC/" /etc/elasticsearch/jvm.options
 
 # Storage
 sudo mkdir -p ${elasticsearch_logs_dir}
