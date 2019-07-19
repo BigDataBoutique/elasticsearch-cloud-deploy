@@ -24,7 +24,7 @@ data "template_file" "master_userdata_script" {
     client_user             = ""
     client_pwd              = ""
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    asg_id                  = ""
+    asg_name                = ""
   }
 }
 
@@ -39,7 +39,7 @@ data "template_file" "bootstrap_userdata_script" {
     es_cluster              = "${var.es_cluster}"
     es_environment          = "${var.environment}-${var.es_cluster}"
     security_groups         = "${aws_security_group.elasticsearch_security_group.id}"
-    asg_id                  = "${aws_autoscaling_group.master_nodes.id}"
+    asg_name                = "${aws_autoscaling_group.master_nodes.name}"
     availability_zones      = "${join(",", coalescelist(var.availability_zones, data.aws_availability_zones.available.names))}"
     master                  = "true"
     data                    = "false"

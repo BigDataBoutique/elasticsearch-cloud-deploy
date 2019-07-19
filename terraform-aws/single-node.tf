@@ -20,7 +20,7 @@ data "template_file" "single_node_userdata_script" {
     client_user             = "${var.client_user}"
     client_pwd              = "${random_string.vm-login-password.result}"
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    asg_id                  = ""
+    asg_name                = ""
   }
 }
 

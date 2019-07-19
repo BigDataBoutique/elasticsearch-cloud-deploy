@@ -6,13 +6,13 @@ if [ "${bootstrap_node}" == "true"  ]; then
     while true
     do
         echo "Fetching masters..."
-        MASTER_INSTANCES="$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} --auto-scaling-group-names ${asg_id} | jq -r '.AutoScalingGroups[0].Instances[].InstanceId' | sort)"
+        MASTER_INSTANCES="$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} --auto-scaling-group-names ${asg_name} | jq -r '.AutoScalingGroups[0].Instances[].InstanceId' | sort)"
         COUNT=`echo "$MASTER_INSTANCES" | wc -l`
 
         if [ "$COUNT" -eq "${masters_count}" ]; then
             echo "Masters count is correct... Rechecking in 60 sec"
             sleep 60
-            MASTER_INSTANCES_RECHECK="$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} --auto-scaling-group-names ${asg_id} | jq -r '.AutoScalingGroups[0].Instances[].InstanceId' | sort)"
+            MASTER_INSTANCES_RECHECK="$(aws autoscaling describe-auto-scaling-groups --region ${aws_region} --auto-scaling-group-names ${asg_name} | jq -r '.AutoScalingGroups[0].Instances[].InstanceId' | sort)"
         
             if [ "$MASTER_INSTANCES" = "$MASTER_INSTANCES_RECHECK" ]; then
                 break
@@ -130,7 +130,7 @@ sudo mkdir -p ${elasticsearch_logs_dir}
 sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 
 # we are assuming volume is declared and attached when data_dir is passed to the script
-if [ "${master}" == "true"  ] || [ "${data}" == "true" ]; then
+if [ [ "${master}" == "true" ] || [ "${data}" == "true" ] ] && [ "${bootstrap_node}" != "true" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
     
     export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | grep -v MOUNTEDPART)

@@ -20,7 +20,7 @@ data "template_file" "data_userdata_script" {
     client_user             = ""
     client_pwd              = ""
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    asg_id                  = ""
+    asg_name                = ""
   }
 }
 
