@@ -48,7 +48,7 @@ if [ "${bootstrap_node}" == "true"  ]; then
 fi
 
 if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
-    echo "discovery.type: single-node"
+    echo "discovery.type: single-node" >>/etc/elasticsearch/elasticsearch.yml
 fi
 
 if [ "${xpack_monitoring_host}" != "self" ]; then
