@@ -95,8 +95,8 @@ az account show --query "{ subscription_id: id }"
 Building the AMIs is done using the following commands:
 
 ```bash
-packer build -only=amazon-ebs -var-file=variables.json elasticsearch6-node.packer.json
-packer build -only=amazon-ebs -var-file=variables.json kibana6-node.packer.json
+packer build -only=amazon-ebs -var-file=variables.json elasticsearch7-node.packer.json
+packer build -only=amazon-ebs -var-file=variables.json kibana7-node.packer.json
 ```
 
 Replace the `-only` parameter to `azure-arm` to build images for Azure instead of AWS.

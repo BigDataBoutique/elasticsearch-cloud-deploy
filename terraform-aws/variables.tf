@@ -124,3 +124,13 @@ variable "health_check_type" {
   description = "Controls how health checking is done. Must be one of EC2 or ELB."
   default     = "EC2"
 }
+
+variable "xpack_monitoring_host" {
+  description = "ES host to send monitoring data"
+  default     = "self"
+}
+
+variable "s3_backup_bucket" {
+  description = "S3 bucket for backups"
+  default     = ""
+}
