@@ -37,7 +37,12 @@ At this point we consider the role `ingest` as unanimous with `data`, so all dat
 
 The default mode is the single-node mode. To change it to the recommended configuration, edit `variables.tf` and set number of master nodes to 3, data nodes to at least 2, and client nodes to at least 1.
 
-All nodes with the `client` role will be attached to an ELB, so access to all client nodes can be done via the DNS it exposes. 
+All nodes with the `client` role will be attached to an ELB, so access to all client nodes can be done via the DNS it exposes.
+
+### Cluster bootstrap
+Deploying a cluster in non single-node mode requires [bootstrapping the cluster](https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-discovery-bootstrap-cluster.html).  
+We do this automatically, by spinning up a special bootstrap node, and terminating it once finished. This only happens once, first time you deploy the cluster. State information on whether cluster is bootstrapped or not is kept in a local file `cluster_bootstrap_state` which is used on later `terraform apply` runs.    
+After the bootstrap node has terminated, you can start using the cluster.
 
 ### Security groups
 
