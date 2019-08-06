@@ -12,6 +12,12 @@ variable "vpc_id" {
   type = "string"
 }
 
+variable "clients_subnet_ids" {
+  description = "Subnets to run client nodes and client ELB in. Only one subnet per availability zone allowed. Will detect a single subnet by default." 
+  type = "list"
+  default = []
+}
+
 variable "availability_zones" {
   type = "list"
   description = "AWS region to launch servers; if not set the available zones will be detected automatically"
