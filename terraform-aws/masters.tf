@@ -127,6 +127,7 @@ resource "aws_instance" "bootstrap_node" {
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.bootstrap_userdata_script.rendered}"
   key_name = "${var.key_name}"
+  subnet_id = "${data.aws_subnet_ids.selected.ids[0]}"
 
   tags {
     Name = "${var.es_cluster}-bootstrap-node"
