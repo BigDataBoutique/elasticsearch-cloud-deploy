@@ -123,7 +123,7 @@ resource "aws_instance" "bootstrap_node" {
   instance_type = "${var.master_instance_type}"
   instance_initiated_shutdown_behavior = "terminate"
   vpc_security_group_ids = ["${concat(list(aws_security_group.elasticsearch_security_group.id), var.additional_security_groups)}"]
-  associate_public_ip_address = false
+  associate_public_ip_address = true
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.bootstrap_userdata_script.rendered}"
   key_name = "${var.key_name}"
