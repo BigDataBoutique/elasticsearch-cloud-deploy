@@ -18,6 +18,12 @@ variable "clients_subnet_ids" {
   default = []
 }
 
+variable "cluster_subnet_ids" {
+  description = "Cluster nodes subnets. Defaults to all VPC subnets." 
+  type = "list"
+  default = []
+}
+
 variable "availability_zones" {
   type = "list"
   description = "AWS region to launch servers; if not set the available zones will be detected automatically"

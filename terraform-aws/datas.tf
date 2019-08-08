@@ -20,7 +20,6 @@ data "template_file" "data_userdata_script" {
     client_user             = ""
     client_pwd              = ""
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    asg_name                = ""
   }
 }
 
@@ -29,7 +28,7 @@ resource "aws_launch_configuration" "data" {
   image_id = "${data.aws_ami.elasticsearch.id}"
   instance_type = "${var.data_instance_type}"
   security_groups = ["${concat(list(aws_security_group.elasticsearch_security_group.id), var.additional_security_groups)}"]
-  associate_public_ip_address = true
+  associate_public_ip_address = false
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.data_userdata_script.rendered}"
   key_name = "${var.key_name}"
@@ -57,7 +56,7 @@ resource "aws_autoscaling_group" "data_nodes" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.data.id}"
 
-  vpc_zone_identifier = ["${data.aws_subnet_ids.selected.ids}"]
+  vpc_zone_identifier = ["${coalescelist(var.cluster_subnet_ids, data.aws_subnet_ids.selected.ids)}"]
 
   depends_on = ["aws_autoscaling_group.master_nodes"]
 
