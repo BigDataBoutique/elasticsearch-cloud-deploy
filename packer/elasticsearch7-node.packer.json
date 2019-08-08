@@ -14,7 +14,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "*ubuntu-xenial-16.04-amd64-server-*",
+          "name": "*ubuntu-bionic-18.04-amd64-server-*",
           "root-device-type": "ebs"
         },
         "owners": ["099720109477"],
@@ -42,7 +42,7 @@
       "os_type": "Linux",
       "image_publisher": "Canonical",
       "image_offer": "UbuntuServer",
-      "image_sku": "16.04-LTS",
+      "image_sku": "18.04-LTS",
 
       "location": "{{user `azure_location`}}",
       "vm_size": "Standard_DS2_v2"
@@ -51,7 +51,7 @@
       "type": "googlecompute",
       "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
-      "source_image_family": "ubuntu-1604-lts",
+      "source_image_family": "ubuntu-1804-lts",
       "zone": "{{user `gcp_zone`}}",
       "image_family": "elasticsearch-6",
       "image_name": "elasticsearch7-{{isotime \"20060102t030405\"}}",
