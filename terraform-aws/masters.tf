@@ -24,7 +24,6 @@ data "template_file" "master_userdata_script" {
     client_user             = ""
     client_pwd              = ""
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    asg_name                = ""
   }
 }
 
@@ -69,7 +68,7 @@ resource "aws_launch_configuration" "master" {
     device_name = "/dev/xvdh"
     volume_size = "10" # GB
   }
-
+  
   lifecycle {
     create_before_destroy = true
   }
@@ -84,7 +83,7 @@ resource "aws_autoscaling_group" "master_nodes" {
   force_delete = true
   launch_configuration = "${aws_launch_configuration.master.id}"
 
-  vpc_zone_identifier = ["${data.aws_subnet_ids.selected.ids}"]
+  vpc_zone_identifier = ["${coalescelist(var.cluster_subnet_ids, data.aws_subnet_ids.selected.ids)}"]
 
   tag {
     key                 = "Name"
@@ -123,11 +122,10 @@ resource "aws_instance" "bootstrap_node" {
   instance_type = "${var.master_instance_type}"
   instance_initiated_shutdown_behavior = "terminate"
   vpc_security_group_ids = ["${concat(list(aws_security_group.elasticsearch_security_group.id), var.additional_security_groups)}"]
-  associate_public_ip_address = true
   iam_instance_profile = "${aws_iam_instance_profile.elasticsearch.id}"
   user_data = "${data.template_file.bootstrap_userdata_script.rendered}"
   key_name = "${var.key_name}"
-  subnet_id = "${data.aws_subnet_ids.selected.ids[0]}"
+  subnet_id = "${element(coalescelist(var.cluster_subnet_ids, data.aws_subnet_ids.selected.ids), 0)}"
 
   tags {
     Name = "${var.es_cluster}-bootstrap-node"
