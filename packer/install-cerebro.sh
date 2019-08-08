@@ -31,7 +31,7 @@ fi
 
 chown -R cerebro:cerebro /usr/share/cerebro
 
-printf "[Unit]\nDescription=Cerebro\n\n[Service]\nType=simple\nUser=cerebro\nGroup=cerebro\nExecStart=/usr/share/cerebro/cerebro-${CEREBRO_VERSION}/bin/cerebro '-Dpidfile.path=/dev/null'\nRestart=always\nWorkingDirectory=/\n\n[Install]\nWantedBy=multi-user.target\n" | tee -a /etc/systemd/system/cerebro.service
+printf "[Unit]\nDescription=Cerebro\n\n[Service]\nType=simple\nUser=cerebro\nGroup=cerebro\nExecStart=/usr/share/cerebro/cerebro-${CEREBRO_VERSION}/bin/cerebro -no-version-check '-Dpidfile.path=/dev/null'\nRestart=always\nWorkingDirectory=/\n\n[Install]\nWantedBy=multi-user.target\n" | tee -a /etc/systemd/system/cerebro.service
 systemctl daemon-reload
 systemctl enable cerebro.service
 systemctl start cerebro
