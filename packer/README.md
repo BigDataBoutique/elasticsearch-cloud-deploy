@@ -57,6 +57,9 @@ aws iam add-role-to-instance-profile  --instance-profile-name packer --role-name
 
 ```
 
+By default, AWS builder will pick a subnet from the default VPC for running the builder instance. It is required for that subnet to have Public IPs auto-assignment enabled. Otherwise, packer won't be able to make a SSH connection to the instance and will hang on `Waiting for SSH to become available...`  
+If you don't want to enable public IPs auto-assignment on your default VPC subnets, you can explicitly set the subnet by setting `vpc_id` and `subnet_id` keys in *.packer.json files `amazon-ebs` builder definitions.
+
 ## On Microsoft Azure
 
 Before running Packer for the first time you will need to do a one-time initial setup.
