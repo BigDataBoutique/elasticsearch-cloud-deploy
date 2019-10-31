@@ -2,17 +2,39 @@
 
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
+function fetch_master_nodes_ips() {
+    if [ "${cloud_provider}" == "aws" ]; then
+        local master_instance_ids="$(aws ec2 describe-instances --region=${aws_region} --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=${es_environment} | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
+        echo "$(aws ec2 describe-instances --region ${aws_region} --instance-ids $master_instance_ids | jq -r '.Reservations[].Instances[].PrivateIpAddress' | sort)"
+    fi
+
+    if [ "${cloud_provider}" == "azure" ]; then
+        echo "$(az vmss nic list -g ${azure_resource_group} --vmss-name ${azure_master_vmss_name} | jq -r '.[].ipConfigurations[0].privateIpAddress' | sort)"
+    fi
+}
+
+if [ "${cloud_provider}" == "azure" ]; then
+    # Change node name to AWS-like hostname
+    sudo sed -i -e "s/node.name: .*$/node.name: ip-$(hostname -I | tr . -)/ig" /etc/elasticsearch/elasticsearch.yml
+fi
+
+
 if [ "${bootstrap_node}" == "true"  ]; then
+
+    if [ "${cloud_provider}" == "azure" ]; then
+        az login -i
+    fi
+
     while true
     do
         echo "Fetching masters..."
-        MASTER_INSTANCES="$(aws ec2 describe-instances --region=${aws_region} --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=${es_environment} | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
+        MASTER_INSTANCES="$(fetch_master_nodes_ips)"
         COUNT=`echo "$MASTER_INSTANCES" | wc -l`
 
         if [ "$COUNT" -eq "${masters_count}" ]; then
             echo "Masters count is correct... Rechecking in 60 sec"
             sleep 60
-            MASTER_INSTANCES_RECHECK="$(aws ec2 describe-instances --region=${aws_region} --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=${es_environment} | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
+            MASTER_INSTANCES_RECHECK="$(fetch_master_nodes_ips)"
         
             if [ "$MASTER_INSTANCES" = "$MASTER_INSTANCES_RECHECK" ]; then
                 break
@@ -23,7 +45,7 @@ if [ "${bootstrap_node}" == "true"  ]; then
     done
 
     echo "Fetched masters"
-    MASTER_IPS="$(aws ec2 describe-instances --region ${aws_region} --instance-ids $MASTER_INSTANCES | jq -r '.Reservations[].Instances[].PrivateIpAddress')"
+    MASTER_IPS="$(fetch_master_nodes_ips)"
     SEED_HOSTS=`echo "$MASTER_IPS" | paste -sd ',' -`
     INITIAL_MASTER_NODES=`echo "$MASTER_IPS" | awk '{print "ip-" $0}' | tr . - | paste -sd ',' -`
 fi
@@ -44,7 +66,7 @@ EOF
 
 if [ "${bootstrap_node}" == "true"  ]; then
     echo "discovery.seed_hosts: $SEED_HOSTS" >>/etc/elasticsearch/elasticsearch.yml
-    echo "cluster.initial_master_nodes: $HOSTNAME,$INITIAL_MASTER_NODES" >>/etc/elasticsearch/elasticsearch.yml
+    echo "cluster.initial_master_nodes: ip-$(hostname -I | tr . -),$INITIAL_MASTER_NODES" >>/etc/elasticsearch/elasticsearch.yml
 fi
 
 if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
@@ -80,24 +102,11 @@ discovery:
 EOF
 fi
 
-# Azure doesn't have a proper discovery plugin, hence we are going old-school and relying on scaleset name prefixes
 if [ "${cloud_provider}" == "azure" ]; then
-        cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-network.host: _site_,localhost
+    echo 'network.host: _site_,localhost' >>/etc/elasticsearch/elasticsearch.yml
 
-# For discovery we are using predictable hostnames (thanks for the computer name prefix), but could just as well use the
-# predictable subnet addresses starting at 10.1.0.5.
-EOF
-
-    # avoiding discovery noise in single-node scenario
-    if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
-        cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-discovery.seed_hosts: ["${es_cluster}-master000000", "${es_cluster}-data000000"]
-EOF
-    else
-        cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-discovery.seed_hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-master000002", "${es_cluster}-data000000", "${es_cluster}-data000001"]
-EOF
+    if [ "${bootstrap_node}" != "true"  ]; then
+        echo 'discovery.seed_hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-data000000"]' >>/etc/elasticsearch/elasticsearch.yml
     fi
 fi
 
@@ -133,7 +142,7 @@ sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 if { [ "${master}" == "true" ] || [ "${data}" == "true" ]; } && [ "${bootstrap_node}" != "true" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
     
-    export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | grep -v MOUNTEDPART)
+    export DEVICE_NAME=$(lsblk -ip | tail -n +2 | grep -v " rom" | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | sed ':a;N;$!ba;s/\n|-/ /g' | grep -v MOUNTEDPART)
     if sudo mount -o defaults -t ext4 $DEVICE_NAME ${elasticsearch_data_dir}; then
         echo 'Successfully mounted existing disk'
     else
@@ -166,7 +175,16 @@ if [ "${bootstrap_node}" == "true"  ]; then
         fi
         sleep 5
     done
-    shutdown -h now
+
+    if [ "${cloud_provider}" == "azure" ]; then
+        # Delete self
+        az vm delete -g "${azure_resource_group}" --name "$HOSTNAME" --yes
+    fi
+
+    if [ "${cloud_provider}" == "aws" ]; then
+        # AWS instance is set to terminate after shutdown automatically
+        shutdown -h now
+    fi
 else
     # Setup x-pack security also on Kibana configs where applicable
     if [ -f "/etc/kibana/kibana.yml" ]; then

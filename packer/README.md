@@ -70,9 +70,12 @@ Use PowerShell, and login to AzureRm. See here for more details: https://docs.mi
 $rgName = "packer-elasticsearch-images"
 $location = "East US"
 New-AzureRmResourceGroup -Name $rgName -Location $location
-$Password = ([char[]]([char]33..[char]95) + ([char[]]([char]97..[char]126)) + 0..9 | sort {Get-Random})[0..8] -join ''
-"Password: " + $Password
-$sp = New-AzureRmADServicePrincipal -DisplayName "Azure Packer IKF" -Password $Password
+
+$sp = New-AzureRmADServicePrincipal -DisplayName "AzurePackerIKF"
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($sp.Secret)
+$PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+$PlainPassword
+
 New-AzureRmRoleAssignment -RoleDefinitionName Contributor -ServicePrincipalName $sp.ApplicationId
 $sp.ApplicationId
 ```

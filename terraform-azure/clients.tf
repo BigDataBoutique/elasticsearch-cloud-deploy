@@ -11,14 +11,19 @@ data "template_file" "client_userdata_script" {
     es_environment          = "${var.environment}-${var.es_cluster}"
     security_groups         = ""
     availability_zones      = ""
-    minimum_master_nodes    = "${format("%d", var.masters_count / 2 + 1)}"
     master                  = "false"
     data                    = "false"
+    bootstrap_node          = "false"
     http_enabled            = "true"
+    masters_count           = "${var.masters_count}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"
     client_user             = "${var.client_user}"
     client_pwd              = "${random_string.vm-login-password.result}"
+    xpack_monitoring_host   = "${var.xpack_monitoring_host}"
+    aws_region              = ""
+    azure_resource_group    = ""
+    azure_master_vmss_name  = ""
   }
 }
 
@@ -49,6 +54,7 @@ resource "azurerm_virtual_machine_scale_set" "client-nodes" {
 
     "ip_configuration" {
       name = "es-${var.es_cluster}-ip-profile"
+      primary = true
       subnet_id = "${azurerm_subnet.elasticsearch_subnet.id}"
       load_balancer_backend_address_pool_ids = ["${azurerm_lb_backend_address_pool.clients-lb-backend.id}"]
     }

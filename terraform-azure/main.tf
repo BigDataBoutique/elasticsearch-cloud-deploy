@@ -5,6 +5,9 @@ provider "azurerm" {
   tenant_id = "${var.azure_tenant_id}"
 }
 
+data "azurerm_subscription" "primary" {}
+
+
 resource "random_string" "vm-login-password" {
   length = 16
   special = true

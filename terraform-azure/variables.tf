@@ -106,3 +106,8 @@ variable "monitoring_enabled" {
 variable "client_user" {
   default = "exampleuser"
 }
+
+variable "xpack_monitoring_host" {
+  description = "ES host to send monitoring data"
+  default     = "self"
+}

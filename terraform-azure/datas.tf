@@ -11,14 +11,19 @@ data "template_file" "data_userdata_script" {
     es_environment          = "${var.environment}-${var.es_cluster}"
     security_groups         = ""
     availability_zones      = ""
-    minimum_master_nodes    = "${format("%d", var.masters_count / 2 + 1)}"
     master                  = "false"
     data                    = "true"
+    bootstrap_node          = "false"
     http_enabled            = "true"
+    masters_count           = "${var.masters_count}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"
     client_user             = ""
     client_pwd              = ""
+    xpack_monitoring_host   = "${var.xpack_monitoring_host}"
+    aws_region              = ""
+    azure_resource_group    = ""
+    azure_master_vmss_name  = ""
   }
 }
 
@@ -50,6 +55,7 @@ resource "azurerm_virtual_machine_scale_set" "data-nodes" {
 
     "ip_configuration" {
       name = "es-${var.es_cluster}-ip-profile"
+      primary = true
       subnet_id = "${azurerm_subnet.elasticsearch_subnet.id}"
     }
   }
@@ -72,12 +78,11 @@ resource "azurerm_virtual_machine_scale_set" "data-nodes" {
     }
   }
 
-
-//  storage_profile_data_disk {
-//    lun            = 0
-//    caching        = "ReadWrite"
-//    create_option  = "Empty"
-//    disk_size_gb   = "${var.elasticsearch_volume_size}"
-//    managed_disk_type = "Standard_LRS"
-//  }
+  storage_profile_data_disk {
+    lun            = 0
+    caching        = "ReadWrite"
+    create_option  = "Empty"
+    disk_size_gb   = "${var.elasticsearch_volume_size}"
+    managed_disk_type = "Standard_LRS"
+  }
 }
