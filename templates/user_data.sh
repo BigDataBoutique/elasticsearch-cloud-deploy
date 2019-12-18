@@ -9,7 +9,7 @@ function fetch_master_nodes_ips() {
     fi
 
     if [ "${cloud_provider}" == "gcp" ]; then
-        echo "$(gcloud compute instances list --filter 'tags.items=es-master-node AND tags.items=my-gcp-cluster' --format 'get(networkInterfaces[0].networkIP)' | sort)"
+        echo "$(gcloud compute instances list --filter 'tags.items=es-master-node AND tags.items=${es_cluster}' --format 'get(networkInterfaces[0].networkIP)' | sort)"
     fi
 }
 
@@ -200,7 +200,7 @@ if [ "${bootstrap_node}" == "true"  ]; then
     fi
 
     if [ "${cloud_provider}" == "gcp" ]; then
-        INSTANCE_NAME="$(gcloud compute instances list --filter 'tags.items=es-bootstrap-node AND tags.items=my-gcp-cluster' --format 'get(name)')"
+        INSTANCE_NAME="$(gcloud compute instances list --filter 'tags.items=es-bootstrap-node AND tags.items=${es_cluster}' --format 'get(name)')"
         gcloud compute instances delete $INSTANCE_NAME --zone ${gcp_zone} --quiet
     fi
 else
