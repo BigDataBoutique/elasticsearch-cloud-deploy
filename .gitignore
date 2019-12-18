@@ -5,4 +5,3 @@ terraform.tfvars
 *.backup
 .terraform/
 .gcp*
-terraform-aws/cluster_bootstrap_state
