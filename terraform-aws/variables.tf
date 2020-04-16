@@ -77,20 +77,20 @@ variable "client_heap_size" {
 }
 
 variable "masters_count" {
-  type    = map(number)
-  default = {}
+  type        = map(number)
+  default     = {}
   description = "masters count per AZ"
 }
 
 variable "datas_count" {
-  type    = map(number)
-  default = {}
+  type        = map(number)
+  default     = {}
   description = "data nodes count per AZ"
 }
 
 variable "clients_count" {
-  type    = map(number)
-  default = {}
+  type        = map(number)
+  default     = {}
   description = "client nodes count per AZ"
 }
 

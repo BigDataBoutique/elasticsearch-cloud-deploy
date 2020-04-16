@@ -13,17 +13,17 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
 
   # allow Cerebro port access from office vpn
   ingress {
-    from_port = 9000
-    to_port   = 9000
-    protocol  = "tcp"
+    from_port   = 9000
+    to_port     = 9000
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   # allow Grafana port access from office vpn
   ingress {
-    from_port = 3000
-    to_port   = 3000
-    protocol  = "tcp"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 

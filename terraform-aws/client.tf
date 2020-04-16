@@ -1,11 +1,11 @@
 data "template_file" "client_userdata_script" {
   template = file("${path.module}/../templates/userdata/client.sh")
-  vars = local.user_data_common
+  vars     = local.user_data_common
 }
 
 resource "aws_launch_template" "client" {
   name_prefix   = "elasticsearch-${var.es_cluster}-client-nodes"
-  image_id      = data.aws_ami.kibana_client.id  
+  image_id      = data.aws_ami.kibana_client.id
   instance_type = var.master_instance_type
   user_data     = base64encode(data.template_file.client_userdata_script.rendered)
   key_name      = var.key_name
@@ -32,16 +32,16 @@ resource "aws_launch_template" "client" {
 resource "aws_autoscaling_group" "client_nodes" {
   count = length(keys(var.clients_count))
 
-  name             = "elasticsearch-${var.es_cluster}-client-nodes-${keys(var.clients_count)[count.index]}"
-  max_size         = var.clients_count[keys(var.clients_count)[count.index]]
-  min_size         = var.clients_count[keys(var.clients_count)[count.index]]
-  desired_capacity = var.clients_count[keys(var.clients_count)[count.index]]
+  name               = "elasticsearch-${var.es_cluster}-client-nodes-${keys(var.clients_count)[count.index]}"
+  max_size           = var.clients_count[keys(var.clients_count)[count.index]]
+  min_size           = var.clients_count[keys(var.clients_count)[count.index]]
+  desired_capacity   = var.clients_count[keys(var.clients_count)[count.index]]
   availability_zones = [keys(var.clients_count)[count.index]]
-  default_cooldown  = 30
-  force_delete      = true
-  health_check_type = var.health_check_type
+  default_cooldown   = 30
+  force_delete       = true
+  health_check_type  = var.health_check_type
 
-  vpc_zone_identifier     = local.clients_subnet_ids[keys(var.clients_count)[count.index]]
+  vpc_zone_identifier = local.clients_subnet_ids[keys(var.clients_count)[count.index]]
 
   target_group_arns = [
     aws_lb_target_group.esearch-p9200-tg.arn,

@@ -7,7 +7,7 @@ data "aws_subnet_ids" "all-subnets" {
 }
 
 data "aws_subnet_ids" "subnets-per-az" {
-  count = length(local.all_availability_zones)
+  count  = length(local.all_availability_zones)
   vpc_id = var.vpc_id
 
   filter {

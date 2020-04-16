@@ -4,12 +4,12 @@ data "local_file" "cluster_bootstrap_state" {
 
 data "template_file" "master_userdata_script" {
   template = file("${path.module}/../templates/userdata/master.sh")
-  vars = local.user_data_common
+  vars     = local.user_data_common
 }
 
 data "template_file" "bootstrap_userdata_script" {
   template = file("${path.module}/../templates/userdata/bootstrap.sh")
-  vars = local.user_data_common
+  vars     = local.user_data_common
 }
 
 resource "aws_launch_template" "master" {
@@ -40,15 +40,15 @@ resource "aws_launch_template" "master" {
 resource "aws_autoscaling_group" "master_nodes" {
   count = length(keys(var.masters_count))
 
-  name             = "elasticsearch-${var.es_cluster}-master-nodes-${keys(var.masters_count)[count.index]}"
-  max_size         = var.masters_count[keys(var.masters_count)[count.index]]
-  min_size         = var.masters_count[keys(var.masters_count)[count.index]]
-  desired_capacity = var.masters_count[keys(var.masters_count)[count.index]]
+  name               = "elasticsearch-${var.es_cluster}-master-nodes-${keys(var.masters_count)[count.index]}"
+  max_size           = var.masters_count[keys(var.masters_count)[count.index]]
+  min_size           = var.masters_count[keys(var.masters_count)[count.index]]
+  desired_capacity   = var.masters_count[keys(var.masters_count)[count.index]]
   availability_zones = [keys(var.masters_count)[count.index]]
-  default_cooldown = 30
-  force_delete     = true
+  default_cooldown   = 30
+  force_delete       = true
 
-  vpc_zone_identifier     = local.cluster_subnet_ids[keys(var.masters_count)[count.index]]
+  vpc_zone_identifier = local.cluster_subnet_ids[keys(var.masters_count)[count.index]]
 
   launch_template {
     id      = aws_launch_template.master.id
@@ -87,7 +87,7 @@ resource "aws_autoscaling_group" "master_nodes" {
 }
 
 resource "aws_instance" "bootstrap_node" {
-  count                                = local.singlenode_mode || local.is_cluster_bootstrapped ? 0 : 1
+  count = local.singlenode_mode || local.is_cluster_bootstrapped ? 0 : 1
 
   ami                                  = data.aws_ami.elasticsearch.id
   instance_type                        = var.master_instance_type
@@ -103,10 +103,10 @@ resource "aws_instance" "bootstrap_node" {
   subnet_id            = local.bootstrap_node_subnet_id
 
   tags = {
-    Name        = "${var.es_cluster}-bootstrap-node"
-    Environment = var.environment
-    Cluster     = "${var.environment}-${var.es_cluster}"
-    Role        = "bootstrap"
+    Name                   = "${var.es_cluster}-bootstrap-node"
+    Environment            = var.environment
+    Cluster                = "${var.environment}-${var.es_cluster}"
+    Role                   = "bootstrap"
     AutoAttachDiskDisabled = "true"
   }
 }

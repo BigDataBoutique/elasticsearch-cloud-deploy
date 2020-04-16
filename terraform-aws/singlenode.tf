@@ -1,6 +1,6 @@
 data "template_file" "singlenode_userdata_script" {
   template = file("${path.module}/../templates/userdata/singlenode.sh")
-  vars = local.user_data_common
+  vars     = local.user_data_common
 }
 
 resource "aws_launch_template" "single_node" {
@@ -30,21 +30,21 @@ resource "aws_launch_template" "single_node" {
 resource "aws_autoscaling_group" "singlenode" {
   count = local.singlenode_mode ? 1 : 0
 
-  name                    = "elasticsearch-${var.es_cluster}-singlenode"
-  min_size                = 1
-  max_size                = 1
-  desired_capacity        = 1
-  default_cooldown        = 30
-  force_delete            = true
+  name             = "elasticsearch-${var.es_cluster}-singlenode"
+  min_size         = 1
+  max_size         = 1
+  desired_capacity = 1
+  default_cooldown = 30
+  force_delete     = true
 
-  vpc_zone_identifier     = [local.singlenode_subnet_id]
+  vpc_zone_identifier = [local.singlenode_subnet_id]
 
   target_group_arns = [
     aws_lb_target_group.esearch-p9200-tg.arn,
     aws_lb_target_group.kibana-p5601-tg.arn,
     aws_lb_target_group.grafana-p3000-tg.arn,
     aws_lb_target_group.cerebro-p9000-tg.arn,
-  ]  
+  ]
 
   launch_template {
     id      = aws_launch_template.single_node.id

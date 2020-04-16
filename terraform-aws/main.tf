@@ -3,12 +3,12 @@ provider "aws" {
 }
 
 resource "random_string" "vm-login-password" {
-  length           = 16
-  special          = false
+  length  = 16
+  special = false
 }
 
 locals {
-  masters_count                = length(flatten([ for _, count in var.masters_count : range(count) ])) # sum(...) going to be added to TF0.12 soon
+  masters_count = length(flatten([for _, count in var.masters_count : range(count)])) # sum(...) going to be added to TF0.12 soon
 
   all_availability_zones = compact(tolist(setunion(
     keys(var.masters_count),
@@ -30,7 +30,7 @@ locals {
 
   bootstrap_node_subnet_id = var.bootstrap_node_subnet_id != "" ? var.bootstrap_node_subnet_id : coalescelist(local.flat_cluster_subnet_ids, [""])[0]
 
-  singlenode_mode = (length(keys(var.masters_count)) + length(keys(var.datas_count)) + length(keys(var.clients_count))) == 0
+  singlenode_mode      = (length(keys(var.masters_count)) + length(keys(var.datas_count)) + length(keys(var.clients_count))) == 0
   singlenode_subnet_id = local.singlenode_mode ? local.cluster_subnet_ids[var.singlenode_az][0] : ""
 
   is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1"
@@ -43,27 +43,27 @@ locals {
     es_cluster             = var.es_cluster
     es_environment         = "${var.environment}-${var.es_cluster}"
     security_groups        = aws_security_group.elasticsearch_security_group.id
-    aws_region            = var.aws_region
-    security_enabled      = var.security_enabled
-    monitoring_enabled    = var.monitoring_enabled
-    masters_count         = local.masters_count
-    client_user           = var.client_user
-    xpack_monitoring_host = var.xpack_monitoring_host    
-    client_pwd            = random_string.vm-login-password.result
-    master                = false
-    data                  = false
-    bootstrap_node        = false
+    aws_region             = var.aws_region
+    security_enabled       = var.security_enabled
+    monitoring_enabled     = var.monitoring_enabled
+    masters_count          = local.masters_count
+    client_user            = var.client_user
+    xpack_monitoring_host  = var.xpack_monitoring_host
+    client_pwd             = random_string.vm-login-password.result
+    master                 = false
+    data                   = false
+    bootstrap_node         = false
 
-    ca_cert               = var.security_enabled ? file("${path.module}/../certs/ca.crt") : ""
-    node_cert             = var.security_enabled ? file("${path.module}/../certs/node.crt") : ""
-    node_key              = var.security_enabled ? file("${path.module}/../certs/node.key") : ""
+    ca_cert   = var.security_enabled ? file("${path.module}/../certs/ca.crt") : ""
+    node_cert = var.security_enabled ? file("${path.module}/../certs/node.crt") : ""
+    node_key  = var.security_enabled ? file("${path.module}/../certs/node.key") : ""
   }
 
   user_data_common = merge(local._user_data_common, {
     auto_attach_ebs_script   = templatefile("${path.module}/../templates/userdata/scripts/autoattach-ebs.sh", local._user_data_common)
-    configure_es_script = templatefile("${path.module}/../templates/userdata/scripts/config-es.sh", local._user_data_common)
+    configure_es_script      = templatefile("${path.module}/../templates/userdata/scripts/config-es.sh", local._user_data_common)
     configure_cluster_script = templatefile("${path.module}/../templates/userdata/scripts/config-cluster.sh", local._user_data_common)
-    configure_clients_script = templatefile("${path.module}/../templates/userdata/scripts/config-clients.sh", local._user_data_common)    
+    configure_clients_script = templatefile("${path.module}/../templates/userdata/scripts/config-clients.sh", local._user_data_common)
   })
 }
 
@@ -111,7 +111,7 @@ resource "aws_security_group" "elasticsearch_security_group" {
     to_port         = 9200
     protocol        = "tcp"
     security_groups = [aws_security_group.elasticsearch-alb-sg.id]
-  }  
+  }
 
   egress {
     from_port   = 0

@@ -1,6 +1,6 @@
 data "template_file" "data_userdata_script" {
   template = file("${path.module}/../templates/userdata/data.sh")
-  vars = local.user_data_common
+  vars     = local.user_data_common
 }
 
 resource "aws_launch_template" "data" {
@@ -33,15 +33,15 @@ resource "aws_launch_template" "data" {
 resource "aws_autoscaling_group" "data_nodes" {
   count = length(keys(var.datas_count))
 
-  name             = "elasticsearch-${var.es_cluster}-data-nodes-${keys(var.datas_count)[count.index]}"
-  max_size         = var.datas_count[keys(var.datas_count)[count.index]]
-  min_size         = var.datas_count[keys(var.datas_count)[count.index]]
-  desired_capacity = var.datas_count[keys(var.datas_count)[count.index]]
+  name               = "elasticsearch-${var.es_cluster}-data-nodes-${keys(var.datas_count)[count.index]}"
+  max_size           = var.datas_count[keys(var.datas_count)[count.index]]
+  min_size           = var.datas_count[keys(var.datas_count)[count.index]]
+  desired_capacity   = var.datas_count[keys(var.datas_count)[count.index]]
   availability_zones = [keys(var.datas_count)[count.index]]
-  default_cooldown = 30
-  force_delete     = true
+  default_cooldown   = 30
+  force_delete       = true
 
-  vpc_zone_identifier     = local.cluster_subnet_ids[keys(var.datas_count)[count.index]]
+  vpc_zone_identifier = local.cluster_subnet_ids[keys(var.datas_count)[count.index]]
 
   depends_on = [
     aws_autoscaling_group.master_nodes,
