@@ -2,8 +2,18 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
-data "aws_subnet_ids" "selected" {
+data "aws_subnet_ids" "all-subnets" {
   vpc_id = var.vpc_id
+}
+
+data "aws_subnet_ids" "subnets-per-az" {
+  count = length(local.all_availability_zones)
+  vpc_id = var.vpc_id
+
+  filter {
+    name   = "availability-zone"
+    values = [local.all_availability_zones[count.index]]
+  }
 }
 
 resource "aws_security_group" "vpc-endpoint" {
@@ -31,6 +41,26 @@ resource "aws_vpc_endpoint" "ec2" {
   private_dns_enabled = true
 
   security_group_ids = [aws_security_group.vpc-endpoint.id]
-  subnet_ids = coalescelist(var.cluster_subnet_ids, data.aws_subnet_ids.selected.ids)
+  subnet_ids = compact(setunion(
+    local.flat_cluster_subnet_ids,
+    local.flat_clients_subnet_ids,
+    [local.singlenode_subnet_id],
+    [local.bootstrap_node_subnet_id]
+  ))
+}
+
+resource "aws_vpc_endpoint" "autoscaling" {
+  vpc_id              = var.vpc_id
+  service_name        = "com.amazonaws.${var.aws_region}.autoscaling"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+
+  security_group_ids = [aws_security_group.vpc-endpoint.id]
+  subnet_ids = compact(setunion(
+    local.flat_cluster_subnet_ids,
+    local.flat_clients_subnet_ids,
+    [local.singlenode_subnet_id],
+    [local.bootstrap_node_subnet_id]
+  ))
 }
 

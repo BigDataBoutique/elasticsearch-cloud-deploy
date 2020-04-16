@@ -14,20 +14,14 @@ variable "vpc_id" {
 
 variable "clients_subnet_ids" {
   description = "Subnets to run client nodes and client ELB in. Only one subnet per availability zone allowed. Will detect a single subnet by default."
-  type        = list(string)
-  default     = []
+  type        = map(list(string))
+  default     = {}
 }
 
 variable "cluster_subnet_ids" {
   description = "Cluster nodes subnets. Defaults to all VPC subnets."
-  type        = list(string)
-  default     = []
-}
-
-variable "availability_zones" {
-  type        = list(string)
-  description = "AWS region to launch servers; if not set the available zones will be detected automatically"
-  default     = []
+  type        = map(list(string))
+  default     = {}
 }
 
 variable "key_name" {
@@ -83,15 +77,21 @@ variable "client_heap_size" {
 }
 
 variable "masters_count" {
-  default = "0"
+  type    = map(number)
+  default = {}
+  description = "masters count per AZ"
 }
 
 variable "datas_count" {
-  default = "0"
+  type    = map(number)
+  default = {}
+  description = "data nodes count per AZ"
 }
 
 variable "clients_count" {
-  default = "0"
+  type    = map(number)
+  default = {}
+  description = "client nodes count per AZ"
 }
 
 variable "security_enabled" {
@@ -104,15 +104,14 @@ variable "monitoring_enabled" {
   default     = "true"
 }
 
-# client nodes have nginx installed on them, these credentials are used for basic auth
 variable "client_user" {
-  default = "exampleuser"
+  default = "elastic"
 }
 
 variable "public_facing" {
   description = "Whether or not the created cluster should be accessible from the public internet"
-  type        = string
-  default     = "true"
+  type        = bool
+  default     = true
 }
 
 # the ability to add additional existing security groups. In our case
@@ -147,3 +146,14 @@ variable "s3_backup_bucket" {
   default     = ""
 }
 
+variable "alb_subnets" {
+  default = []
+}
+
+variable "singlenode_az" {
+  default = ""
+}
+
+variable "bootstrap_node_subnet_id" {
+  default = ""
+}

@@ -3,85 +3,33 @@ data "local_file" "cluster_bootstrap_state" {
 }
 
 data "template_file" "master_userdata_script" {
-  template = file("${path.module}/../templates/user_data.sh")
-
-  vars = {
-    cloud_provider         = "aws"
-    elasticsearch_data_dir = "/var/lib/elasticsearch"
-    elasticsearch_logs_dir = var.elasticsearch_logs_dir
-    heap_size              = var.master_heap_size
-    es_cluster             = var.es_cluster
-    es_environment         = "${var.environment}-${var.es_cluster}"
-    security_groups        = aws_security_group.elasticsearch_security_group.id
-    availability_zones = join(
-      ",",
-      coalescelist(
-        var.availability_zones,
-        data.aws_availability_zones.available.names,
-      ),
-    )
-    master                = "true"
-    data                  = "false"
-    bootstrap_node        = "false"
-    aws_region            = var.aws_region
-    security_enabled      = var.security_enabled
-    monitoring_enabled    = var.monitoring_enabled
-    masters_count         = var.masters_count
-    client_user           = ""
-    client_pwd            = ""
-    xpack_monitoring_host = var.xpack_monitoring_host
-  }
+  template = file("${path.module}/../templates/userdata/master.sh")
+  vars = local.user_data_common
 }
 
 data "template_file" "bootstrap_userdata_script" {
-  template = file("${path.module}/../templates/user_data.sh")
-
-  vars = {
-    cloud_provider         = "aws"
-    elasticsearch_data_dir = "/var/lib/elasticsearch"
-    elasticsearch_logs_dir = var.elasticsearch_logs_dir
-    heap_size              = var.master_heap_size
-    es_cluster             = var.es_cluster
-    es_environment         = "${var.environment}-${var.es_cluster}"
-    security_groups        = aws_security_group.elasticsearch_security_group.id
-    asg_name               = aws_autoscaling_group.master_nodes.name
-    availability_zones = join(
-      ",",
-      coalescelist(
-        var.availability_zones,
-        data.aws_availability_zones.available.names,
-      ),
-    )
-    master                = "true"
-    data                  = "false"
-    bootstrap_node        = "true"
-    aws_region            = var.aws_region
-    security_enabled      = var.security_enabled
-    monitoring_enabled    = var.monitoring_enabled
-    masters_count         = var.masters_count
-    client_user           = ""
-    client_pwd            = ""
-    xpack_monitoring_host = "self"
-  }
+  template = file("${path.module}/../templates/userdata/bootstrap.sh")
+  vars = local.user_data_common
 }
 
-resource "aws_launch_configuration" "master" {
+resource "aws_launch_template" "master" {
   name_prefix   = "elasticsearch-${var.es_cluster}-master-nodes"
   image_id      = data.aws_ami.elasticsearch.id
   instance_type = var.master_instance_type
-  security_groups = concat(
-    [aws_security_group.elasticsearch_security_group.id],
-    var.additional_security_groups,
-  )
-  associate_public_ip_address = false
-  iam_instance_profile        = aws_iam_instance_profile.elasticsearch.id
-  user_data                   = data.template_file.master_userdata_script.rendered
-  key_name                    = var.key_name
+  user_data     = base64encode(data.template_file.master_userdata_script.rendered)
+  key_name      = var.key_name
 
-  ebs_block_device {
-    volume_type = "gp2"
-    device_name = "/dev/xvdh"
-    volume_size = "10" # GB
+  iam_instance_profile {
+    arn = aws_iam_instance_profile.elasticsearch.arn
+  }
+
+  network_interfaces {
+    delete_on_termination       = true
+    associate_public_ip_address = false
+    security_groups = concat(
+      [aws_security_group.elasticsearch_security_group.id],
+      var.additional_security_groups,
+    )
   }
 
   lifecycle {
@@ -90,14 +38,22 @@ resource "aws_launch_configuration" "master" {
 }
 
 resource "aws_autoscaling_group" "master_nodes" {
-  name                 = "elasticsearch-${var.es_cluster}-master-nodes"
-  max_size             = var.masters_count
-  min_size             = var.masters_count
-  desired_capacity     = var.masters_count
-  default_cooldown     = 30
-  force_delete         = true
-  launch_configuration = aws_launch_configuration.master.id
-  vpc_zone_identifier = coalescelist(var.cluster_subnet_ids, data.aws_subnet_ids.selected.ids)
+  count = length(keys(var.masters_count))
+
+  name             = "elasticsearch-${var.es_cluster}-master-nodes-${keys(var.masters_count)[count.index]}"
+  max_size         = var.masters_count[keys(var.masters_count)[count.index]]
+  min_size         = var.masters_count[keys(var.masters_count)[count.index]]
+  desired_capacity = var.masters_count[keys(var.masters_count)[count.index]]
+  availability_zones = [keys(var.masters_count)[count.index]]
+  default_cooldown = 30
+  force_delete     = true
+
+  vpc_zone_identifier     = local.cluster_subnet_ids[keys(var.masters_count)[count.index]]
+
+  launch_template {
+    id      = aws_launch_template.master.id
+    version = "$Latest"
+  }
 
   tag {
     key                 = "Name"
@@ -126,15 +82,17 @@ resource "aws_autoscaling_group" "master_nodes" {
   lifecycle {
     create_before_destroy = true
   }
+
+  depends_on = [aws_ebs_volume.master]
 }
 
 resource "aws_instance" "bootstrap_node" {
-  // Only create if cluster was not bootstrapped before, and not in single-node mode
-  count = var.masters_count == "0" && var.datas_count == "0" || data.local_file.cluster_bootstrap_state.content == "1" ? "0" : "1"
+  count                                = local.singlenode_mode || local.is_cluster_bootstrapped ? 0 : 1
 
   ami                                  = data.aws_ami.elasticsearch.id
   instance_type                        = var.master_instance_type
   instance_initiated_shutdown_behavior = "terminate"
+
   vpc_security_group_ids = concat(
     [aws_security_group.elasticsearch_security_group.id],
     var.additional_security_groups,
@@ -142,16 +100,14 @@ resource "aws_instance" "bootstrap_node" {
   iam_instance_profile = aws_iam_instance_profile.elasticsearch.id
   user_data            = data.template_file.bootstrap_userdata_script.rendered
   key_name             = var.key_name
-  subnet_id = element(
-    coalescelist(var.cluster_subnet_ids, data.aws_subnet_ids.selected.ids),
-    0,
-  )
+  subnet_id            = local.bootstrap_node_subnet_id
 
   tags = {
     Name        = "${var.es_cluster}-bootstrap-node"
     Environment = var.environment
     Cluster     = "${var.environment}-${var.es_cluster}"
     Role        = "bootstrap"
+    AutoAttachDiskDisabled = "true"
   }
 }
 
@@ -166,4 +122,3 @@ resource "null_resource" "cluster_bootstrap_state" {
 
   depends_on = [aws_instance.bootstrap_node]
 }
-
