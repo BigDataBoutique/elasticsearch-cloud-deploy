@@ -1,5 +1,9 @@
-if [ "${security_enabled}" == "true" ]; then
-BASICAUTH=" --user elastic:${client_pwd} "
+# Required variables
+# - security_enabled
+# - client_pwd
+
+if [ "$security_enabled" == "true" ]; then
+BASICAUTH=" --user elastic:$client_pwd "
 
 while true
 do
@@ -16,18 +20,18 @@ done
 
 curl $BASICAUTH \
      -X PUT -H 'Content-Type: application/json' -k \
-     "localhost:9200/_xpack/security/user/kibana/_password" -d '{ "password": "${client_pwd}" }'
+     "localhost:9200/_xpack/security/user/kibana/_password" -d '{ "password": "'"$client_pwd"'" }'
 
 curl $BASICAUTH \
      -X PUT -H 'Content-Type: application/json' -k \
-     "localhost:9200/_xpack/security/user/logstash_system/_password" -d '{ "password": "${client_pwd}" }'
+     "localhost:9200/_xpack/security/user/logstash_system/_password" -d '{ "password": "'"$client_pwd"'" }'
 
 curl $BASICAUTH \
      -X PUT -H 'Content-Type: application/json' -k \
-     "localhost:9200/_xpack/security/user/elastic/_password" -d '{ "password": "${client_pwd}" }'
+     "localhost:9200/_xpack/security/user/elastic/_password" -d '{ "password": "'"$client_pwd"'" }'
 
 curl $BASICAUTH \
      -X PUT -H 'Content-Type: application/json' -k \
-     "localhost:9200/_xpack/security/user/remote_monitoring_user/_password" -d '{ "password": "${client_pwd}" }'
+     "localhost:9200/_xpack/security/user/remote_monitoring_user/_password" -d '{ "password": "'"$client_pwd"'" }'
 
 fi

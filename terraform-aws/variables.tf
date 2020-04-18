@@ -13,13 +13,13 @@ variable "vpc_id" {
 }
 
 variable "clients_subnet_ids" {
-  description = "Subnets to run client nodes and client ELB in. Only one subnet per availability zone allowed. Will detect a single subnet by default."
+  description = "Subnets to run client nodes in, defined as avalabilityZone -> subnets mapping. Will autofill to all available subnets in AZ when left empty."
   type        = map(list(string))
   default     = {}
 }
 
 variable "cluster_subnet_ids" {
-  description = "Cluster nodes subnets. Defaults to all VPC subnets."
+  description = "Subnets to run cluster nodes in, defined as avalabilityZone -> subnets mapping. Will autofill to all available subnets in AZ when left empty."
   type        = map(list(string))
   default     = {}
 }
@@ -79,24 +79,24 @@ variable "client_heap_size" {
 variable "masters_count" {
   type        = map(number)
   default     = {}
-  description = "masters count per AZ"
+  description = "Master nodes count per avalabilityZone. If all node counts are empty, will run in singlenode mode."
 }
 
 variable "datas_count" {
   type        = map(number)
   default     = {}
-  description = "data nodes count per AZ"
+  description = "Data nodes count per avalabilityZone. If all node counts are empty, will run in singlenode mode."
 }
 
 variable "clients_count" {
   type        = map(number)
   default     = {}
-  description = "client nodes count per AZ"
+  description = "Client nodes count per avalabilityZone. If all node counts are empty, will run in singlenode mode."
 }
 
 variable "security_enabled" {
   description = "Whether or not to enable x-pack security on the cluster"
-  default     = "false"
+  default     = false
 }
 
 variable "monitoring_enabled" {
@@ -105,6 +105,7 @@ variable "monitoring_enabled" {
 }
 
 variable "client_user" {
+  description = "The username to use when setting up basic auth on Grafana and Cerebro."
   default = "elastic"
 }
 
@@ -126,16 +127,6 @@ variable "ebs_optimized" {
   default     = "true"
 }
 
-variable "lb_port" {
-  description = "The port the load balancer should listen on for API requests."
-  default     = 80
-}
-
-variable "health_check_type" {
-  description = "Controls how health checking is done. Must be one of EC2 or ELB."
-  default     = "EC2"
-}
-
 variable "xpack_monitoring_host" {
   description = "ES host to send monitoring data"
   default     = "self"
@@ -147,13 +138,16 @@ variable "s3_backup_bucket" {
 }
 
 variable "alb_subnets" {
+  description = "Subnets to run the ALB in. Defaults to all VPC subnets."
   default = []
 }
 
 variable "singlenode_az" {
+  description = "This variable is required when running in singlenode mode. Singlenode mode is enabled when masters_count, datas_count and clients_count are all empty,"
   default = ""
 }
 
 variable "bootstrap_node_subnet_id" {
+  description = "Use to override which subnet the bootstrap node is created in."
   default = ""
 }

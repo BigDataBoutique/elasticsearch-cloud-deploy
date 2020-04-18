@@ -1,7 +1,14 @@
+# Required variables
+# - client_user
+# - client_pwd
+# - security_enabled
+# - monitoring_enabled
+
+
 function setup_grafana_dashboard() {
     GRAFANA_BASIC_AUTH=""
-    if [ "${security_enabled}" == "true" ]; then
-        GRAFANA_BASIC_AUTH=" --user ${client_user}:${client_pwd} "
+    if [ "$security_enabled" == "true" ]; then
+        GRAFANA_BASIC_AUTH=" --user $client_user:$client_pwd "
     fi
 
     while true; do
@@ -32,11 +39,11 @@ function setup_grafana_dashboard() {
     "readOnly": false,
 EOF
 
-    if [ "${security_enabled}" == "true" ]; then
-        cat <<'EOF' >>/tmp/grafana-datasource.json
+    if [ "$security_enabled" == "true" ]; then
+        cat <<EOF >>/tmp/grafana-datasource.json
     "basicAuth": true,
-    "basicAuthUser": "${client_user}",
-    "secureJsonData": { "basicAuthPassword": "${client_pwd}" }
+    "basicAuthUser": "$client_user",
+    "secureJsonData": { "basicAuthPassword": "$client_pwd" }
 }
 EOF
     else
@@ -57,12 +64,12 @@ EOF
 # Setup x-pack security also on Kibana configs where applicable
 if [ -f "/etc/kibana/kibana.yml" ]; then
     echo "server.host: $(hostname -I)" | sudo tee -a /etc/kibana/kibana.yml
-    echo "xpack.security.enabled: ${security_enabled}" | sudo tee -a /etc/kibana/kibana.yml
-    echo "xpack.monitoring.enabled: ${monitoring_enabled}" | sudo tee -a /etc/kibana/kibana.yml
+    echo "xpack.security.enabled: $security_enabled" | sudo tee -a /etc/kibana/kibana.yml
+    echo "xpack.monitoring.enabled: $monitoring_enabled" | sudo tee -a /etc/kibana/kibana.yml
 
-    if [ "${security_enabled}" == "true" ]; then
+    if [ "$security_enabled" == "true" ]; then
         echo "elasticsearch.username: \"kibana\"" | sudo tee -a /etc/kibana/kibana.yml
-        echo "elasticsearch.password: \"${client_pwd}\"" | sudo tee -a /etc/kibana/kibana.yml
+        echo "elasticsearch.password: \"$client_pwd\"" | sudo tee -a /etc/kibana/kibana.yml
     fi
 
     systemctl daemon-reload
@@ -73,14 +80,14 @@ fi
 if [ -f "/etc/grafana/grafana.ini" ]; then
     sudo rm /etc/grafana/grafana.ini
 
-    if [ "${security_enabled}" == "true" ]; then
-        cat <<'EOF' >>/etc/grafana/grafana.ini
+    if [ "$security_enabled" == "true" ]; then
+        cat <<EOF >>/etc/grafana/grafana.ini
 [security]
-admin_user = ${client_user}
-admin_password = ${client_pwd}
+admin_user = $client_user
+admin_password = $client_pwd
 EOF
     else
-        cat <<'EOF' >>/etc/grafana/grafana.ini
+        cat <<EOF >>/etc/grafana/grafana.ini
 [auth.anonymous]
 enabled = true
 
@@ -101,9 +108,9 @@ fi
 
 if [ -d "/usr/share/cerebro/" ]; then
     CEREBRO_CONFIG_PATH="$(echo /usr/share/cerebro/cerebro*/conf/application.conf)"
-    if [ "${security_enabled}" == "true" ]; then
-        sudo sed -i 's/.{?BASIC_AUTH_USER}/"${client_user}"/ig' $CEREBRO_CONFIG_PATH
-        sudo sed -i 's/.{?BASIC_AUTH_PWD}/"${client_pwd}"/ig' $CEREBRO_CONFIG_PATH
+    if [ "$security_enabled" == "true" ]; then
+        sudo sed -i "s/.{?BASIC_AUTH_USER}/$client_user/ig" $CEREBRO_CONFIG_PATH
+        sudo sed -i "s/.{?BASIC_AUTH_PWD}/$client_pwd/ig" $CEREBRO_CONFIG_PATH
         sudo sed -i 's/.{?AUTH_TYPE}/"basic"/ig' $CEREBRO_CONFIG_PATH
     fi
     sudo systemctl restart cerebro        

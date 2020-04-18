@@ -1,6 +1,8 @@
 data "template_file" "singlenode_userdata_script" {
-  template = file("${path.module}/../templates/userdata/singlenode.sh")
-  vars     = local.user_data_common
+  template = file("${path.module}/../templates/aws_user_data.sh")
+  vars     = merge(local.user_data_common, {
+    startup_script = "singlenode.sh"
+  })
 }
 
 resource "aws_launch_template" "single_node" {

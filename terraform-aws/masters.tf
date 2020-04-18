@@ -3,13 +3,17 @@ data "local_file" "cluster_bootstrap_state" {
 }
 
 data "template_file" "master_userdata_script" {
-  template = file("${path.module}/../templates/userdata/master.sh")
-  vars     = local.user_data_common
+  template = file("${path.module}/../templates/aws_user_data.sh")
+  vars     = merge(local.user_data_common, {
+    startup_script = "master.sh"
+  })
 }
 
 data "template_file" "bootstrap_userdata_script" {
-  template = file("${path.module}/../templates/userdata/bootstrap.sh")
-  vars     = local.user_data_common
+  template = file("${path.module}/../templates/aws_user_data.sh")
+  vars     = merge(local.user_data_common, {
+    startup_script = "bootstrap.sh"
+  })
 }
 
 resource "aws_launch_template" "master" {
@@ -107,7 +111,6 @@ resource "aws_instance" "bootstrap_node" {
     Environment            = var.environment
     Cluster                = "${var.environment}-${var.es_cluster}"
     Role                   = "bootstrap"
-    AutoAttachDiskDisabled = "true"
   }
 }
 

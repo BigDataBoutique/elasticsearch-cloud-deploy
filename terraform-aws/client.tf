@@ -1,6 +1,8 @@
 data "template_file" "client_userdata_script" {
-  template = file("${path.module}/../templates/userdata/client.sh")
-  vars     = local.user_data_common
+  template = file("${path.module}/../templates/aws_user_data.sh")
+  vars     = merge(local.user_data_common, {
+    startup_script = "client.sh"
+  })
 }
 
 resource "aws_launch_template" "client" {
@@ -39,7 +41,6 @@ resource "aws_autoscaling_group" "client_nodes" {
   availability_zones = [keys(var.clients_count)[count.index]]
   default_cooldown   = 30
   force_delete       = true
-  health_check_type  = var.health_check_type
 
   vpc_zone_identifier = local.clients_subnet_ids[keys(var.clients_count)[count.index]]
 

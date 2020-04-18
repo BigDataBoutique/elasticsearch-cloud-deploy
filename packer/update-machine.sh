@@ -2,13 +2,13 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get update
 sudo rm /boot/grub/menu.lst
 
-# Need to wait for cloud-init to finish before using apt-get
 # https://github.com/hashicorp/packer/issues/2639
-sleep 30
+echo "Waiting 100 seconds for cloud-init to finish..."
+sleep 100
 
+sudo apt-get update
 sudo -E apt-get upgrade -y
 sudo -E apt-get install -y software-properties-common git python-dev htop ntp jq apt-transport-https unzip
 

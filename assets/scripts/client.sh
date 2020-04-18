@@ -1,8 +1,8 @@
 #!/bin/bash
 
-exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+/opt/cloud-deploy-scripts/common/config-es.sh
 
-${configure_es_script}
+/opt/cloud-deploy-scripts/aws/config-es-discovery.sh
 
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 node.master: false
@@ -15,4 +15,4 @@ systemctl daemon-reload
 systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
-${configure_clients_script}
+/opt/cloud-deploy-scripts/common/config-clients.sh

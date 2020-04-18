@@ -1,5 +1,5 @@
 data "template_file" "data_s3_backup" {
-  template = file("${path.module}/../templates/s3-backup.json")
+  template = file("${path.module}/../assets/s3-backup.json")
 
   vars = {
     s3_backup_bucket = var.s3_backup_bucket
@@ -8,13 +8,13 @@ data "template_file" "data_s3_backup" {
 
 resource "aws_iam_role" "elasticsearch" {
   name               = "${var.es_cluster}-elasticsearch-discovery-role"
-  assume_role_policy = file("${path.module}/../templates/ec2-role-trust-policy.json")
+  assume_role_policy = file("${path.module}/../assets/ec2-role-trust-policy.json")
 }
 
 resource "aws_iam_role_policy" "elasticsearch" {
   name = "${var.es_cluster}-elasticsearch-node-init-policy"
   policy = file(
-    "${path.module}/../templates/node-init.json",
+    "${path.module}/../assets/node-init.json",
   )
   role = aws_iam_role.elasticsearch.id
 }

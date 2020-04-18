@@ -35,7 +35,7 @@ locals {
 
   is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1"
 
-  _user_data_common = {
+  user_data_common = {
     cloud_provider         = "aws"
     elasticsearch_data_dir = var.elasticsearch_data_dir
     elasticsearch_logs_dir = var.elasticsearch_logs_dir
@@ -54,17 +54,10 @@ locals {
     data                   = false
     bootstrap_node         = false
 
-    ca_cert   = var.security_enabled ? file("${path.module}/../certs/ca.crt") : ""
-    node_cert = var.security_enabled ? file("${path.module}/../certs/node.crt") : ""
-    node_key  = var.security_enabled ? file("${path.module}/../certs/node.key") : ""
+    ca_cert   = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
+    node_cert = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
+    node_key  = var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""
   }
-
-  user_data_common = merge(local._user_data_common, {
-    auto_attach_ebs_script   = templatefile("${path.module}/../templates/userdata/scripts/autoattach-ebs.sh", local._user_data_common)
-    configure_es_script      = templatefile("${path.module}/../templates/userdata/scripts/config-es.sh", local._user_data_common)
-    configure_cluster_script = templatefile("${path.module}/../templates/userdata/scripts/config-cluster.sh", local._user_data_common)
-    configure_clients_script = templatefile("${path.module}/../templates/userdata/scripts/config-clients.sh", local._user_data_common)
-  })
 }
 
 ##############################################################################

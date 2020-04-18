@@ -1,10 +1,10 @@
 #!/bin/bash
 
-exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+/opt/cloud-deploy-scripts/aws/autoattach-ebs.sh
 
-${auto_attach_ebs_script}
+/opt/cloud-deploy-scripts/common/config-es.sh
 
-${configure_es_script}
+/opt/cloud-deploy-scripts/aws/config-es-discovery.sh
 
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 node.master: true
@@ -13,7 +13,7 @@ node.ingest: true
 discovery.type: single-node
 EOF
 
-${configure_clients_script}
+/opt/cloud-deploy-scripts/common/config-clients.sh
 
 BASICAUTH=""
 if [ "${security_enabled}" == "true" ]; then
@@ -26,4 +26,4 @@ systemctl daemon-reload
 systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
-${configure_cluster_script}
+/opt/cloud-deploy-scripts/common/config-cluster.sh
