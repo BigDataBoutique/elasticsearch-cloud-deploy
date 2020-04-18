@@ -4,14 +4,14 @@ data "local_file" "cluster_bootstrap_state" {
 
 data "template_file" "master_userdata_script" {
   template = file("${path.module}/../templates/aws_user_data.sh")
-  vars     = merge(local.user_data_common, {
+  vars = merge(local.user_data_common, {
     startup_script = "master.sh"
   })
 }
 
 data "template_file" "bootstrap_userdata_script" {
   template = file("${path.module}/../templates/aws_user_data.sh")
-  vars     = merge(local.user_data_common, {
+  vars = merge(local.user_data_common, {
     startup_script = "bootstrap.sh"
   })
 }
@@ -107,10 +107,10 @@ resource "aws_instance" "bootstrap_node" {
   subnet_id            = local.bootstrap_node_subnet_id
 
   tags = {
-    Name                   = "${var.es_cluster}-bootstrap-node"
-    Environment            = var.environment
-    Cluster                = "${var.environment}-${var.es_cluster}"
-    Role                   = "bootstrap"
+    Name        = "${var.es_cluster}-bootstrap-node"
+    Environment = var.environment
+    Cluster     = "${var.environment}-${var.es_cluster}"
+    Role        = "bootstrap"
   }
 }
 

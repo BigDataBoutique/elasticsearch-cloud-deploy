@@ -106,7 +106,7 @@ variable "monitoring_enabled" {
 
 variable "client_user" {
   description = "The username to use when setting up basic auth on Grafana and Cerebro."
-  default = "elastic"
+  default     = "elastic"
 }
 
 variable "public_facing" {
@@ -139,15 +139,15 @@ variable "s3_backup_bucket" {
 
 variable "alb_subnets" {
   description = "Subnets to run the ALB in. Defaults to all VPC subnets."
-  default = []
+  default     = []
 }
 
 variable "singlenode_az" {
   description = "This variable is required when running in singlenode mode. Singlenode mode is enabled when masters_count, datas_count and clients_count are all empty,"
-  default = ""
+  default     = ""
 }
 
 variable "bootstrap_node_subnet_id" {
   description = "Use to override which subnet the bootstrap node is created in."
-  default = ""
+  default     = ""
 }

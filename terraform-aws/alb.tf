@@ -3,7 +3,7 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
   description = "ElasticSearch Ports for ALB Access"
   vpc_id      = var.vpc_id
 
-  # allow Kibana port access from office vpn
+  # allow Kibana port access
   ingress {
     from_port   = 5601
     to_port     = 5601
@@ -11,7 +11,7 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # allow Cerebro port access from office vpn
+  # allow Cerebro port access
   ingress {
     from_port   = 9000
     to_port     = 9000
@@ -19,7 +19,7 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # allow Grafana port access from office vpn
+  # allow Grafana port access
   ingress {
     from_port   = 3000
     to_port     = 3000
@@ -27,7 +27,7 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # allow ElasticSearch port access from dev and prod
+  # allow ElasticSearch port access
   ingress {
     from_port   = 9200
     to_port     = 9200
