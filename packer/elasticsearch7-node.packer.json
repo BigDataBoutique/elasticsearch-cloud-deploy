@@ -2,6 +2,7 @@
   "description": "Elasticsarch Image",
   "builders": [
     {
+      "name": "aws",
       "type": "amazon-ebs",
       "ami_name": "elasticsearch7-{{isotime | clean_ami_name}}",
       "availability_zone": "{{user `aws_az`}}",
@@ -29,6 +30,7 @@
       "spot_price": "auto"
     },
     {
+      "name": "azure",
       "type": "azure-arm",
 
       "client_id": "{{user `azure_client_id`}}",
@@ -48,6 +50,7 @@
       "vm_size": "Standard_DS2_v2"
     },
     {
+      "name": "gcp",
       "type": "googlecompute",
       "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
@@ -83,7 +86,8 @@
     },
     {
       "type": "shell",
-      "script": "install-cloud-plugin.sh"
+      "script": "install-cloud-plugin.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
       "type": "shell",
