@@ -4,7 +4,7 @@
     {
       "name": "aws",
       "type": "amazon-ebs",
-      "ami_name": "elasticsearch7-{{isotime | clean_ami_name}}",
+      "ami_name": "elasticsearch7-{{isotime | clean_resource_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
       "instance_type": "t2.micro",
@@ -64,13 +64,28 @@
   ],
   "provisioners": [
     {
+      "type": "file",
+      "source": "../assets/scripts",
+      "destination": "/tmp",
+      "only": ["amazon-ebs"]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo mkdir -p /opt/cloud-deploy-scripts",
+        "sudo mv /tmp/scripts/* /opt/cloud-deploy-scripts",
+        "sudo chmod +x -R /opt/cloud-deploy-scripts"
+      ],
+      "only": ["amazon-ebs"]
+    },
+    {
       "type": "shell",
       "script": "update-machine.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
       "type": "file",
-      "source": "../templates/elasticsearch.yml",
+      "source": "../assets/elasticsearch.yml",
       "destination": "elasticsearch.yml"
     },
     {
@@ -91,6 +106,7 @@
     },
     {
       "type": "shell",
+      "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "script": "install-beats.sh"
     },
     {
