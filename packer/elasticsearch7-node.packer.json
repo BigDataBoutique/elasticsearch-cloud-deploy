@@ -102,6 +102,7 @@
     },
     {
       "type": "shell",
+      "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "script": "install-beats.sh"
     },
     {
