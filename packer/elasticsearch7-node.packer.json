@@ -3,7 +3,7 @@
   "builders": [
     {
       "type": "amazon-ebs",
-      "ami_name": "elasticsearch7-{{isotime | clean_ami_name}}",
+      "ami_name": "elasticsearch7-{{isotime | clean_resource_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
       "instance_type": "t2.micro",
