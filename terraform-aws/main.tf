@@ -49,6 +49,7 @@ locals {
     masters_count          = local.masters_count
     client_user            = var.client_user
     xpack_monitoring_host  = var.xpack_monitoring_host
+    s3_backup_bucket       = var.s3_backup_bucket
     client_pwd             = random_string.vm-login-password.result
     master                 = false
     data                   = false

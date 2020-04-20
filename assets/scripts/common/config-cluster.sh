@@ -1,9 +1,12 @@
 # Required variables
 # - security_enabled
 # - client_pwd
+# - client_pwd
 
+BASICAUTH=""
 if [ "$security_enabled" == "true" ]; then
-BASICAUTH=" --user elastic:$client_pwd "
+    BASICAUTH=" --user elastic:$client_pwd "
+fi
 
 while true
 do
@@ -18,20 +21,22 @@ do
     sleep 5
 done
 
-curl $BASICAUTH \
-     -X PUT -H 'Content-Type: application/json' -k \
-     "localhost:9200/_xpack/security/user/kibana/_password" -d '{ "password": "'"$client_pwd"'" }'
+if [ "$security_enabled" == "true" ]; then
+    curl $BASICAUTH \
+         -X PUT -H 'Content-Type: application/json' -k \
+         "localhost:9200/_xpack/security/user/kibana/_password" -d '{ "password": "'"$client_pwd"'" }'
 
-curl $BASICAUTH \
-     -X PUT -H 'Content-Type: application/json' -k \
-     "localhost:9200/_xpack/security/user/logstash_system/_password" -d '{ "password": "'"$client_pwd"'" }'
+    curl $BASICAUTH \
+         -X PUT -H 'Content-Type: application/json' -k \
+         "localhost:9200/_xpack/security/user/logstash_system/_password" -d '{ "password": "'"$client_pwd"'" }'
 
-curl $BASICAUTH \
-     -X PUT -H 'Content-Type: application/json' -k \
-     "localhost:9200/_xpack/security/user/elastic/_password" -d '{ "password": "'"$client_pwd"'" }'
+    curl $BASICAUTH \
+         -X PUT -H 'Content-Type: application/json' -k \
+         "localhost:9200/_xpack/security/user/elastic/_password" -d '{ "password": "'"$client_pwd"'" }'
 
-curl $BASICAUTH \
-     -X PUT -H 'Content-Type: application/json' -k \
-     "localhost:9200/_xpack/security/user/remote_monitoring_user/_password" -d '{ "password": "'"$client_pwd"'" }'
-
+    curl $BASICAUTH \
+         -X PUT -H 'Content-Type: application/json' -k \
+         "localhost:9200/_xpack/security/user/remote_monitoring_user/_password" -d '{ "password": "'"$client_pwd"'" }'
 fi
+
+/opt/cloud-deploy-scripts/aws/config-cluster.sh
