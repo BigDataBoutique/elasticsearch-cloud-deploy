@@ -103,3 +103,4 @@ packer build -only=amazon-ebs -var-file=variables.json kibana7-node.packer.json
 ```
 
 Replace the `-only` parameter to `azure-arm` to build images for Azure instead of AWS.
+For creating the Kibana image in azure, make sure you update "azure_elasticsearch_image_name" in variables.json. You can see it in the output for the creation of the Elasticsearch image.
