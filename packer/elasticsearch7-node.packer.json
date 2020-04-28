@@ -67,7 +67,7 @@
       "type": "file",
       "source": "../assets/scripts",
       "destination": "/tmp",
-      "only": ["amazon-ebs"]
+      "only": ["aws"]
     },
     {
       "type": "shell",
@@ -76,12 +76,12 @@
         "sudo mv /tmp/scripts/* /opt/cloud-deploy-scripts",
         "sudo chmod +x -R /opt/cloud-deploy-scripts"
       ],
-      "only": ["amazon-ebs"]
+      "only": ["aws"]
     },
     {
       "type": "shell",
       "script": "update-machine.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
     {
       "type": "file",
@@ -91,18 +91,18 @@
     {
       "type": "shell",
       "script": "install-openjdk11.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
     {
       "type": "shell",
       "script": "install-elasticsearch7.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
     {
       "type": "shell",
       "script": "install-cloud-plugin.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
     {
       "type": "shell",

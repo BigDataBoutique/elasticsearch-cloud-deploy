@@ -2,6 +2,7 @@
   "description": "Kibana Image",
   "builders": [
     {
+      "name": "aws",
       "type": "amazon-ebs",
 
       "ami_name": "kibana7-{{isotime | clean_resource_name}}",
@@ -32,6 +33,7 @@
       }
     },
     {
+      "name": "azure",
       "type": "azure-arm",
 
       "client_id": "{{user `azure_client_id`}}",
@@ -50,6 +52,7 @@
       "vm_size": "Standard_DS2_v2"
     },
     {
+      "name": "gcp",
       "type": "googlecompute",
       "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
@@ -82,13 +85,13 @@
       "type": "file",
       "source": "../templates/nginx-client.conf",
       "destination": "nginx-client.conf",
-      "except": ["amazon-ebs"]
+      "except": ["aws"]
     },
     {
       "type": "shell",
       "script": "install-nginx.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
-      "except": ["amazon-ebs"]
+      "except": ["aws"]
     }
   ]
 }
