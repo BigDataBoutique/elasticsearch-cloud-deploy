@@ -106,6 +106,8 @@ resource "aws_instance" "bootstrap_node" {
   key_name             = var.key_name
   subnet_id            = local.bootstrap_node_subnet_id
 
+  associate_public_ip_address = false
+
   tags = {
     Name        = "${var.es_cluster}-bootstrap-node"
     Environment = var.environment

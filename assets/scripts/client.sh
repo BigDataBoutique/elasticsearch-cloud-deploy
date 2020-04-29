@@ -1,6 +1,7 @@
 #!/bin/bash
 
 /opt/cloud-deploy-scripts/common/config-es.sh
+/opt/cloud-deploy-scripts/common/config-beats.sh
 
 /opt/cloud-deploy-scripts/aws/config-es-discovery.sh
 

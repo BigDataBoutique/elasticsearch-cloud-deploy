@@ -1,51 +1,45 @@
 locals {
-  master_az_flattened = flatten([
+  master_az_flattened = toset(flatten([
     for az, count in var.masters_count : [
-      for i in range(0, count) : tomap({ "az" = az, "index" = i })
+      for i in range(0, count) : jsonencode({ "az" = az, "index" = i, "name" = "${az}-${i}" })
     ]
-  ])
+  ]))
 
-  data_az_flattened = flatten([
+  data_az_flattened = toset(flatten([
     for az, count in var.datas_count : [
-      for i in range(0, count) : tomap({ "az" = az, "index" = i })
+      for i in range(0, count) : jsonencode({ "az" = az, "index" = i, "name" = "${az}-${i}" })
     ]
-  ])
-
-  client_az_flattened = flatten([
-    for az, count in var.clients_count : [
-      for i in range(0, count) : tomap({ "az" = az, "index" = i })
-    ]
-  ])
+  ]))
 }
 
 resource "aws_ebs_volume" "master" {
-  count = length(local.master_az_flattened)
+  for_each = local.master_az_flattened
 
-  availability_zone = local.master_az_flattened[count.index]["az"]
+  availability_zone = jsondecode(each.value)["az"]
   size              = var.elasticsearch_volume_size
   type              = "gp2"
   encrypted         = var.volume_encryption
 
   tags = {
-    Name            = "elasticsearch-${var.es_cluster}-master-${count.index}"
+    Name            = "elasticsearch-${var.es_cluster}-master-${jsondecode(each.value)["name"]}"
     ClusterName     = "${var.es_cluster}"
-    VolumeIndex     = local.master_az_flattened[count.index]["index"]
+    VolumeIndex     = jsondecode(each.value)["index"]
     AutoAttachGroup = "master"
   }
 }
 
 resource "aws_ebs_volume" "data" {
-  count = length(local.data_az_flattened)
+  for_each = local.data_az_flattened
 
-  availability_zone = local.data_az_flattened[count.index]["az"]
+  availability_zone = jsondecode(each.value)["az"]
   size              = var.elasticsearch_volume_size
   type              = "gp2"
   encrypted         = var.volume_encryption
 
   tags = {
-    Name            = "elasticsearch-${var.es_cluster}-data-${count.index}"
+    Name            = "elasticsearch-${var.es_cluster}-data-${jsondecode(each.value)["name"]}"
     ClusterName     = "${var.es_cluster}"
-    VolumeIndex     = local.data_az_flattened[count.index]["index"]
+    VolumeIndex     = jsondecode(each.value)["index"]
     AutoAttachGroup = "data"
   }
 }
