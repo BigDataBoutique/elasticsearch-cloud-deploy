@@ -132,6 +132,11 @@ variable "xpack_monitoring_host" {
   default     = "self"
 }
 
+variable "filebeat_monitoring_host" {
+  description = "ES host to send filebeat data"
+  default     = ""
+}
+
 variable "s3_backup_bucket" {
   description = "S3 bucket for backups"
   default     = ""

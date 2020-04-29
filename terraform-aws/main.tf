@@ -36,24 +36,25 @@ locals {
   is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1"
 
   user_data_common = {
-    cloud_provider         = "aws"
-    elasticsearch_data_dir = var.elasticsearch_data_dir
-    elasticsearch_logs_dir = var.elasticsearch_logs_dir
-    heap_size              = var.client_heap_size
-    es_cluster             = var.es_cluster
-    es_environment         = "${var.environment}-${var.es_cluster}"
-    security_groups        = aws_security_group.elasticsearch_security_group.id
-    aws_region             = var.aws_region
-    security_enabled       = var.security_enabled
-    monitoring_enabled     = var.monitoring_enabled
-    masters_count          = local.masters_count
-    client_user            = var.client_user
-    xpack_monitoring_host  = var.xpack_monitoring_host
-    s3_backup_bucket       = var.s3_backup_bucket
-    client_pwd             = random_string.vm-login-password.result
-    master                 = false
-    data                   = false
-    bootstrap_node         = false
+    cloud_provider           = "aws"
+    elasticsearch_data_dir   = var.elasticsearch_data_dir
+    elasticsearch_logs_dir   = var.elasticsearch_logs_dir
+    heap_size                = var.client_heap_size
+    es_cluster               = var.es_cluster
+    es_environment           = "${var.environment}-${var.es_cluster}"
+    security_groups          = aws_security_group.elasticsearch_security_group.id
+    aws_region               = var.aws_region
+    security_enabled         = var.security_enabled
+    monitoring_enabled       = var.monitoring_enabled
+    masters_count            = local.masters_count
+    client_user              = var.client_user
+    xpack_monitoring_host    = var.xpack_monitoring_host
+    filebeat_monitoring_host = var.filebeat_monitoring_host
+    s3_backup_bucket         = var.s3_backup_bucket
+    client_pwd               = random_string.vm-login-password.result
+    master                   = false
+    data                     = false
+    bootstrap_node           = false
 
     ca_cert   = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
