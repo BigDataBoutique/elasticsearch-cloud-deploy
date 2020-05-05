@@ -2,8 +2,9 @@
   "description": "Elasticsarch Image",
   "builders": [
     {
+      "name": "aws",
       "type": "amazon-ebs",
-      "ami_name": "elasticsearch7-{{isotime | clean_ami_name}}",
+      "ami_name": "elasticsearch7-{{isotime | clean_resource_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
       "instance_type": "t2.micro",
@@ -29,6 +30,7 @@
       "spot_price": "auto"
     },
     {
+      "name": "azure",
       "type": "azure-arm",
 
       "client_id": "{{user `azure_client_id`}}",
@@ -48,6 +50,7 @@
       "vm_size": "Standard_DS2_v2"
     },
     {
+      "name": "gcp",
       "type": "googlecompute",
       "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
@@ -61,38 +64,50 @@
   ],
   "provisioners": [
     {
+      "type": "file",
+      "source": "../assets/scripts",
+      "destination": "/tmp",
+      "only": ["aws"]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo mkdir -p /opt/cloud-deploy-scripts",
+        "sudo mv /tmp/scripts/* /opt/cloud-deploy-scripts",
+        "sudo chmod +x -R /opt/cloud-deploy-scripts"
+      ],
+      "only": ["aws"]
+    },
+    {
       "type": "shell",
       "script": "update-machine.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
     {
       "type": "file",
-      "source": "../templates/elasticsearch.yml",
+      "source": "../assets/elasticsearch.yml",
       "destination": "elasticsearch.yml"
     },
     {
       "type": "shell",
       "script": "install-openjdk11.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
     {
       "type": "shell",
       "script": "install-elasticsearch7.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
     {
       "type": "shell",
-      "script": "install-cloud-plugin.sh"
+      "script": "install-cloud-plugin.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
     {
       "type": "shell",
+      "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "script": "install-beats.sh"
-    },
-    {
-      "type": "shell",
-      "script": "install-esrally.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     },
     {
       "type": "shell",
