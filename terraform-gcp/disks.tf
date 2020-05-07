@@ -17,11 +17,11 @@ resource "google_compute_disk" "master" {
 
   name = "elasticsearch-${var.es_cluster}-master-${jsondecode(each.value)["name"]}"
   zone = jsondecode(each.value)["zone"]
-  size              = 10
+  size = 10
 
   labels = {
-    cluster-name     = "${var.es_cluster}"
-    volume-index     = jsondecode(each.value)["index"]
+    cluster-name      = "${var.es_cluster}"
+    volume-index      = jsondecode(each.value)["index"]
     auto-attach-group = "master"
   }
 }
@@ -31,11 +31,11 @@ resource "google_compute_disk" "data" {
 
   name = "elasticsearch-${var.es_cluster}-data-${jsondecode(each.value)["name"]}"
   zone = jsondecode(each.value)["zone"]
-  size              = var.elasticsearch_volume_size
+  size = var.elasticsearch_volume_size
 
   labels = {
-    cluster-name     = "${var.es_cluster}"
-    volume-index     = jsondecode(each.value)["index"]
+    cluster-name      = "${var.es_cluster}"
+    volume-index      = jsondecode(each.value)["index"]
     auto-attach-group = "data"
   }
 }
@@ -45,11 +45,11 @@ resource "google_compute_disk" "singlenode" {
 
   name = "elasticsearch-${var.es_cluster}-singlenode"
   zone = var.singlenode_zone
-  size              = var.elasticsearch_volume_size
+  size = var.elasticsearch_volume_size
 
   labels = {
-    cluster-name     = "${var.es_cluster}"
-    volume-index     = "0"
+    cluster-name      = "${var.es_cluster}"
+    volume-index      = "0"
     auto-attach-group = "singlenode"
   }
 }

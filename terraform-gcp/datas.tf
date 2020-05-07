@@ -9,10 +9,10 @@ data "template_file" "data_userdata_script" {
 resource "google_compute_instance_group_manager" "data" {
   for_each = toset(keys(var.datas_count))
 
-  provider  = google-beta
-  name      = "${var.es_cluster}-igm-data-${each.value}"
-  project   = "${var.gcp_project_id}"
-  zone      = each.value
+  provider = google-beta
+  name     = "${var.es_cluster}-igm-data-${each.value}"
+  project  = "${var.gcp_project_id}"
+  zone     = each.value
 
   version {
     instance_template = google_compute_instance_template.data.self_link
@@ -26,7 +26,7 @@ resource "google_compute_autoscaler" "data" {
   for_each = toset(keys(var.datas_count))
 
   name   = "${var.es_cluster}-autoscaler-data-${each.value}"
-  zone = each.value
+  zone   = each.value
   target = google_compute_instance_group_manager.data[each.value].self_link
 
   autoscaling_policy {
@@ -38,7 +38,7 @@ resource "google_compute_autoscaler" "data" {
 
 resource "google_compute_instance_template" "data" {
   provider       = google-beta
-  name_prefix           = "${var.es_cluster}-instance-template-data"
+  name_prefix    = "${var.es_cluster}-instance-template-data"
   project        = "${var.gcp_project_id}"
   machine_type   = "${var.data_machine_type}"
   can_ip_forward = false
@@ -49,13 +49,13 @@ resource "google_compute_instance_template" "data" {
 
   labels = {
     environment = var.environment
-    cluster = "${var.environment}-${var.es_cluster}"
-    role = "data"
+    cluster     = "${var.environment}-${var.es_cluster}"
+    role        = "data"
   }
 
   disk {
     source_image = data.google_compute_image.elasticsearch.self_link
-    boot         = true    
+    boot         = true
   }
 
   network_interface {

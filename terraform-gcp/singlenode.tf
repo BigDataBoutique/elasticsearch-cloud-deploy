@@ -7,15 +7,15 @@ data "template_file" "singlenode_userdata_script" {
 }
 
 resource "google_compute_target_pool" "singlenode" {
-  name      = "${var.es_cluster}-singlenode-targetpool"
+  name = "${var.es_cluster}-singlenode-targetpool"
 }
 
 resource "google_compute_instance_group_manager" "singlenode" {
-  provider  = google-beta
+  provider = google-beta
 
-  name      = "${var.es_cluster}-igm-singlenode"
-  project   = "${var.gcp_project_id}"
-  zone      = "${var.singlenode_zone}"
+  name    = "${var.es_cluster}-igm-singlenode"
+  project = "${var.gcp_project_id}"
+  zone    = "${var.singlenode_zone}"
 
   version {
     instance_template = google_compute_instance_template.singlenode.self_link
@@ -30,7 +30,7 @@ resource "google_compute_autoscaler" "singlenode" {
   count = local.singlenode_mode ? 1 : 0
 
   name   = "${var.es_cluster}-autoscaler-singlenode"
-  zone      = "${var.singlenode_zone}"
+  zone   = "${var.singlenode_zone}"
   target = google_compute_instance_group_manager.singlenode.self_link
 
   autoscaling_policy {
@@ -41,11 +41,11 @@ resource "google_compute_autoscaler" "singlenode" {
 }
 
 resource "google_compute_instance_template" "singlenode" {
-  provider       = google-beta
+  provider = google-beta
 
-  name           = "${var.es_cluster}-instance-template-singlenode"
-  project        = "${var.gcp_project_id}"
-  machine_type   = "${var.data_machine_type}"
+  name         = "${var.es_cluster}-instance-template-singlenode"
+  project      = "${var.gcp_project_id}"
+  machine_type = "${var.data_machine_type}"
 
   tags = ["${var.es_cluster}", "es-singlenode-node", "http-server", "https-server"]
 
@@ -53,13 +53,13 @@ resource "google_compute_instance_template" "singlenode" {
 
   labels = {
     environment = var.environment
-    cluster = "${var.environment}-${var.es_cluster}"
-    role = "singlenode"
+    cluster     = "${var.environment}-${var.es_cluster}"
+    role        = "singlenode"
   }
 
   disk {
     source_image = data.google_compute_image.kibana.self_link
-    boot         = true    
+    boot         = true
   }
 
   network_interface {

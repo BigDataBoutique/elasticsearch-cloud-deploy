@@ -7,16 +7,16 @@ data "template_file" "client_userdata_script" {
 }
 
 resource "google_compute_target_pool" "client" {
-  name      = "${var.es_cluster}-client-targetpool"
+  name = "${var.es_cluster}-client-targetpool"
 }
 
 resource "google_compute_instance_group_manager" "client" {
   for_each = toset(keys(var.clients_count))
 
-  provider  = google-beta
-  name      = "${var.es_cluster}-igm-client-${each.value}"
-  project   = "${var.gcp_project_id}"
-  zone      = each.value
+  provider = google-beta
+  name     = "${var.es_cluster}-igm-client-${each.value}"
+  project  = "${var.gcp_project_id}"
+  zone     = each.value
 
   named_port {
     name = "nginx"
@@ -35,23 +35,23 @@ resource "google_compute_instance_group_manager" "client" {
 resource "google_compute_autoscaler" "client" {
   for_each = toset(keys(var.clients_count))
 
-  name    = "${var.es_cluster}-autoscaler-client-${each.value}"
-  zone = each.value
-  target  = google_compute_instance_group_manager.client[each.value].self_link
+  name   = "${var.es_cluster}-autoscaler-client-${each.value}"
+  zone   = each.value
+  target = google_compute_instance_group_manager.client[each.value].self_link
 
   autoscaling_policy {
     max_replicas    = var.clients_count[each.value]
-    min_replicas    = var.clients_count[each.value]    
+    min_replicas    = var.clients_count[each.value]
     cooldown_period = 60
   }
 }
 
 resource "google_compute_instance_template" "client" {
-  provider        = google-beta
-  name_prefix            = "${var.es_cluster}-instance-template-client"
-  project         = "${var.gcp_project_id}"
-  machine_type    = "${var.master_machine_type}"
-  can_ip_forward  = true
+  provider       = google-beta
+  name_prefix    = "${var.es_cluster}-instance-template-client"
+  project        = "${var.gcp_project_id}"
+  machine_type   = "${var.master_machine_type}"
+  can_ip_forward = true
 
   tags = [
     "${var.es_cluster}",
@@ -64,13 +64,13 @@ resource "google_compute_instance_template" "client" {
 
   labels = {
     environment = var.environment
-    cluster = "${var.environment}-${var.es_cluster}"
-    role = "client"
-  }  
+    cluster     = "${var.environment}-${var.es_cluster}"
+    role        = "client"
+  }
 
   disk {
     source_image = data.google_compute_image.kibana.self_link
-    boot         = true    
+    boot         = true
   }
 
   network_interface {
@@ -83,5 +83,5 @@ resource "google_compute_instance_template" "client" {
 
   lifecycle {
     create_before_destroy = true
-  }  
+  }
 }
