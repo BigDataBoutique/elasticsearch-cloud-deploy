@@ -1,11 +1,16 @@
 #!/bin/bash
 
-/opt/cloud-deploy-scripts/aws/autoattach-ebs.sh
+. /opt/cloud-deploy-scripts/$cloud_provider/env.sh
+
+export BIND_TO_ALL="true"
+
+/opt/cloud-deploy-scripts/$cloud_provider/autoattach-disk.sh
 
 /opt/cloud-deploy-scripts/common/config-es.sh
 /opt/cloud-deploy-scripts/common/config-beats.sh
 
-/opt/cloud-deploy-scripts/aws/config-es-discovery.sh
+/opt/cloud-deploy-scripts/$cloud_provider/config-es.sh
+/opt/cloud-deploy-scripts/$cloud_provider/config-es-discovery.sh
 
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 node.master: true
@@ -28,3 +33,4 @@ systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
 /opt/cloud-deploy-scripts/common/config-cluster.sh
+/opt/cloud-deploy-scripts/$cloud_provider/config-cluster.sh

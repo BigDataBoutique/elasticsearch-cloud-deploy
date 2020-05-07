@@ -1,35 +1,22 @@
 data "template_file" "client_userdata_script" {
-  template = "${file("${path.module}/../templates/user_data.sh")}"
+  template = "${file("${path.module}/../templates/gcp_user_data.sh")}"
+  vars = merge(local.user_data_common, {
+    heap_size      = "${var.client_heap_size}"
+    startup_script = "client.sh"
+  })
+}
 
-  vars = {
-    cloud_provider          = "gcp"
-    elasticsearch_data_dir  = "/var/lib/elasticsearch"
-    elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
-    heap_size               = "${var.client_heap_size}"
-    es_cluster              = "${var.es_cluster}"
-    es_environment          = "${var.environment}-${var.es_cluster}"
-    master                  = "false"
-    data                    = "false"
-    bootstrap_node          = "false"
-    security_enabled        = "${var.security_enabled}"
-    monitoring_enabled      = "${var.monitoring_enabled}"
-    masters_count           = "${var.masters_count}"
-    xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    gcp_project_id          = "${var.gcp_project_id}"
-    gcp_zone                = "${var.gcp_zone}"
-    client_user             = "${var.client_user}"
-    client_pwd              = "${random_string.vm-login-password.result}"
-    aws_region              = ""
-    availability_zones      = ""
-    security_groups         = ""
-  }
+resource "google_compute_target_pool" "client" {
+  name      = "${var.es_cluster}-client-targetpool"
 }
 
 resource "google_compute_instance_group_manager" "client" {
+  for_each = toset(keys(var.clients_count))
+
   provider  = google-beta
-  name      = "${var.es_cluster}-igm-client"
+  name      = "${var.es_cluster}-igm-client-${each.value}"
   project   = "${var.gcp_project_id}"
-  zone      = "${var.gcp_zone}"
+  zone      = each.value
 
   named_port {
     name = "nginx"
@@ -42,24 +29,26 @@ resource "google_compute_instance_group_manager" "client" {
   }
 
   base_instance_name = "${var.es_cluster}-client"
+  target_pools       = [google_compute_target_pool.client.self_link]
 }
 
 resource "google_compute_autoscaler" "client" {
-  count   = var.clients_count > 0 ? 1 : 0
+  for_each = toset(keys(var.clients_count))
 
-  name    = "${var.es_cluster}-autoscaler-client"
-  target  = google_compute_instance_group_manager.client.self_link
+  name    = "${var.es_cluster}-autoscaler-client-${each.value}"
+  zone = each.value
+  target  = google_compute_instance_group_manager.client[each.value].self_link
 
   autoscaling_policy {
-    max_replicas    = var.clients_count
-    min_replicas    = var.clients_count
+    max_replicas    = var.clients_count[each.value]
+    min_replicas    = var.clients_count[each.value]    
     cooldown_period = 60
   }
 }
 
 resource "google_compute_instance_template" "client" {
   provider        = google-beta
-  name            = "${var.es_cluster}-instance-template-client"
+  name_prefix            = "${var.es_cluster}-instance-template-client"
   project         = "${var.gcp_project_id}"
   machine_type    = "${var.master_machine_type}"
   can_ip_forward  = true
@@ -73,6 +62,12 @@ resource "google_compute_instance_template" "client" {
 
   metadata_startup_script = "${data.template_file.client_userdata_script.rendered}"
 
+  labels = {
+    environment = var.environment
+    cluster = "${var.environment}-${var.es_cluster}"
+    role = "client"
+  }  
+
   disk {
     source_image = data.google_compute_image.kibana.self_link
     boot         = true    
@@ -85,4 +80,8 @@ resource "google_compute_instance_template" "client" {
   service_account {
     scopes = ["userinfo-email", "compute-rw", "storage-ro"]
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }  
 }

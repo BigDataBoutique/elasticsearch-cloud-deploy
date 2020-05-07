@@ -38,5 +38,3 @@ if [ "$security_enabled" == "true" ]; then
          -X PUT -H 'Content-Type: application/json' -k \
          "localhost:9200/_xpack/security/user/remote_monitoring_user/_password" -d '{ "password": "'"$client_pwd"'" }'
 fi
-
-/opt/cloud-deploy-scripts/aws/config-cluster.sh

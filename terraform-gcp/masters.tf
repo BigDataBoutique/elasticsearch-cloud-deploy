@@ -3,64 +3,28 @@ data "local_file" "cluster_bootstrap_state" {
 }
 
 data "template_file" "master_userdata_script" {
-  template = "${file("${path.module}/../templates/user_data.sh")}"
-
-  vars = {
-    cloud_provider          = "gcp"
-    elasticsearch_data_dir  = "/var/lib/elasticsearch"
-    elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
-    heap_size               = "${var.master_heap_size}"
-    es_cluster              = "${var.es_cluster}"
-    es_environment          = "${var.environment}-${var.es_cluster}"
-    master                  = "true"
-    data                    = "false"
-    bootstrap_node          = "false"
-    security_enabled        = "${var.security_enabled}"
-    monitoring_enabled      = "${var.monitoring_enabled}"
-    masters_count           = "${var.masters_count}"
-    xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    gcp_project_id          = "${var.gcp_project_id}"
-    gcp_zone                = "${var.gcp_zone}"
-    aws_region              = ""
-    client_user             = ""
-    client_pwd              = ""
-    availability_zones      = ""
-    security_groups         = ""
-  }
+  template = "${file("${path.module}/../templates/gcp_user_data.sh")}"
+  vars = merge(local.user_data_common, {
+    heap_size      = "${var.master_heap_size}"
+    startup_script = "master.sh"
+  })
 }
 
 data "template_file" "bootstrap_userdata_script" {
-  template = "${file("${path.module}/../templates/user_data.sh")}"
-
-  vars = {
-    cloud_provider          = "gcp"
-    elasticsearch_data_dir  = "/var/lib/elasticsearch"
-    elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
-    heap_size               = "${var.master_heap_size}"
-    es_cluster              = "${var.es_cluster}"
-    es_environment          = "${var.environment}-${var.es_cluster}"
-    master                  = "true"
-    data                    = "false"
-    bootstrap_node          = "true"
-    security_enabled        = "${var.security_enabled}"
-    monitoring_enabled      = "${var.monitoring_enabled}"
-    masters_count           = "${var.masters_count}"
-    xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    gcp_project_id          = "${var.gcp_project_id}"
-    gcp_zone                = "${var.gcp_zone}"
-    aws_region              = ""
-    client_user             = ""
-    client_pwd              = ""
-    availability_zones      = ""
-    security_groups         = ""
-  }
+  template = "${file("${path.module}/../templates/gcp_user_data.sh")}"
+  vars = merge(local.user_data_common, {
+    heap_size      = "${var.master_heap_size}"
+    startup_script = "bootstrap.sh"
+  })
 }
 
-resource "google_compute_instance_group_manager" "master" {
+resource "google_compute_instance_group_manager" "master" {  
+  for_each = toset(keys(var.masters_count))
+
   provider  = google-beta
-  name      = "${var.es_cluster}-igm-master"
+  name      = "${var.es_cluster}-igm-master-${each.value}"
   project   = "${var.gcp_project_id}"
-  zone      = "${var.gcp_zone}"
+  zone      = each.value
 
   version {
     instance_template = google_compute_instance_template.master.self_link
@@ -71,20 +35,21 @@ resource "google_compute_instance_group_manager" "master" {
 }
 
 resource "google_compute_autoscaler" "master" {
-  count = var.masters_count > 0 ? 1 : 0
+  for_each = toset(keys(var.masters_count))
 
-  name   = "${var.es_cluster}-autoscaler-master"
-  target = google_compute_instance_group_manager.master.self_link
+  name   = "${var.es_cluster}-autoscaler-master-${each.value}"
+  zone = each.value
+  target = google_compute_instance_group_manager.master[each.value].self_link
 
   autoscaling_policy {
-    max_replicas    = var.masters_count
-    min_replicas    = var.masters_count
+    max_replicas    = var.masters_count[each.value]
+    min_replicas    = var.masters_count[each.value]
     cooldown_period = 60
   }
 }
 
 resource "google_compute_instance" "bootstrap_node" {
-  count        = "${local.is_single_node || data.local_file.cluster_bootstrap_state.content == "1" ? "0" : "1"}"
+  count = local.singlenode_mode || local.is_cluster_bootstrapped ? 0 : 1
 
   name         = "${var.es_cluster}-bootstrap-node"
   machine_type = "${var.master_machine_type}"
@@ -105,13 +70,13 @@ resource "google_compute_instance" "bootstrap_node" {
   metadata_startup_script = "${data.template_file.bootstrap_userdata_script.rendered}"
 
   service_account {
-    scopes = ["compute-rw"]
+    scopes = ["userinfo-email", "compute-rw", "storage-ro"]
   }
 }
 
 resource "google_compute_instance_template" "master" {
   provider       = google-beta
-  name           = "${var.es_cluster}-instance-template-master"
+  name_prefix           = "${var.es_cluster}-instance-template-master"
   project        = "${var.gcp_project_id}"
   machine_type   = "${var.master_machine_type}"
   can_ip_forward = false
@@ -120,16 +85,15 @@ resource "google_compute_instance_template" "master" {
 
   metadata_startup_script = "${data.template_file.master_userdata_script.rendered}"
 
+  labels = {
+    environment = var.environment
+    cluster = "${var.environment}-${var.es_cluster}"
+    role = "master"
+  }  
+
   disk {
     source_image = data.google_compute_image.elasticsearch.self_link
     boot         = true    
-  }
-
-  disk {
-    device_name  = "xvdh"
-    disk_type    = "pd-standard"
-    disk_size_gb = 10
-    source_image = ""
   }
 
   network_interface {
@@ -139,6 +103,10 @@ resource "google_compute_instance_template" "master" {
   service_account {
     scopes = ["userinfo-email", "compute-rw", "storage-ro"]
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }  
 }
 
 

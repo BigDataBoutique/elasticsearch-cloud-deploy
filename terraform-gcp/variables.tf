@@ -4,11 +4,12 @@ variable "es_cluster" {
 }
 
 variable "gcp_project_id" {
-  type = "string"
+  type = "string"  
 }
 
 variable "gcp_credentials_path" {
   type = "string"
+  default = ""
 }
 
 variable "gcp_zone" {
@@ -26,29 +27,56 @@ variable "environment" {
 }
 
 variable "masters_count" {
-  default = "0"
+  type        = map(number)
+  default     = {}
+  description = "Master nodes count per GCP zone. If all node counts are empty, will run in singlenode mode."
 }
 
 variable "datas_count" {
-  default = "0"
+  type        = map(number)
+  default     = {}
+  description = "Data nodes count per GCP zone. If all node counts are empty, will run in singlenode mode."
 }
 
 variable "clients_count" {
-  default = "0"
+  type        = map(number)
+  default     = {}
+  description = "Client nodes count per GCP zone. If all node counts are empty, will run in singlenode mode."
 }
 
-variable "cluster_network" {
-  default = "default"
+variable "security_enabled" {
+  description = "Whether or not to enable x-pack security on the cluster"
+  default     = false
 }
 
-# client nodes have nginx installed on them, these credentials are used for basic auth
+variable "singlenode_zone" {
+  description = "This variable is required when running in singlenode mode. Singlenode mode is enabled when masters_count, datas_count and clients_count are all empty,"
+  default     = ""
+}
+
+variable "monitoring_enabled" {
+  description = "Whether or not to enable x-pack monitoring on the cluster"
+  default     = "true"
+}
+
 variable "client_user" {
-  default = "exampleuser"
+  description = "The username to use when setting up basic auth on Grafana and Cerebro."
+  default     = "elastic"
 }
 
 variable "public_facing" {
   description = "Whether or not the created cluster should be accessible from the public internet"
-  default = true
+  type        = bool
+  default     = true
+}
+
+variable "gcs_snapshots_bucket" {
+  description = "GCS bucket for backups"
+  default     = ""
+}
+
+variable "cluster_network" {
+  default = "default"
 }
 
 variable "master_machine_type" {
@@ -86,17 +114,17 @@ variable "client_heap_size" {
   type = "string"
   default = "1g"
 }
-variable "security_enabled" {
-  description = "Whether or not to enable x-pack security on the cluster"
-  default = "false"
-}
-
-variable "monitoring_enabled" {
-  description = "Whether or not to enable x-pack monitoring on the cluster"
-  default = "true"
-}
 
 variable "xpack_monitoring_host" {
   description = "ES host to send monitoring data"
   default     = "self"
+}
+
+variable "filebeat_monitoring_host" {
+  description = "ES host to send filebeat data"
+  default     = ""
+}
+
+variable "DEV_MODE_scripts_gcs_bucket" {
+  default = ""
 }

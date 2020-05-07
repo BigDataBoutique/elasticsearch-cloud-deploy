@@ -67,7 +67,7 @@
       "type": "file",
       "source": "../assets/scripts",
       "destination": "/tmp",
-      "only": ["aws"]
+      "only": ["aws", "gcp"]
     },
     {
       "type": "shell",
@@ -76,7 +76,7 @@
         "sudo mv /tmp/scripts/* /opt/cloud-deploy-scripts",
         "sudo chmod +x -R /opt/cloud-deploy-scripts"
       ],
-      "only": ["aws"]
+      "only": ["aws", "gcp"]
     },
     {
       "type": "shell",

@@ -1,35 +1,18 @@
 data "template_file" "data_userdata_script" {
-  template = "${file("${path.module}/../templates/user_data.sh")}"
-
-  vars = {
-    cloud_provider          = "gcp"
-    elasticsearch_data_dir  = "/var/lib/elasticsearch"
-    elasticsearch_logs_dir  = "${var.elasticsearch_logs_dir}"
-    heap_size               = "${var.data_heap_size}"
-    es_cluster              = "${var.es_cluster}"
-    es_environment          = "${var.environment}-${var.es_cluster}"
-    master                  = "false"
-    data                    = "true"
-    bootstrap_node          = "false"
-    security_enabled        = "${var.security_enabled}"
-    monitoring_enabled      = "${var.monitoring_enabled}"
-    masters_count           = "${var.masters_count}"
-    xpack_monitoring_host   = "${var.xpack_monitoring_host}"
-    gcp_project_id          = "${var.gcp_project_id}"
-    gcp_zone                = "${var.gcp_zone}"
-    aws_region              = ""
-    client_user             = ""
-    client_pwd              = ""
-    availability_zones      = ""
-    security_groups         = ""
-  }
+  template = "${file("${path.module}/../templates/gcp_user_data.sh")}"
+  vars = merge(local.user_data_common, {
+    heap_size      = "${var.data_heap_size}"
+    startup_script = "data.sh"
+  })
 }
 
 resource "google_compute_instance_group_manager" "data" {
+  for_each = toset(keys(var.datas_count))
+
   provider  = google-beta
-  name      = "${var.es_cluster}-igm-data"
+  name      = "${var.es_cluster}-igm-data-${each.value}"
   project   = "${var.gcp_project_id}"
-  zone      = "${var.gcp_zone}"
+  zone      = each.value
 
   version {
     instance_template = google_compute_instance_template.data.self_link
@@ -40,21 +23,22 @@ resource "google_compute_instance_group_manager" "data" {
 }
 
 resource "google_compute_autoscaler" "data" {
-  count  = var.datas_count > 0 ? 1 : 0
+  for_each = toset(keys(var.datas_count))
 
-  name   = "${var.es_cluster}-autoscaler-data"
-  target = google_compute_instance_group_manager.data.self_link
+  name   = "${var.es_cluster}-autoscaler-data-${each.value}"
+  zone = each.value
+  target = google_compute_instance_group_manager.data[each.value].self_link
 
   autoscaling_policy {
-    max_replicas    = var.datas_count
-    min_replicas    = var.datas_count
+    max_replicas    = var.datas_count[each.value]
+    min_replicas    = var.datas_count[each.value]
     cooldown_period = 60
   }
 }
 
 resource "google_compute_instance_template" "data" {
   provider       = google-beta
-  name           = "${var.es_cluster}-instance-template-data"
+  name_prefix           = "${var.es_cluster}-instance-template-data"
   project        = "${var.gcp_project_id}"
   machine_type   = "${var.data_machine_type}"
   can_ip_forward = false
@@ -63,24 +47,26 @@ resource "google_compute_instance_template" "data" {
 
   metadata_startup_script = "${data.template_file.data_userdata_script.rendered}"
 
+  labels = {
+    environment = var.environment
+    cluster = "${var.environment}-${var.es_cluster}"
+    role = "data"
+  }
+
   disk {
     source_image = data.google_compute_image.elasticsearch.self_link
     boot         = true    
   }
 
-  disk {
-    device_name  = "xvdh"
-    disk_type    = "pd-ssd"
-    disk_size_gb = var.elasticsearch_volume_size
-    source_image = ""
-  }
-
   network_interface {
     network = var.cluster_network
-    access_config {}
   }
 
   service_account {
     scopes = ["userinfo-email", "compute-rw", "storage-ro"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }

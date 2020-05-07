@@ -85,13 +85,13 @@
       "type": "file",
       "source": "../templates/nginx-client.conf",
       "destination": "nginx-client.conf",
-      "except": ["aws"]
+      "except": ["aws", "gcp"]
     },
     {
       "type": "shell",
       "script": "install-nginx.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
-      "except": ["aws"]
+      "except": ["aws", "gcp"]
     }
   ]
 }

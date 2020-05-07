@@ -3,6 +3,7 @@
 # - client_pwd
 # - security_enabled
 # - monitoring_enabled
+# - BIND_TO_ALL
 
 
 function setup_grafana_dashboard() {
@@ -63,7 +64,13 @@ EOF
 
 # Setup x-pack security also on Kibana configs where applicable
 if [ -f "/etc/kibana/kibana.yml" ]; then
-    echo "server.host: $(hostname -I)" | sudo tee -a /etc/kibana/kibana.yml
+
+    if [ "$BIND_TO_ALL" == "true" ]; then
+        echo "server.host: 0.0.0.0" | sudo tee -a /etc/kibana/kibana.yml
+    else
+        echo "server.host: $(hostname -I)" | sudo tee -a /etc/kibana/kibana.yml
+    fi
+
     echo "xpack.security.enabled: $security_enabled" | sudo tee -a /etc/kibana/kibana.yml
     echo "xpack.monitoring.enabled: $monitoring_enabled" | sudo tee -a /etc/kibana/kibana.yml
 
