@@ -54,28 +54,30 @@ resource "google_compute_router_nat" "nat" {
 }
 
 resource "google_service_account" "gcs" {
-  count = var.gcs_snapshots_bucket != "" ? 1 : 0
-
   account_id   = "${var.es_cluster}-gcs"
   display_name = "${var.es_cluster}-gcs-service-account"
 }
 
 resource "google_service_account_key" "gcs" {
-  count = var.gcs_snapshots_bucket != "" ? 1 : 0
-
-  service_account_id = join("", google_service_account.gcs[*].name)
+  service_account_id = google_service_account.gcs.name
   public_key_type    = "TYPE_X509_PEM_FILE"
-}
-
-resource "google_project_iam_member" "gcs" {
-  role   = "roles/storage.admin"
-  member = "serviceAccount:${join("", google_service_account.gcs[*].name)}"
 }
 
 resource "google_storage_bucket" "snapshots" {
   count = var.gcs_snapshots_bucket != "" ? 1 : 0
+  name  = var.gcs_snapshots_bucket
+}
 
-  name = var.gcs_snapshots_bucket
+resource "google_storage_bucket_iam_member" "legacy-bucket-reader" {
+  bucket = join("", google_storage_bucket.snapshots[*].name)
+  role   = "roles/storage.legacyBucketReader"
+  member = "serviceAccount:${google_service_account.gcs.email}"
+}
+
+resource "google_storage_bucket_iam_member" "object-admin" {
+  bucket = join("", google_storage_bucket.snapshots[*].name)
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.gcs.email}"
 }
 
 locals {
