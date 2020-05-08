@@ -4,6 +4,8 @@
 # - security_enabled
 # - monitoring_enabled
 # - BIND_TO_ALL
+# - ES_HOST
+# - CURL_AUTH
 
 
 function setup_grafana_dashboard() {
@@ -18,13 +20,13 @@ function setup_grafana_dashboard() {
         sleep 5
     done
 
-    cat <<'EOF' >>/tmp/grafana-datasource.json
+    cat <<EOF >>/tmp/grafana-datasource.json
 {
     "name": "Elasticsearch Monitor",
     "type": "elasticsearch",
     "typeLogoUrl": "public/app/plugins/datasource/elasticsearch/img/elasticsearch.svg",
     "access": "proxy",
-    "url": "http://localhost:9200",
+    "url": "$ES_HOST",
     "password": "",
     "user": "",
     "database": "[.monitoring-es-*-]YYYY.MM.DD",

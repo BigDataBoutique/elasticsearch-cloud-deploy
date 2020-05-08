@@ -1,8 +1,12 @@
 #!/bin/bash
 
+. /opt/cloud-deploy-scripts/common/env.sh
 . /opt/cloud-deploy-scripts/$cloud_provider/env.sh
 
-export BIND_TO_ALL="true"
+# It is required to bind to all interfaces for load balancer on GCP to work
+if [ "$cloud_provider" == "gcp" ]; then
+    export BIND_TO_ALL="true"
+fi
 
 /opt/cloud-deploy-scripts/$cloud_provider/autoattach-disk.sh
 
@@ -21,9 +25,9 @@ EOF
 
 /opt/cloud-deploy-scripts/common/config-clients.sh
 
-BASICAUTH=""
+# add bootstrap.password to the keystore, so that config-cluster scripts can run
+# only done on bootstrap and singlenode nodes, before starting ES
 if [ "${security_enabled}" == "true" ]; then
-    BASICAUTH=" --user ${client_user}:${client_pwd} "
     echo "${client_pwd}" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin bootstrap.password
 fi
 

@@ -2,14 +2,11 @@
 # - security_enabled
 # - client_pwd
 # - s3_backup_bucket
-
-BASICAUTH=""
-if [ "$security_enabled" == "true" ]; then
-    BASICAUTH=" --user elastic:$client_pwd "
-fi
+# - ES_HOST
+# - CURL_AUTH
 
 if [ "${s3_backup_bucket}" != ""  ]; then
-    curl $BASICAUTH -X PUT "localhost:9200/_snapshot/s3_repo" -H 'Content-Type: application/json' -d'
+    curl $CURL_AUTH -k -X PUT "$ES_HOST/_snapshot/s3_repo" -H 'Content-Type: application/json' -d'
     {
       "type": "s3",
       "settings": {
@@ -19,5 +16,5 @@ if [ "${s3_backup_bucket}" != ""  ]; then
     '
     sleep 1
 
-    curl $BASICAUTH -X POST "localhost:9200/_nodes/reload_secure_settings"
+    curl $CURL_AUTH -k -X POST "$ES_HOST/_nodes/reload_secure_settings"
 fi

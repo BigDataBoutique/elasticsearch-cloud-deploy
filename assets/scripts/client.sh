@@ -1,8 +1,12 @@
 #!/bin/bash
 
+. /opt/cloud-deploy-scripts/common/env.sh
 . /opt/cloud-deploy-scripts/$cloud_provider/env.sh
 
-export BIND_TO_ALL="true"
+# It is required to bind to all interfaces for load balancer on GCP to work
+if [ "$cloud_provider" == "gcp" ]; then
+    export BIND_TO_ALL="true"
+fi
 
 /opt/cloud-deploy-scripts/common/config-es.sh
 /opt/cloud-deploy-scripts/common/config-beats.sh

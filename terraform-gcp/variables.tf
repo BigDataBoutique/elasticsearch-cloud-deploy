@@ -126,5 +126,6 @@ variable "filebeat_monitoring_host" {
 }
 
 variable "DEV_MODE_scripts_gcs_bucket" {
-  default = ""
+  description = "GCS bucket to override init scripts from. Should not be used on production."
+  default     = ""
 }

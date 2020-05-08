@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. /opt/cloud-deploy-scripts/common/env.sh
 . /opt/cloud-deploy-scripts/$cloud_provider/env.sh
 
 /opt/cloud-deploy-scripts/common/config-es.sh
@@ -13,9 +14,9 @@ node.data: false
 node.ingest: false
 EOF
 
-BASICAUTH=""
+# add bootstrap.password to the keystore, so that config-cluster scripts can run
+# only done on bootstrap and singlenode nodes, before starting ES
 if [ "${security_enabled}" == "true" ]; then
-    BASICAUTH=" --user ${client_user}:${client_pwd} "
     echo "${client_pwd}" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin bootstrap.password
 fi
 
@@ -29,9 +30,8 @@ systemctl start elasticsearch.service
 
 while true
 do
-    echo "Checking cluster health"
-    HEALTH="$(curl $BASICAUTH --silent -k localhost:9200/_cluster/health | jq -r '.status')"
-    if [ "$HEALTH" = "green" ]; then
+    HEALTH="$(curl $CURL_AUTH --silent -k "$ES_HOST/_cluster/health" | jq -r '.status')"
+    if [ "$HEALTH" == "green" ]; then
         break
     fi
     sleep 5

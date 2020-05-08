@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. /opt/cloud-deploy-scripts/common/env.sh
 . /opt/cloud-deploy-scripts/$cloud_provider/env.sh
 
 /opt/cloud-deploy-scripts/$cloud_provider/autoattach-disk.sh
