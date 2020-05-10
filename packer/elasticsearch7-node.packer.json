@@ -56,7 +56,7 @@
       "project_id": "{{user `gcp_project_id`}}",
       "source_image_family": "ubuntu-1804-lts",
       "zone": "{{user `gcp_zone`}}",
-      "image_family": "elasticsearch-6",
+      "image_family": "elasticsearch-7",
       "image_name": "elasticsearch7-{{isotime \"20060102t030405\"}}",
       "preemptible": true,
       "ssh_username": "ubuntu"
@@ -67,7 +67,7 @@
       "type": "file",
       "source": "../assets/scripts",
       "destination": "/tmp",
-      "only": ["aws"]
+      "only": ["aws", "gcp"]
     },
     {
       "type": "shell",
@@ -76,7 +76,7 @@
         "sudo mv /tmp/scripts/* /opt/cloud-deploy-scripts",
         "sudo chmod +x -R /opt/cloud-deploy-scripts"
       ],
-      "only": ["aws"]
+      "only": ["aws", "gcp"]
     },
     {
       "type": "shell",

@@ -6,6 +6,9 @@ set -e
 
 # echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-7.x.list
 
+# Fix for the apt lock issue
+sleep 100
+
 apt-get update
 if [ -z "$ES_VERSION" ]; then
     echo "Installing latest Kibana version"

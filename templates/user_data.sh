@@ -2,17 +2,33 @@
 
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
+function fetch_master_nodes_ips() {
+    if [ "${cloud_provider}" == "aws" ]; then
+        local master_instance_ids="$(aws ec2 describe-instances --region=${aws_region} --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=${es_environment} | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
+        echo "$(aws ec2 describe-instances --region ${aws_region} --instance-ids $master_instance_ids | jq -r '.Reservations[].Instances[].PrivateIpAddress' | sort)"
+    fi
+
+    if [ "${cloud_provider}" == "gcp" ]; then
+        echo "$(gcloud compute instances list --filter 'tags.items=es-master-node AND tags.items=${es_cluster}' --format 'get(networkInterfaces[0].networkIP)' | sort)"
+    fi
+}
+
+if [ "${cloud_provider}" == "azure" ] || [ "${cloud_provider}" == "gcp" ]; then
+    # Change node name to AWS-like hostname
+    sudo sed -i -e "s/node.name: .*$/node.name: ip-$(hostname -I | tr . -)/ig" /etc/elasticsearch/elasticsearch.yml
+fi
+
 if [ "${bootstrap_node}" == "true"  ]; then
     while true
     do
         echo "Fetching masters..."
-        MASTER_INSTANCES="$(aws ec2 describe-instances --region=${aws_region} --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=${es_environment} | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
+        MASTER_INSTANCES="$(fetch_master_nodes_ips)"
         COUNT=`echo "$MASTER_INSTANCES" | wc -l`
 
         if [ "$COUNT" -eq "${masters_count}" ]; then
             echo "Masters count is correct... Rechecking in 60 sec"
             sleep 60
-            MASTER_INSTANCES_RECHECK="$(aws ec2 describe-instances --region=${aws_region} --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=${es_environment} | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
+            MASTER_INSTANCES_RECHECK="$(fetch_master_nodes_ips)"
         
             if [ "$MASTER_INSTANCES" = "$MASTER_INSTANCES_RECHECK" ]; then
                 break
@@ -23,7 +39,7 @@ if [ "${bootstrap_node}" == "true"  ]; then
     done
 
     echo "Fetched masters"
-    MASTER_IPS="$(aws ec2 describe-instances --region ${aws_region} --instance-ids $MASTER_INSTANCES | jq -r '.Reservations[].Instances[].PrivateIpAddress')"
+    MASTER_IPS="$MASTER_INSTANCES"
     SEED_HOSTS=`echo "$MASTER_IPS" | paste -sd ',' -`
     INITIAL_MASTER_NODES=`echo "$MASTER_IPS" | awk '{print "ip-" $0}' | tr . - | paste -sd ',' -`
 fi
@@ -44,7 +60,7 @@ EOF
 
 if [ "${bootstrap_node}" == "true"  ]; then
     echo "discovery.seed_hosts: $SEED_HOSTS" >>/etc/elasticsearch/elasticsearch.yml
-    echo "cluster.initial_master_nodes: $HOSTNAME,$INITIAL_MASTER_NODES" >>/etc/elasticsearch/elasticsearch.yml
+    echo "cluster.initial_master_nodes: $(hostname -I),$INITIAL_MASTER_NODES" >>/etc/elasticsearch/elasticsearch.yml
 fi
 
 if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
@@ -77,6 +93,17 @@ discovery:
     # manually set the endpoint because of auto-discovery issues
     # https://github.com/elastic/elasticsearch/issues/27464
     ec2.endpoint: ec2.${aws_region}.amazonaws.com
+EOF
+fi
+
+if [ "${cloud_provider}" == "gcp" ]; then
+cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+
+network.host: _gce_,localhost
+plugin.mandatory: discovery-gce
+cloud.gce.project_id: ${gcp_project_id}
+cloud.gce.zone: ${gcp_zone}
+discovery.seed_providers: gce
 EOF
 fi
 
@@ -129,11 +156,11 @@ sudo sed -i "s/^-XX:+UseConcMarkSweepGC/-XX:+UseG1GC/" /etc/elasticsearch/jvm.op
 sudo mkdir -p ${elasticsearch_logs_dir}
 sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 
-# we are assuming volume is declared and attached when data_dir is passed to the script
+# # we are assuming volume is declared and attached when data_dir is passed to the script
 if { [ "${master}" == "true" ] || [ "${data}" == "true" ]; } && [ "${bootstrap_node}" != "true" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
-    
-    export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | grep -v MOUNTEDPART)
+
+    export DEVICE_NAME=$(lsblk -ip | tail -n +2 | grep -v " rom" | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | sed ':a;N;$!ba;s/\n|-/ /g' | grep -v MOUNTEDPART)
     if sudo mount -o defaults -t ext4 $DEVICE_NAME ${elasticsearch_data_dir}; then
         echo 'Successfully mounted existing disk'
     else
@@ -141,7 +168,7 @@ if { [ "${master}" == "true" ] || [ "${data}" == "true" ]; } && [ "${bootstrap_n
         sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard $DEVICE_NAME
         sudo mount -o defaults -t ext4 $DEVICE_NAME ${elasticsearch_data_dir} && echo 'Successfully mounted a fresh disk'
     fi
-    echo "$DEVICE_NAME ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
+    echo "$DEVICE_NAME ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab    
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
 fi
 
@@ -166,7 +193,16 @@ if [ "${bootstrap_node}" == "true"  ]; then
         fi
         sleep 5
     done
-    shutdown -h now
+
+    if [ "${cloud_provider}" == "aws" ]; then
+        # AWS instance is set to terminate after shutdown automatically
+        shutdown -h now
+    fi
+
+    if [ "${cloud_provider}" == "gcp" ]; then
+        INSTANCE_NAME="$(gcloud compute instances list --filter 'tags.items=es-bootstrap-node AND tags.items=${es_cluster}' --format 'get(name)')"
+        gcloud compute instances delete $INSTANCE_NAME --zone ${gcp_zone} --quiet
+    fi
 else
     # Setup x-pack security also on Kibana configs where applicable
     if [ -f "/etc/kibana/kibana.yml" ]; then
