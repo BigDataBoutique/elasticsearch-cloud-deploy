@@ -156,3 +156,8 @@ variable "bootstrap_node_subnet_id" {
   description = "Use to override which subnet the bootstrap node is created in."
   default     = ""
 }
+
+variable "DEV_MODE_scripts_s3_bucket" {
+  description = "S3 bucket to override init scripts from. Should not be used on production."
+  default     = ""
+}

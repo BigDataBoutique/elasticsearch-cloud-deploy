@@ -1,4 +1,5 @@
 #!/bin/bash
+set +e
 
 . /opt/cloud-deploy-scripts/common/env.sh
 . /opt/cloud-deploy-scripts/$cloud_provider/env.sh

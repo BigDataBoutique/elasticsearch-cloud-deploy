@@ -6,6 +6,10 @@ data "aws_subnet_ids" "all-subnets" {
   vpc_id = var.vpc_id
 }
 
+data "aws_route_tables" "vpc_route_tables" {
+  vpc_id = var.vpc_id
+}
+
 data "aws_subnet_ids" "subnets-per-az" {
   count  = length(local.all_availability_zones)
   vpc_id = var.vpc_id
@@ -64,3 +68,9 @@ resource "aws_vpc_endpoint" "autoscaling" {
   ))
 }
 
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = var.vpc_id
+  service_name      = "com.amazonaws.${var.aws_region}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = data.aws_route_tables.vpc_route_tables.ids
+}

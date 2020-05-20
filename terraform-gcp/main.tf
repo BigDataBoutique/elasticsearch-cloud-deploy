@@ -69,12 +69,14 @@ resource "google_storage_bucket" "snapshots" {
 }
 
 resource "google_storage_bucket_iam_member" "legacy-bucket-reader" {
+  count = var.gcs_snapshots_bucket != "" ? 1 : 0
   bucket = join("", google_storage_bucket.snapshots[*].name)
   role   = "roles/storage.legacyBucketReader"
   member = "serviceAccount:${google_service_account.gcs.email}"
 }
 
 resource "google_storage_bucket_iam_member" "object-admin" {
+  count = var.gcs_snapshots_bucket != "" ? 1 : 0
   bucket = join("", google_storage_bucket.snapshots[*].name)
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.gcs.email}"

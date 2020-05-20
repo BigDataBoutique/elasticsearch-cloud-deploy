@@ -3,42 +3,25 @@
 # - es_cluster
 # - elasticsearch_data_dir
 
-# Find the ebs data disk by tag and attach it
-ASG_NAME="$(aws ec2 describe-tags --region $aws_region --filters Name=resource-id,Values=$(ec2metadata --instance-id) | jq -r '.Tags[] | select(.Key == "aws:autoscaling:groupName") | .Value')"
+AV_ZONE="$(ec2metadata --availability-zone)"
 INSTANCE_ROLE="$(aws ec2 describe-tags --region $aws_region --filters Name=resource-id,Values=$(ec2metadata --instance-id) | jq -r '.Tags[] | select(.Key == "Role") | .Value')"
-
-echo "ASG_NAME: $ASG_NAME"
+echo "AV_ZONE: $AV_ZONE"
 echo "INSTANCE_ROLE: $INSTANCE_ROLE"
 
-# wait until all nodes are up
-while true
-do
-    ASG_INSTANCES="$(aws autoscaling describe-auto-scaling-groups --region $aws_region --auto-scaling-group-names $ASG_NAME | jq -r '.AutoScalingGroups[].Instances[] | select(.LifecycleState == "InService") | .InstanceId' | sort)"
-    TARGET_CAPACITY="$(aws autoscaling describe-auto-scaling-groups --region $aws_region --auto-scaling-group-names $ASG_NAME | jq -r '.AutoScalingGroups[].DesiredCapacity')"
+while true; do
+    UNATTACHED_VOLUME_ID="$(aws ec2 describe-volumes --region $aws_region --filters Name=tag:ClusterName,Values=$es_cluster Name=tag:AutoAttachGroup,Values=$INSTANCE_ROLE Name=availability-zone,Values=$AV_ZONE | jq -r '.Volumes[] | select(.Attachments | length == 0) | .VolumeId' | shuf -n 1)"
+    echo "UNATTACHED_VOLUME_ID: $UNATTACHED_VOLUME_ID"
 
-    echo "ASG_INSTANCES: $ASG_INSTANCES"
-    echo "TARGET_CAPACITY: $TARGET_CAPACITY"
+    aws ec2 attach-volume --device "/dev/xvdh" --instance-id=$(ec2metadata --instance-id) --volume-id $UNATTACHED_VOLUME_ID --region "$aws_region"
+    if [ "$?" != "0" ]; then
+        sleep 10
+        continue
+    fi
 
-    if [ "$(echo "$ASG_INSTANCES" | wc -l)" -eq "$TARGET_CAPACITY" ]; then break; fi
-    sleep 5
-done
+    sleep 30
 
-# find the volume we need to attach
-VOLUME_INDEX="$(expr $(echo "$ASG_INSTANCES" | awk "/$(ec2metadata --instance-id)/{ print NR; exit }") - 1)"
-echo "VOLUME_INDEX: $VOLUME_INDEX"
-
-AV_ZONE="$(ec2metadata --availability-zone)"
-
-VOLUME_ID="$(aws ec2 describe-volumes --region $aws_region --filters Name=tag:ClusterName,Values=$es_cluster Name=tag:VolumeIndex,Values=$VOLUME_INDEX Name=tag:AutoAttachGroup,Values=$INSTANCE_ROLE Name=availability-zone,Values=$AV_ZONE | jq -r ".Volumes[0].VolumeId")"
-echo "VOLUME_ID: $VOLUME_ID"
-aws ec2 attach-volume --device "/dev/xvdh" --instance-id=$(ec2metadata --instance-id) --volume-id $VOLUME_ID --region "$aws_region"
-
-# wait until disk is attached
-while true
-do
-    ATTACHMENTS_COUNT="$(aws ec2 describe-volumes --region $aws_region --filters Name=volume-id,Values=$VOLUME_ID | jq -r '.Volumes[0].Attachments | length')"
+    ATTACHMENTS_COUNT="$(aws ec2 describe-volumes --region $aws_region --filters Name=volume-id,Values=$UNATTACHED_VOLUME_ID | jq -r '.Volumes[0].Attachments | length')"
     if [ "$ATTACHMENTS_COUNT" != "0" ]; then break; fi
-    sleep 5
 done
 
 echo 'Waiting for 30 seconds for the disk to become mountable...'
