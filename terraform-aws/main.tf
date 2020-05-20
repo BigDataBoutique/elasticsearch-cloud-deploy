@@ -59,6 +59,8 @@ locals {
     ca_cert   = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
     node_key  = var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""
+
+    DEV_MODE_scripts_s3_bucket = var.DEV_MODE_scripts_s3_bucket
   }
 }
 

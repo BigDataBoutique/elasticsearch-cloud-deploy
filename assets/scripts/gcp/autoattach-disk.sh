@@ -6,38 +6,17 @@
 INSTANCE_ROLE="$(gcloud compute instances describe $HOSTNAME --zone $GCP_ZONE --format json | jq -r ".labels.role")"
 echo "INSTANCE_ROLE: $INSTANCE_ROLE"
 
-INSTANCE_TEMPLATE_ID="$(gcloud compute instances describe $HOSTNAME --zone $GCP_ZONE --format json | jq -r '.metadata.items[] | select(.key == "instance-template") | .value')"
-echo "INSTANCE_TEMPLATE_ID: $INSTANCE_TEMPLATE_ID"
+while true; do
+    UNATTACHED_VOLUME_ID="$(gcloud compute disks list --filter="zone:$GCP_ZONE AND labels.cluster-name:$es_cluster AND labels.auto-attach-group:$INSTANCE_ROLE" --format json | jq  -r '.[] | .name' | shuf -n 1)"
+    echo "UNATTACHED_VOLUME_ID: $UNATTACHED_VOLUME_ID"
 
-INSTANCE_TEMPLATE_NAME="$(gcloud compute instance-templates describe $INSTANCE_TEMPLATE_ID --format json | jq -r ".name")"
-echo "INSTANCE_TEMPLATE_NAME: $INSTANCE_TEMPLATE_NAME"
-
-while true;
-do 
-    INSTANCE_GROUP="$(gcloud compute instance-groups managed list --filter="instanceTemplate:$INSTANCE_TEMPLATE_NAME AND zone:$GCP_ZONE" --format json)"
-    ISG_COUNT="$(echo $INSTANCE_GROUP | jq -r 'length')"
-    if [ "$ISG_COUNT" == "1" ]; then
-        TARGET_CAPACITY="$(echo $INSTANCE_GROUP | jq -r '.[0].autoscaler.autoscalingPolicy.maxNumReplicas')"
-        INSTANCE_GROUP="$(echo $INSTANCE_GROUP | jq -r '.[0].name')"
-        break;
+    gcloud compute instances attach-disk $HOSTNAME --disk $UNATTACHED_VOLUME_ID --device-name "espersistent" --zone $GCP_ZONE
+    if [ "$?" == "0" ]; then
+        break
     fi
-    echo "Instance groups for template:$INSTANCE_TEMPLATE_NAME and zone:$GCP_ZONE matched $ISG_COUNT. Retrying..."
-    sleep 10
+
+    sleep 30
 done
-
-echo "INSTANCE_GROUP: $INSTANCE_GROUP"
-echo "TARGET_CAPACITY: $TARGET_CAPACITY"
-
-INSTANCE_ID="$(gcloud compute instances describe $HOSTNAME --format json --zone $GCP_ZONE | jq -r '.id')"
-INSTANCES="$(gcloud compute instance-groups managed list-instances $INSTANCE_GROUP --zone $GCP_ZONE --format json | jq -r '.[].id')"
-VOLUME_INDEX="$(expr $(echo "$INSTANCES" | awk "/$INSTANCE_ID/{ print NR; exit }") - 1)"
-
-echo "VOLUME_INDEX: $VOLUME_INDEX"
-
-VOLUME_ID="$(gcloud compute disks list --filter="labels.volume-index:$VOLUME_INDEX AND zone:$GCP_ZONE" --format json | jq -r '.[0].name')"
-echo "VOLUME_ID: $VOLUME_ID"
-
-gcloud compute instances attach-disk $HOSTNAME --disk $VOLUME_ID --device-name "espersistent" --zone $GCP_ZONE
 
 echo 'Waiting for 30 seconds for the disk to become mountable...'
 sleep 30
