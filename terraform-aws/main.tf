@@ -39,7 +39,6 @@ locals {
     cloud_provider           = "aws"
     elasticsearch_data_dir   = var.elasticsearch_data_dir
     elasticsearch_logs_dir   = var.elasticsearch_logs_dir
-    heap_size                = var.client_heap_size
     es_cluster               = var.es_cluster
     es_environment           = "${var.environment}-${var.es_cluster}"
     security_groups          = aws_security_group.elasticsearch_security_group.id
