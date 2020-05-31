@@ -1,7 +1,8 @@
 data "template_file" "singlenode_userdata_script" {
   template = file("${path.module}/../templates/aws_user_data.sh")
   vars = merge(local.user_data_common, {
-    startup_script = "singlenode.sh"
+    startup_script = "singlenode.sh",
+    heap_size = var.master_heap_size
   })
 }
 
