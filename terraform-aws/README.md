@@ -48,7 +48,8 @@ clients_count = {
 single nodes are created by having empty maps for all counts (the default)
 
 * an example for the single node availability zone:
-```singlenode_az = "us-east-1b"
+```
+singlenode_az = "us-east-1b"
 ```
 
 ### Cluster topology
