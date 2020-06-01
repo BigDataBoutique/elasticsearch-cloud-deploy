@@ -27,10 +27,13 @@ Edit `terraform.tfvars` (syntax `var_name = value` per line) to specify the foll
 The rest of the configurations are mostly around cluster topology and  machine types and sizes.
 
 * define clients_subnet_ids/cluster_subnet_ids with a map of availability zones to a list of subnets:
-`cluster_subnet_ids = {us-east-1b=["subnet-xxxxxxxx","subnet-yyyyyyyy"]}``
+```
+cluster_subnet_ids = {us-east-1b=["subnet-xxxxxxxx","subnet-yyyyyyyy"]}
+```
 
 * define instance counts with a map of availability zones to counts:
-`masters_count = {
+```
+masters_count = {
   "us-east-1a" = 2
   "us-east-1b" = 1
 }
@@ -39,11 +42,15 @@ datas_count = {
 }
 clients_count = {
   "us-east-1a" = 1
-}``
+}
+```
+
 single nodes are created by having empty maps for all counts (the default)
 
 * an example for the single node availability zone:
-`singlenode_az = "us-east-1b"``
+```
+singlenode_az = "us-east-1b"
+```
 
 ### Cluster topology
 
