@@ -16,7 +16,7 @@ resource "aws_ebs_volume" "master" {
   for_each = local.master_az_flattened
 
   availability_zone = jsondecode(each.value)["az"]
-  size              = var.elasticsearch_volume_size
+  size              = 10
   type              = "gp2"
   encrypted         = var.volume_encryption
 
