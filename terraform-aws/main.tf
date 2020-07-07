@@ -50,6 +50,7 @@ locals {
     xpack_monitoring_host    = var.xpack_monitoring_host
     filebeat_monitoring_host = var.filebeat_monitoring_host
     s3_backup_bucket         = var.s3_backup_bucket
+    use_g1gc                 = var.use_g1gc
     client_pwd               = random_string.vm-login-password.result
     master                   = false
     data                     = false
