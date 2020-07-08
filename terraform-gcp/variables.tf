@@ -125,6 +125,11 @@ variable "filebeat_monitoring_host" {
   default     = ""
 }
 
+variable "use_g1gc" {
+  description = "Whether or not to enable G1GC in jvm.options ES config"
+  default     = false
+}
+
 variable "DEV_MODE_scripts_gcs_bucket" {
   description = "GCS bucket to override init scripts from. Should not be used on production."
   default     = ""

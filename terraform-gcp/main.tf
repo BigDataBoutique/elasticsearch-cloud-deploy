@@ -110,6 +110,7 @@ locals {
     client_user              = var.client_user
     xpack_monitoring_host    = var.xpack_monitoring_host
     filebeat_monitoring_host = var.filebeat_monitoring_host
+    use_g1gc                 = var.use_g1gc
     client_pwd               = random_string.vm-login-password.result
     master                   = false
     data                     = false
