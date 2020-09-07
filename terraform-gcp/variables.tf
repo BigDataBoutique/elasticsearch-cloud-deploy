@@ -46,7 +46,7 @@ variable "clients_count" {
 
 variable "security_enabled" {
   description = "Whether or not to enable x-pack security on the cluster"
-  default     = false
+  default     = true
 }
 
 variable "singlenode_zone" {
@@ -133,4 +133,8 @@ variable "use_g1gc" {
 variable "DEV_MODE_scripts_gcs_bucket" {
   description = "GCS bucket to override init scripts from. Should not be used on production."
   default     = ""
+}
+
+variable "gcp_ssh_pub_key_file" {
+  default = "id_rsa.pub"
 }

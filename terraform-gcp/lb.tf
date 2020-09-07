@@ -1,7 +1,7 @@
 ### Public LB
 
 locals {
-  external_ports = var.public_facing ? toset(["9200", "5601", "9000", "3000"]) : toset([])
+  external_ports = var.public_facing ? toset(["9200", "5601"]) : toset([])
 }
 
 resource "google_compute_address" "external-lb" {
@@ -88,4 +88,3 @@ resource "google_compute_health_check" "internal" {
     port = "9200"
   }
 }
-

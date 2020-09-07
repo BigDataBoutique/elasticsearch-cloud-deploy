@@ -37,7 +37,7 @@ resource "google_compute_firewall" "external" {
 
   allow {
     protocol = "tcp"
-    ports    = ["9200", "5601", "3000", "9000"]
+    ports    = ["9200", "5601"]
   }
 }
 

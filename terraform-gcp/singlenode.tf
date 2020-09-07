@@ -43,12 +43,14 @@ resource "google_compute_autoscaler" "singlenode" {
 resource "google_compute_instance_template" "singlenode" {
   provider = google-beta
 
-  name         = "${var.es_cluster}-instance-template-singlenode"
   project      = "${var.gcp_project_id}"
   machine_type = "${var.data_machine_type}"
 
   tags = ["${var.es_cluster}", "es-singlenode-node", "http-server", "https-server"]
 
+  metadata = {
+    sshKeys = "ubuntu:${file(var.gcp_ssh_pub_key_file)}"
+  }
   metadata_startup_script = "${data.template_file.singlenode_userdata_script.rendered}"
 
   labels = {
