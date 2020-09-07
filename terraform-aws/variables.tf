@@ -129,7 +129,7 @@ variable "ebs_optimized" {
 
 variable "xpack_monitoring_host" {
   description = "ES host to send monitoring data"
-  default     = "self"
+  default     = "http://localhost:9200/"
 }
 
 variable "filebeat_monitoring_host" {

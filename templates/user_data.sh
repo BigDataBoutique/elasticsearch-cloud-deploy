@@ -53,7 +53,7 @@ node.master: ${master}
 node.data: ${data}
 node.ingest: ${data}
 xpack.security.enabled: ${security_enabled}
-xpack.monitoring.enabled: ${monitoring_enabled}
+xpack.monitoring.enabled: false
 path.data: ${elasticsearch_data_dir}
 path.logs: ${elasticsearch_logs_dir}
 EOF
@@ -67,11 +67,48 @@ if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
     echo "discovery.type: single-node" >>/etc/elasticsearch/elasticsearch.yml
 fi
 
-if [ "${xpack_monitoring_host}" != "self" ]; then
-cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-xpack.monitoring.exporters.xpack_remote:
-  type: http
-  host: "${xpack_monitoring_host}"
+if [ "${monitoring_enabled}" == "true" ]; then
+  cat <<'EOF' >/etc/metricbeat/metricbeat.yml
+metricbeat.modules:
+- module: elasticsearch
+  period: 10s
+  hosts: ["http://localhost:9200"]
+  #username: "elastic"
+  #password: "changeme"
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+  # Set to true to send data collected by module to X-Pack
+  # Monitoring instead of metricbeat-* indices.
+  xpack.enabled: true
+- module: system
+  metricsets:
+    - cpu             # CPU usage
+    - load            # CPU load averages
+    - memory          # Memory usage
+    - network         # Network IO
+    #- process         # Per process metrics
+    #- process_summary # Process summary
+    #- uptime          # System Uptime
+    - socket_summary  # Socket summary
+    #- core           # Per CPU core usage
+    - diskio         # Disk IO
+    #- filesystem     # File system usage for each mountpoint
+    #- fsstat         # File system summary metrics
+    #- raid           # Raid
+    #- socket         # Sockets and connection info (linux only)
+    #- service        # systemd service information
+  enabled: true
+  period: 10s
+  processes: ['.*']
+
+output.elasticsearch:
+  enabled: true
+
+  # Array of hosts to connect to.
+  # Scheme and port can be left out and will be set to the default (http and 9200)
+  # In case you specify and additional path, the scheme is required: http://localhost:9200/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:9200
+  hosts: ["${xpack_monitoring_host}"]
 EOF
 fi
 
