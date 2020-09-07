@@ -29,12 +29,12 @@ if [ "${bootstrap_node}" == "true"  ]; then
             echo "Masters count is correct... Rechecking in 60 sec"
             sleep 60
             MASTER_INSTANCES_RECHECK="$(fetch_master_nodes_ips)"
-        
+
             if [ "$MASTER_INSTANCES" = "$MASTER_INSTANCES_RECHECK" ]; then
                 break
             fi
         fi
-    
+
         sleep 5
     done
 
@@ -168,7 +168,7 @@ if { [ "${master}" == "true" ] || [ "${data}" == "true" ]; } && [ "${bootstrap_n
         sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard $DEVICE_NAME
         sudo mount -o defaults -t ext4 $DEVICE_NAME ${elasticsearch_data_dir} && echo 'Successfully mounted a fresh disk'
     fi
-    echo "$DEVICE_NAME ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab    
+    echo "$DEVICE_NAME ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
 fi
 

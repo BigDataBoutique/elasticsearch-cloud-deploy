@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ES_VERSION="${ES_VERSION:-7.6.2}"
+ES_VERSION="${ES_VERSION:-7.9.0}"
 
 curl -L -O "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-$ES_VERSION-amd64.deb"
 sudo dpkg -i "filebeat-$ES_VERSION-amd64.deb"

@@ -6,3 +6,4 @@ terraform.tfvars
 .terraform/
 .gcp*
 cluster_bootstrap_state
+gcp-account.json

@@ -75,23 +75,6 @@
       "type": "shell",
       "script": "install-grafana.sh",
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
-    },
-    {
-      "type": "shell",
-      "script": "install-cerebro.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
-    },
-    {
-      "type": "file",
-      "source": "../templates/nginx-client.conf",
-      "destination": "nginx-client.conf",
-      "except": ["aws", "gcp"]
-    },
-    {
-      "type": "shell",
-      "script": "install-nginx.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'",
-      "except": ["aws", "gcp"]
     }
   ]
 }
