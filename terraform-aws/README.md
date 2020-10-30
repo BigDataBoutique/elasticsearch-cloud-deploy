@@ -34,7 +34,7 @@ cluster_subnet_ids = {us-east-1b=["subnet-xxxxxxxx","subnet-yyyyyyyy"]}
 * define instance counts with a map of availability zones to counts:
 ```
 masters_count = {
-  "us-east-1a" = 2
+  "us-east-1a" = 2,
   "us-east-1b" = 1
 }
 datas_count = {
