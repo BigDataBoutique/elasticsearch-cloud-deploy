@@ -50,7 +50,6 @@ resource "aws_autoscaling_group" "master_nodes" {
   max_size           = var.masters_count[keys(var.masters_count)[count.index]]
   min_size           = var.masters_count[keys(var.masters_count)[count.index]]
   desired_capacity   = var.masters_count[keys(var.masters_count)[count.index]]
-  availability_zones = [keys(var.masters_count)[count.index]]
   default_cooldown   = 30
   force_delete       = true
 

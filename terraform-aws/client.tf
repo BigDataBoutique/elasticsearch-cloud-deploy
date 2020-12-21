@@ -39,7 +39,6 @@ resource "aws_autoscaling_group" "client_nodes" {
   max_size           = var.clients_count[keys(var.clients_count)[count.index]]
   min_size           = var.clients_count[keys(var.clients_count)[count.index]]
   desired_capacity   = var.clients_count[keys(var.clients_count)[count.index]]
-  availability_zones = [keys(var.clients_count)[count.index]]
   default_cooldown   = 30
   force_delete       = true
 
