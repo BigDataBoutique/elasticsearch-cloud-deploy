@@ -14,4 +14,10 @@ else
     apt-get install elasticsearch=$ES_VERSION
 fi
 
+mkdir /usr/share/elasticsearch/logs
+mkdir /usr/share/elasticsearch/data
+chown elasticsearch:elasticsearch /usr/share/elasticsearch/logs
+chown elasticsearch:elasticsearch /usr/share/elasticsearch/data
+
 mv elasticsearch.yml /etc/elasticsearch/elasticsearch.yml
+
