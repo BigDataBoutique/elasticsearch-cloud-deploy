@@ -7,7 +7,7 @@ data "template_file" "client_userdata_script" {
 }
 
 resource "aws_launch_template" "client" {
-  name_prefix   = "elasticsearch-${var.es_cluster}-client-nodes"
+  name_prefix   = "elasticsearch-${var.environment}-${var.es_cluster}-client-nodes"
   image_id      = data.aws_ami.kibana_client.id
   instance_type = var.master_instance_type
   user_data     = base64encode(data.template_file.client_userdata_script.rendered)
@@ -35,7 +35,7 @@ resource "aws_launch_template" "client" {
 resource "aws_autoscaling_group" "client_nodes" {
   count = length(keys(var.clients_count))
 
-  name               = "elasticsearch-${var.es_cluster}-client-nodes-${keys(var.clients_count)[count.index]}"
+  name               = "elasticsearch-${var.environment}-${var.es_cluster}-client-nodes-${keys(var.clients_count)[count.index]}"
   max_size           = var.clients_count[keys(var.clients_count)[count.index]]
   min_size           = var.clients_count[keys(var.clients_count)[count.index]]
   desired_capacity   = var.clients_count[keys(var.clients_count)[count.index]]
@@ -45,10 +45,10 @@ resource "aws_autoscaling_group" "client_nodes" {
   vpc_zone_identifier = local.clients_subnet_ids[keys(var.clients_count)[count.index]]
 
   target_group_arns = [
-    aws_lb_target_group.esearch-p9200-tg.arn,
-    aws_lb_target_group.kibana-p5601-tg.arn,
-    aws_lb_target_group.grafana-p3000-tg.arn,
-    aws_lb_target_group.cerebro-p9000-tg.arn,
+    aws_lb_target_group.esearch-p9200-tg[0].arn,
+    aws_lb_target_group.kibana-p5601-tg[0].arn,
+    aws_lb_target_group.grafana-p3000-tg[0].arn,
+    aws_lb_target_group.cerebro-p9000-tg[0].arn,
   ]
 
   launch_template {

@@ -21,7 +21,7 @@ resource "aws_ebs_volume" "master" {
   encrypted         = var.volume_encryption
 
   tags = {
-    Name            = "elasticsearch-${var.es_cluster}-master-${jsondecode(each.value)["name"]}"
+    Name            = "elasticsearch-${var.environment}-${var.es_cluster}-master-${jsondecode(each.value)["name"]}"
     ClusterName     = "${var.es_cluster}"
     VolumeIndex     = jsondecode(each.value)["index"]
     AutoAttachGroup = "master"
@@ -37,7 +37,7 @@ resource "aws_ebs_volume" "data" {
   encrypted         = var.volume_encryption
 
   tags = {
-    Name            = "elasticsearch-${var.es_cluster}-data-${jsondecode(each.value)["name"]}"
+    Name            = "elasticsearch-${var.environment}-${var.es_cluster}-data-${jsondecode(each.value)["name"]}"
     ClusterName     = "${var.es_cluster}"
     VolumeIndex     = jsondecode(each.value)["index"]
     AutoAttachGroup = "data"
@@ -53,7 +53,7 @@ resource "aws_ebs_volume" "singlenode" {
   encrypted         = var.volume_encryption
 
   tags = {
-    Name            = "elasticsearch-${var.es_cluster}-singlenode"
+    Name            = "elasticsearch-${var.environment}-${var.es_cluster}-singlenode"
     ClusterName     = "${var.es_cluster}"
     VolumeIndex     = "0"
     AutoAttachGroup = "singlenode"

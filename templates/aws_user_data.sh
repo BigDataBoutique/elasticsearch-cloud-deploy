@@ -30,5 +30,7 @@ export bootstrap_node="${bootstrap_node}"
 export ca_cert="${ca_cert}"
 export node_cert="${node_cert}"
 export node_key="${node_key}"
+export eni_id="${eni_id}"
+export eni_ipv4="${eni_ipv4}"
 
 /opt/cloud-deploy-scripts/${startup_script}

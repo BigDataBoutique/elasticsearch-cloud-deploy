@@ -1,5 +1,5 @@
 resource "aws_security_group" "elasticsearch-alb-sg" {
-  name        = "${var.es_cluster}-alb-sg"
+  name        = "${var.environment}-${var.es_cluster}-alb-sg"
   description = "ElasticSearch Ports for ALB Access"
   vpc_id      = var.vpc_id
 
@@ -47,7 +47,9 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
 #-----------------------------------------------------
 
 resource "aws_lb_target_group" "esearch-p9200-tg" {
-  name     = "${var.es_cluster}-p9200-tg"
+  count       = local.singlenode_mode ? 0 : 1
+
+  name     = "${var.environment}-${var.es_cluster}-p9200-tg"
   port     = 9200
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -64,7 +66,9 @@ resource "aws_lb_target_group" "esearch-p9200-tg" {
 }
 
 resource "aws_lb_target_group" "kibana-p5601-tg" {
-  name     = "${var.es_cluster}-p5601-tg"
+  count       = local.singlenode_mode ? 0 : 1
+
+  name     = "${var.environment}-${var.es_cluster}-p5601-tg"
   port     = 5601
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -81,7 +85,9 @@ resource "aws_lb_target_group" "kibana-p5601-tg" {
 }
 
 resource "aws_lb_target_group" "grafana-p3000-tg" {
-  name     = "${var.es_cluster}-p3000-tg"
+  count       = local.singlenode_mode ? 0 : 1
+
+  name     = "${var.environment}-${var.es_cluster}-p3000-tg"
   port     = 3000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -98,7 +104,9 @@ resource "aws_lb_target_group" "grafana-p3000-tg" {
 }
 
 resource "aws_lb_target_group" "cerebro-p9000-tg" {
-  name     = "${var.es_cluster}-p9000-tg"
+  count       = local.singlenode_mode ? 0 : 1
+
+  name     = "${var.environment}-${var.es_cluster}-p9000-tg"
   port     = 9000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -115,7 +123,9 @@ resource "aws_lb_target_group" "cerebro-p9000-tg" {
 }
 
 resource "aws_lb" "elasticsearch-alb" {
-  name               = "${var.es_cluster}-alb"
+  count       = local.singlenode_mode ? 0 : 1
+
+  name               = "${var.environment}-${var.es_cluster}-alb"
   internal           = ! var.public_facing
   load_balancer_type = "application"
   security_groups    = [aws_security_group.elasticsearch-alb-sg.id]
@@ -130,46 +140,54 @@ resource "aws_lb" "elasticsearch-alb" {
 #-----------------------------------------------------
 
 resource "aws_lb_listener" "esearch" {
-  load_balancer_arn = aws_lb.elasticsearch-alb.arn
+  count       = local.singlenode_mode ? 0 : 1
+
+  load_balancer_arn = aws_lb.elasticsearch-alb[0].arn
   port              = "9200"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.esearch-p9200-tg.arn
+    target_group_arn = aws_lb_target_group.esearch-p9200-tg[0].arn
   }
 }
 
 resource "aws_lb_listener" "kibana" {
-  load_balancer_arn = aws_lb.elasticsearch-alb.arn
+  count       = local.singlenode_mode ? 0 : 1
+
+  load_balancer_arn = aws_lb.elasticsearch-alb[0].arn
   port              = "5601"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.kibana-p5601-tg.arn
+    target_group_arn = aws_lb_target_group.kibana-p5601-tg[0].arn
   }
 }
 
 resource "aws_lb_listener" "grafana" {
-  load_balancer_arn = aws_lb.elasticsearch-alb.arn
+  count       = local.singlenode_mode ? 0 : 1
+
+  load_balancer_arn = aws_lb.elasticsearch-alb[0].arn
   port              = "3000"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.grafana-p3000-tg.arn
+    target_group_arn = aws_lb_target_group.grafana-p3000-tg[0].arn
   }
 }
 
 resource "aws_lb_listener" "cerebro" {
-  load_balancer_arn = aws_lb.elasticsearch-alb.arn
+  count       = local.singlenode_mode ? 0 : 1
+
+  load_balancer_arn = aws_lb.elasticsearch-alb[0].arn
   port              = "9000"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.cerebro-p9000-tg.arn
+    target_group_arn = aws_lb_target_group.cerebro-p9000-tg[0].arn
   }
 }
 
