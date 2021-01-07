@@ -55,12 +55,15 @@ locals {
     master                   = false
     data                     = false
     bootstrap_node           = false
+    eni_id                   = ""
+    eni_ipv4                 = ""
 
     ca_cert   = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
     node_key  = var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""
 
     DEV_MODE_scripts_s3_bucket = var.DEV_MODE_scripts_s3_bucket
+
   }
 }
 
@@ -69,12 +72,12 @@ locals {
 ##############################################################################
 
 resource "aws_security_group" "elasticsearch_security_group" {
-  name        = "elasticsearch-${var.es_cluster}-security-group"
+  name        = "elasticsearch-${var.environment}-${var.es_cluster}-security-group"
   description = "Elasticsearch ports with ssh"
   vpc_id      = var.vpc_id
 
   tags = {
-    Name    = "${var.es_cluster}-elasticsearch"
+    Name    = "${var.environment}-${var.es_cluster}-elasticsearch"
     cluster = var.es_cluster
   }
 
@@ -119,12 +122,12 @@ resource "aws_security_group" "elasticsearch_security_group" {
 }
 
 resource "aws_security_group" "elasticsearch_clients_security_group" {
-  name        = "elasticsearch-${var.es_cluster}-clients-security-group"
+  name        = "elasticsearch-${var.environment}-${var.es_cluster}-clients-security-group"
   description = "Kibana HTTP access from outside"
   vpc_id      = var.vpc_id
 
   tags = {
-    Name    = "${var.es_cluster}-kibana"
+    Name    = "${var.environment}-${var.es_cluster}-kibana"
     cluster = var.es_cluster
   }
 

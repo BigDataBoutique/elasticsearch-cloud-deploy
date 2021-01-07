@@ -7,7 +7,7 @@ data "template_file" "data_userdata_script" {
 }
 
 resource "aws_launch_template" "data" {
-  name_prefix   = "elasticsearch-${var.es_cluster}-data-nodes"
+  name_prefix   = "elasticsearch-${var.environment}-${var.es_cluster}-data-nodes"
   image_id      = data.aws_ami.elasticsearch.id
   instance_type = var.data_instance_type
   user_data     = base64encode(data.template_file.data_userdata_script.rendered)
@@ -36,7 +36,7 @@ resource "aws_launch_template" "data" {
 resource "aws_autoscaling_group" "data_nodes" {
   count = length(keys(var.datas_count))
 
-  name               = "elasticsearch-${var.es_cluster}-data-nodes-${keys(var.datas_count)[count.index]}"
+  name               = "elasticsearch-${var.environment}-${var.es_cluster}-data-nodes-${keys(var.datas_count)[count.index]}"
   max_size           = var.datas_count[keys(var.datas_count)[count.index]]
   min_size           = var.datas_count[keys(var.datas_count)[count.index]]
   desired_capacity   = var.datas_count[keys(var.datas_count)[count.index]]
@@ -51,7 +51,7 @@ resource "aws_autoscaling_group" "data_nodes" {
   ]
 
   target_group_arns = [
-    aws_lb_target_group.esearch-p9200-tg.arn,
+    aws_lb_target_group.esearch-p9200-tg[0].arn,
   ]
 
   launch_template {

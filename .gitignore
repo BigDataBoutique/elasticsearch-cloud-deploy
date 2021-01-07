@@ -6,5 +6,6 @@ terraform.tfvars
 .terraform/
 .gcp*
 cluster_bootstrap_state
+terraform-aws/cluster_bootstrap_state
 gcp-account.json
 *.iml

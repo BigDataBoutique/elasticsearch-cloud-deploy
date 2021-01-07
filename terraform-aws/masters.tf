@@ -19,7 +19,7 @@ data "template_file" "bootstrap_userdata_script" {
 }
 
 resource "aws_launch_template" "master" {
-  name_prefix   = "elasticsearch-${var.es_cluster}-master-nodes"
+  name_prefix   = "elasticsearch-${var.environment}-${var.es_cluster}-master-nodes"
   image_id      = data.aws_ami.elasticsearch.id
   instance_type = var.master_instance_type
   user_data     = base64encode(data.template_file.master_userdata_script.rendered)
@@ -46,7 +46,7 @@ resource "aws_launch_template" "master" {
 resource "aws_autoscaling_group" "master_nodes" {
   count = length(keys(var.masters_count))
 
-  name               = "elasticsearch-${var.es_cluster}-master-nodes-${keys(var.masters_count)[count.index]}"
+  name               = "elasticsearch-${var.environment}-${var.es_cluster}-master-nodes-${keys(var.masters_count)[count.index]}"
   max_size           = var.masters_count[keys(var.masters_count)[count.index]]
   min_size           = var.masters_count[keys(var.masters_count)[count.index]]
   desired_capacity   = var.masters_count[keys(var.masters_count)[count.index]]
@@ -110,7 +110,7 @@ resource "aws_instance" "bootstrap_node" {
   associate_public_ip_address = false
 
   tags = {
-    Name        = "${var.es_cluster}-bootstrap-node"
+    Name        = "${var.environment}-${var.es_cluster}-bootstrap-node"
     Environment = var.environment
     Cluster     = "${var.environment}-${var.es_cluster}"
     Role        = "bootstrap"
