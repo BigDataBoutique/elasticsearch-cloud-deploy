@@ -22,7 +22,7 @@ resource "aws_ebs_volume" "master" {
 
   tags = {
     Name            = "elasticsearch-${var.es_cluster}-master-${jsondecode(each.value)["name"]}"
-    ClusterName     = "${var.es_cluster}"
+    ClusterName     = var.es_cluster
     VolumeIndex     = jsondecode(each.value)["index"]
     AutoAttachGroup = "master"
   }
@@ -38,7 +38,7 @@ resource "aws_ebs_volume" "data" {
 
   tags = {
     Name            = "elasticsearch-${var.es_cluster}-data-${jsondecode(each.value)["name"]}"
-    ClusterName     = "${var.es_cluster}"
+    ClusterName     = var.es_cluster
     VolumeIndex     = jsondecode(each.value)["index"]
     AutoAttachGroup = "data"
   }
@@ -54,7 +54,7 @@ resource "aws_ebs_volume" "singlenode" {
 
   tags = {
     Name            = "elasticsearch-${var.es_cluster}-singlenode"
-    ClusterName     = "${var.es_cluster}"
+    ClusterName     = var.es_cluster
     VolumeIndex     = "0"
     AutoAttachGroup = "singlenode"
   }
