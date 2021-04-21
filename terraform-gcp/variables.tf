@@ -4,21 +4,21 @@ variable "es_cluster" {
 }
 
 variable "gcp_project_id" {
-  type = "string"
+  type = string
 }
 
 variable "gcp_credentials_path" {
-  type    = "string"
+  type    = string
   default = ""
 }
 
 variable "gcp_zone" {
-  type    = "string"
+  type    = string
   default = "us-central1-a"
 }
 
 variable "gcp_region" {
-  type    = "string"
+  type    = string
   default = "us-central1"
 }
 
@@ -88,7 +88,7 @@ variable "data_machine_type" {
 }
 
 variable "elasticsearch_volume_size" {
-  type    = "string"
+  type    = string
   default = "100" # gb
 }
 
@@ -101,17 +101,17 @@ variable "elasticsearch_logs_dir" {
 }
 
 variable "data_heap_size" {
-  type    = "string"
+  type    = string
   default = "8g"
 }
 
 variable "master_heap_size" {
-  type    = "string"
+  type    = string
   default = "2g"
 }
 
 variable "client_heap_size" {
-  type    = "string"
+  type    = string
   default = "1g"
 }
 
