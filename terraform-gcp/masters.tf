@@ -115,9 +115,9 @@ resource "null_resource" "cluster_bootstrap_state" {
     command = "printf 1 > ${path.module}/cluster_bootstrap_state"
   }
   provisioner "local-exec" {
-    when    = "destroy"
+    when    = destroy
     command = "printf 0 > ${path.module}/cluster_bootstrap_state"
   }
 
-  depends_on = ["google_compute_instance.bootstrap_node"]
+  depends_on = [google_compute_instance.bootstrap_node]
 }
