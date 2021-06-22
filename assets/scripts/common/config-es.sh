@@ -66,8 +66,21 @@ EOF
 # Setup heap size and memory locking
 sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/init.d/elasticsearch
 sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/default/elasticsearch
-sudo sed -i "s/^-Xms.*/-Xms$heap_size/" /etc/elasticsearch/jvm.options
-sudo sed -i "s/^-Xmx.*/-Xmx$heap_size/" /etc/elasticsearch/jvm.options
+
+# Set java heap size
+if [ -d "/etc/elasticsearch/jvm.options.d" ] 
+then
+  # For versions 7.11 and newer, heap settings are saved in a dedicated file in jvm.options.d
+    cat <<EOF >>/etc/elasticsearch/jvm.options.d/heap.options
+-Xms${heap_size}
+-Xmx${heap_size}
+EOF
+
+else
+  # Pre 7.11
+  sudo sed -i "s/^-Xms.*/-Xms$heap_size/" /etc/elasticsearch/jvm.options
+  sudo sed -i "s/^-Xmx.*/-Xmx$heap_size/" /etc/elasticsearch/jvm.options
+fi
 
 # Setup GC
 if [ "$use_g1gc" = "true" ]; then
@@ -82,4 +95,4 @@ fi
 sudo mkdir -p $elasticsearch_logs_dir
 sudo mkdir -p $elasticsearch_data_dir
 sudo chown -R elasticsearch:elasticsearch $elasticsearch_logs_dir
-sudo chown -R elasticsearch:elasticsearch $elasticsearch_data_dir
+sudo chown -R elasticsearch:elasticsearch $elasticsearch_data_dirminor
