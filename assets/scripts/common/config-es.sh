@@ -95,4 +95,4 @@ fi
 sudo mkdir -p $elasticsearch_logs_dir
 sudo mkdir -p $elasticsearch_data_dir
 sudo chown -R elasticsearch:elasticsearch $elasticsearch_logs_dir
-sudo chown -R elasticsearch:elasticsearch $elasticsearch_data_dirminor
+sudo chown -R elasticsearch:elasticsearch $elasticsearch_data_dir
