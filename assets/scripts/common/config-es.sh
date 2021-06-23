@@ -84,11 +84,11 @@ fi
 
 # Setup GC
 if [ "$use_g1gc" = "true" ]; then
-	sudo sed -i -re 's/# ([0-9]+-[0-9]+:-XX:-UseConcMarkSweepGC)/\1/ig' /etc/elasticsearch/jvm.options
-	sudo sed -i -re 's/# ([0-9]+-[0-9]+:-XX:-UseCMSInitiatingOccupancyOnly)/\1/ig' /etc/elasticsearch/jvm.options
-	sudo sed -i 's/[0-9]\+-:-XX:+UseG1GC/10-:-XX:+UseG1GC/ig' /etc/elasticsearch/jvm.options
-	sudo sed -i 's/[0-9]\+-:-XX:G1ReservePercent/10-:-XX:G1ReservePercent/ig' /etc/elasticsearch/jvm.options
-	sudo sed -i 's/[0-9]\+-:-XX:InitiatingHeapOccupancyPercent/10-:-XX:InitiatingHeapOccupancyPercent/ig' /etc/elasticsearch/jvm.options
+  sudo sed -i -re 's/# ([0-9]+-[0-9]+:-XX:-UseConcMarkSweepGC)/\1/ig' /etc/elasticsearch/jvm.options
+  sudo sed -i -re 's/# ([0-9]+-[0-9]+:-XX:-UseCMSInitiatingOccupancyOnly)/\1/ig' /etc/elasticsearch/jvm.options
+  sudo sed -i 's/[0-9]\+-:-XX:+UseG1GC/10-:-XX:+UseG1GC/ig' /etc/elasticsearch/jvm.options
+  sudo sed -i 's/[0-9]\+-:-XX:G1ReservePercent/10-:-XX:G1ReservePercent/ig' /etc/elasticsearch/jvm.options
+  sudo sed -i 's/[0-9]\+-:-XX:InitiatingHeapOccupancyPercent/10-:-XX:InitiatingHeapOccupancyPercent/ig' /etc/elasticsearch/jvm.options
 fi
 
 # Create log and data dirs
