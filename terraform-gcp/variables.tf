@@ -38,6 +38,12 @@ variable "datas_count" {
   description = "Data nodes count per GCP zone. If all node counts are empty, will run in singlenode mode."
 }
 
+variable "dataclient_count" {
+  type        = map(number)
+  default     = {}
+  description = "Dataclient nodes count per GCP zone. If all node counts are empty, will run in singlenode mode."
+}
+
 variable "clients_count" {
   type        = map(number)
   default     = {}
@@ -137,4 +143,8 @@ variable "DEV_MODE_scripts_gcs_bucket" {
 
 variable "gcp_ssh_pub_key_file" {
   default = "id_rsa.pub"
+}
+
+variable "load_balance_data_nodes" {
+  default = false
 }

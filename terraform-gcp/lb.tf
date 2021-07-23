@@ -66,6 +66,13 @@ resource "google_compute_region_backend_service" "internal-client" {
       group = google_compute_instance_group_manager.client[backend.value].instance_group
     }
   }
+
+  dynamic "backend" {
+    for_each = toset(keys(var.datas_count))
+    content {
+      group = google_compute_instance_group_manager.dataclient[backend.value].instance_group
+    }
+  }
 }
 resource "google_compute_forwarding_rule" "internal-client" {
   count = local.singlenode_mode ? 0 : 1
