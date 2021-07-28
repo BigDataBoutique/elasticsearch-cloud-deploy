@@ -8,7 +8,7 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
     from_port   = 5601
     to_port     = 5601
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.cidr_blocks
   }
 
   # allow Cerebro port access
@@ -16,7 +16,7 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
     from_port   = 9000
     to_port     = 9000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.cidr_blocks
   }
 
   # allow Grafana port access
@@ -24,7 +24,7 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.cidr_blocks
   }
 
   # allow ElasticSearch port access
@@ -32,7 +32,7 @@ resource "aws_security_group" "elasticsearch-alb-sg" {
     from_port   = 9200
     to_port     = 9200
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = local.cidr_blocks
   }
 
   egress {

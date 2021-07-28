@@ -166,3 +166,8 @@ variable "DEV_MODE_scripts_s3_bucket" {
   description = "S3 bucket to override init scripts from. Should not be used on production."
   default     = ""
 }
+
+variable "cidr_blocks" {
+  description = "Limit IP's that can access the database service if exposed publicly, secure default to the callers public IP"
+  default = []
+}
