@@ -172,13 +172,12 @@ variable "requires_bootstrapping" {
   default     = true
 }
 
-
-variable "elasticsearch-packer-image" {
+variable "elasticsearch_packer_image" {
   description = "The name of the image family for elasticsearch"
-  default  = "elasticsearch7-packer-image"
+  default     = "elasticsearch7-packer-image"
 }
 
-variable "kibana-packer-image" {
+variable "kibana_packer_image" {
   description = "The name of the image family for kibana"
-  default  = "kibana7-packer-image"
+  default     = "kibana7-packer-image"
 }
