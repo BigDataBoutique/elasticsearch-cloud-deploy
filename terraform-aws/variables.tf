@@ -166,3 +166,8 @@ variable "DEV_MODE_scripts_s3_bucket" {
   description = "S3 bucket to override init scripts from. Should not be used on production."
   default     = ""
 }
+
+variable "requires_bootstrapping" {
+  description = "Overrides cluster bootstrap state"
+  default     = true
+}

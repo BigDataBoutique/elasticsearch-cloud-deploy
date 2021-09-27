@@ -33,7 +33,7 @@ locals {
   singlenode_mode      = (length(keys(var.masters_count)) + length(keys(var.datas_count)) + length(keys(var.clients_count))) == 0
   singlenode_subnet_id = local.singlenode_mode ? local.cluster_subnet_ids[var.singlenode_az][0] : ""
 
-  is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1"
+  is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1" || !var.requires_bootstrapping
 
   user_data_common = {
     cloud_provider           = "aws"

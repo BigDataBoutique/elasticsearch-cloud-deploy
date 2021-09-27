@@ -138,3 +138,8 @@ variable "DEV_MODE_scripts_gcs_bucket" {
 variable "gcp_ssh_pub_key_file" {
   default = "id_rsa.pub"
 }
+
+variable "requires_bootstrapping" {
+  description = "Overrides cluster bootstrap state"
+  default     = true
+}

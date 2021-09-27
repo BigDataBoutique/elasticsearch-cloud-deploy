@@ -1,15 +1,15 @@
 provider "google" {
-  credentials = "${var.gcp_credentials_path}"
-  project     = "${var.gcp_project_id}"
-  region      = "${var.gcp_region}"
-  zone        = "${var.gcp_zone}"
+  credentials = var.gcp_credentials_path
+  project     = var.gcp_project_id
+  region      = var.gcp_region
+  zone        = var.gcp_zone
 }
 
 provider "google-beta" {
-  credentials = "${var.gcp_credentials_path}"
-  project     = "${var.gcp_project_id}"
-  region      = "${var.gcp_region}"
-  zone        = "${var.gcp_zone}"
+  credentials = var.gcp_credentials_path
+  project     = var.gcp_project_id
+  region      = var.gcp_region
+  zone        = var.gcp_zone
 }
 
 resource "random_string" "vm-login-password" {
@@ -69,14 +69,14 @@ resource "google_storage_bucket" "snapshots" {
 }
 
 resource "google_storage_bucket_iam_member" "legacy-bucket-reader" {
-  count = var.gcs_snapshots_bucket != "" ? 1 : 0
+  count  = var.gcs_snapshots_bucket != "" ? 1 : 0
   bucket = join("", google_storage_bucket.snapshots[*].name)
   role   = "roles/storage.legacyBucketReader"
   member = "serviceAccount:${google_service_account.gcs.email}"
 }
 
 resource "google_storage_bucket_iam_member" "object-admin" {
-  count = var.gcs_snapshots_bucket != "" ? 1 : 0
+  count  = var.gcs_snapshots_bucket != "" ? 1 : 0
   bucket = join("", google_storage_bucket.snapshots[*].name)
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.gcs.email}"
@@ -93,7 +93,7 @@ locals {
   )))
 
   singlenode_mode         = (length(keys(var.masters_count)) + length(keys(var.datas_count)) + length(keys(var.clients_count))) == 0
-  is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1"
+  is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1" || !var.requires_bootstrapping
 
   user_data_common = {
     cloud_provider           = "gcp"
