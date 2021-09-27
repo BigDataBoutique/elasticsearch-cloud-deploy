@@ -171,3 +171,14 @@ variable "requires_bootstrapping" {
   description = "Overrides cluster bootstrap state"
   default     = true
 }
+
+
+variable "elasticsearch7-packer-image" {
+  description = "The name of the image family for elasticsearch"
+  default  = "elasticsearch7-packer-image"
+}
+
+variable "kibana7-packer-image" {
+  description = "The name of the image family for kibana"
+  default  = "kibana7-packer-image"
+}
