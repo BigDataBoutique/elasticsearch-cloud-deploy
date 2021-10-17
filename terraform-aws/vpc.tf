@@ -40,6 +40,7 @@ resource "aws_security_group" "vpc-endpoint" {
 
 resource "aws_vpc_endpoint" "ec2" {
   vpc_id              = var.vpc_id
+  count = var.ec2_vpc_endpoint_id != "" ? 1 : 0
   service_name        = "com.amazonaws.${var.aws_region}.ec2"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -55,6 +56,7 @@ resource "aws_vpc_endpoint" "ec2" {
 
 resource "aws_vpc_endpoint" "autoscaling" {
   vpc_id              = var.vpc_id
+  count = var.autoscaling_vpc_endpoint_id != "" ? 1 : 0
   service_name        = "com.amazonaws.${var.aws_region}.autoscaling"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -70,6 +72,7 @@ resource "aws_vpc_endpoint" "autoscaling" {
 
 resource "aws_vpc_endpoint" "s3" {
   vpc_id            = var.vpc_id
+  count = var.s3_vpc_endpoint_id != "" ? 1 : 0
   service_name      = "com.amazonaws.${var.aws_region}.s3"
   vpc_endpoint_type = "Gateway"
   route_table_ids   = data.aws_route_tables.vpc_route_tables.ids
