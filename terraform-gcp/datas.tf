@@ -1,17 +1,22 @@
 data "template_file" "data_userdata_script" {
-  template = "${file("${path.module}/../templates/gcp_user_data.sh")}"
+  template = file("${path.module}/../templates/gcp_user_data.sh")
   vars = merge(local.user_data_common, {
     heap_size      = "${var.data_heap_size}"
     startup_script = "data.sh"
   })
 }
 
+
+# resource "google_compute_target_pool" "data-node" {
+#   name = "${var.es_cluster}-data-node-targetpool"
+# }
+
 resource "google_compute_instance_group_manager" "data" {
   for_each = toset(keys(var.datas_count))
 
   provider = google-beta
   name     = "${var.es_cluster}-igm-data-${each.value}"
-  project  = "${var.gcp_project_id}"
+  project  = var.gcp_project_id
   zone     = each.value
 
   version {
@@ -19,7 +24,14 @@ resource "google_compute_instance_group_manager" "data" {
     name              = "primary"
   }
 
+  named_port {
+    name = "es"
+    port = 9200
+  }
+
   base_instance_name = "${var.es_cluster}-data"
+  target_pools       = var.enable_direct_data_access ? [google_compute_target_pool.client.self_link] : []
+
 }
 
 resource "google_compute_autoscaler" "data" {
@@ -39,13 +51,13 @@ resource "google_compute_autoscaler" "data" {
 resource "google_compute_instance_template" "data" {
   provider       = google-beta
   name_prefix    = "${var.es_cluster}-instance-template-data"
-  project        = "${var.gcp_project_id}"
-  machine_type   = "${var.data_machine_type}"
+  project        = var.gcp_project_id
+  machine_type   = var.data_machine_type
   can_ip_forward = false
 
   tags = ["${var.es_cluster}", "es-data-node"]
 
-  metadata_startup_script = "${data.template_file.data_userdata_script.rendered}"
+  metadata_startup_script = data.template_file.data_userdata_script.rendered
 
   labels = {
     environment = var.environment

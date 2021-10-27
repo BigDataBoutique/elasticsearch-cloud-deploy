@@ -138,3 +138,9 @@ variable "DEV_MODE_scripts_gcs_bucket" {
 variable "gcp_ssh_pub_key_file" {
   default = "id_rsa.pub"
 }
+
+
+variable "enable_direct_data_access" {
+  default     = false
+  description = "Enable attaching load balancer directly to data nodes"
+}
