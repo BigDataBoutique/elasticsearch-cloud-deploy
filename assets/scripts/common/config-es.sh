@@ -68,7 +68,7 @@ sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/init.d/
 sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/default/elasticsearch
 
 # Set java heap size
-if [ -d "/etc/elasticsearch/jvm.options.d" ] 
+if [ -d "/etc/elasticsearch/jvm.options.d" ]
 then
   # For versions 7.11 and newer, heap settings are saved in a dedicated file in jvm.options.d
     cat <<EOF >>/etc/elasticsearch/jvm.options.d/heap.options
@@ -76,10 +76,16 @@ then
 -Xmx${heap_size}
 EOF
 
+# Mitigate log4j lookup exploit
+    cat <<EOF >>/etc/elasticsearch/jvm.options.d/log4j.options
+-Dlog4j2.formatMsgNoLookups=true
+EOF
+
 else
   # Pre 7.11
   sudo sed -i "s/^-Xms.*/-Xms$heap_size/" /etc/elasticsearch/jvm.options
   sudo sed -i "s/^-Xmx.*/-Xmx$heap_size/" /etc/elasticsearch/jvm.options
+  echo "-Dlog4j2.formatMsgNoLookups=true" >> /etc/elasticsearch/jvm.options
 fi
 
 # Setup GC
