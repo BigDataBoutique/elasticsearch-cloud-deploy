@@ -84,7 +84,7 @@ resource "google_compute_forwarding_rule" "internal-singlenode" {
 
 ## Client nodes
 resource "google_compute_region_backend_service" "internal-client" {
-  count = local.load_balance_client_nodes ? 1 : 0
+  count = local.load_balance_client_nodes || local.load_balance_data_nodes ? 1 : 0
 
   name          = "${var.es_cluster}-internal-client"
   region        = var.gcp_region
