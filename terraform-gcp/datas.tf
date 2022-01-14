@@ -6,11 +6,6 @@ data "template_file" "data_userdata_script" {
   })
 }
 
-
-# resource "google_compute_target_pool" "data-node" {
-#   name = "${var.es_cluster}-data-node-targetpool"
-# }
-
 resource "google_compute_instance_group_manager" "data" {
   for_each = toset(keys(var.datas_count))
 
