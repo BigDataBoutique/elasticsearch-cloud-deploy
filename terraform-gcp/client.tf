@@ -6,9 +6,12 @@ data "template_file" "client_userdata_script" {
   })
 }
 
+
 resource "google_compute_target_pool" "client" {
   name = "${var.es_cluster}-client-targetpool"
 }
+
+
 
 resource "google_compute_instance_group_manager" "client" {
   for_each = toset(keys(var.clients_count))
@@ -21,6 +24,11 @@ resource "google_compute_instance_group_manager" "client" {
   named_port {
     name = "nginx"
     port = 8080
+  }
+
+  named_port {
+    name = "es"
+    port = 9200
   }
 
   version {
