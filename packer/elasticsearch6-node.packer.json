@@ -4,7 +4,7 @@
     {
       "name": "aws",
       "type": "amazon-ebs",
-      "ami_name": "elasticsearch7-{{isotime | clean_resource_name}}",
+      "ami_name": "elasticsearch6-{{isotime | clean_resource_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
       "instance_type": "t2.micro",
@@ -15,7 +15,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "*ubuntu-bionic-18.04-amd64-server-*",
+          "name": "*ubuntu-focal-20.04-amd64-server-*",
           "root-device-type": "ebs"
         },
         "owners": ["099720109477"],
@@ -24,7 +24,7 @@
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "ImageType": "elasticsearch7-packer-image"
+        "ImageType": "elasticsearch6-packer-image"
       },
       "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
       "spot_price": "auto"
@@ -95,7 +95,7 @@
     },
     {
       "type": "shell",
-      "script": "install-elasticsearch7.sh",
+      "script": "install-elasticsearch6.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },

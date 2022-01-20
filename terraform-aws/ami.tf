@@ -6,7 +6,7 @@ data "aws_ami" "elasticsearch" {
   }
   filter {
     name   = "tag:ImageType"
-    values = ["elasticsearch7-packer-image"]
+    values = ["elasticsearch6-packer-image"]
   }
   most_recent = true
   owners      = ["self"]
@@ -20,9 +20,8 @@ data "aws_ami" "kibana_client" {
   }
   filter {
     name   = "tag:ImageType"
-    values = ["kibana7-packer-image"]
+    values = ["kibana6-packer-image"]
   }
   most_recent = true
   owners      = ["self"]
 }
-

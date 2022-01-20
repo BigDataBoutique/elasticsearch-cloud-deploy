@@ -1,5 +1,5 @@
 {
-  "elasticsearch_version": "",
+  "elasticsearch_version": "6.8.23",
 
   "aws_region": "us-east-1",
   "aws_az": "us-east-1d",
