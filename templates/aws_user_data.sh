@@ -30,5 +30,6 @@ export bootstrap_node="${bootstrap_node}"
 export ca_cert="${ca_cert}"
 export node_cert="${node_cert}"
 export node_key="${node_key}"
+export availability_zones="${availability_zones}"
 
 /opt/cloud-deploy-scripts/${startup_script}
