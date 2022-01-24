@@ -59,7 +59,7 @@ resource "aws_lb_target_group" "esearch-p9200-tg" {
     path                = "/"
     port                = 9200
     interval            = 15
-    matcher             = "401"
+    matcher             = "200"
   }
 }
 
@@ -172,4 +172,3 @@ resource "aws_lb_listener" "cerebro" {
     target_group_arn = aws_lb_target_group.cerebro-p9000-tg.arn
   }
 }
-
