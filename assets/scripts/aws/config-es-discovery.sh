@@ -2,6 +2,7 @@
 # - aws_region
 # - security_groups
 # - es_environment
+# - availability_zones
 
 cat <<EOF >>/etc/elasticsearch/elasticsearch.yml
 

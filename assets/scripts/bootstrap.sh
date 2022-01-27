@@ -6,7 +6,7 @@ set +e
 
 /opt/cloud-deploy-scripts/common/config-es.sh
 /opt/cloud-deploy-scripts/$cloud_provider/config-es.sh
-/opt/cloud-deploy-scripts/$cloud_provider/config-bootstrap-node.sh
+#/opt/cloud-deploy-scripts/$cloud_provider/config-bootstrap-node.sh
 /opt/cloud-deploy-scripts/$cloud_provider/config-es-discovery.sh
 
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
