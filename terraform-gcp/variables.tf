@@ -139,6 +139,12 @@ variable "gcp_ssh_pub_key_file" {
   default = "id_rsa.pub"
 }
 
+
+variable "enable_direct_data_access" {
+  default     = false
+  description = "Enable attaching load balancer directly to data nodes"
+}
+
 variable "requires_bootstrapping" {
   description = "Overrides cluster bootstrap state"
   default     = true
