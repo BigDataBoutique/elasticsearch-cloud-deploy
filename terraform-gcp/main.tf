@@ -66,6 +66,7 @@ resource "google_service_account_key" "gcs" {
 resource "google_storage_bucket" "snapshots" {
   count = var.gcs_snapshots_bucket != "" ? 1 : 0
   name  = var.gcs_snapshots_bucket
+  location = var.gcp_region
 }
 
 resource "google_storage_bucket_iam_member" "legacy-bucket-reader" {
