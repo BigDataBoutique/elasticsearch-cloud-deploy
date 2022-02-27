@@ -8,7 +8,7 @@ do
 
     MASTER_INSTANCES="$(gcloud compute instances list --filter="labels.cluster:$es_environment AND labels.role:(master OR data-voters)" --format 'get(networkInterfaces[0].networkIP)' | sort)"
     COUNT=`echo "$MASTER_INSTANCES" | wc -l`
-
+    echo "Found $COUNT instances, expecting $masters_count"
     if [ "$COUNT" -eq "$masters_count" ]; then
         echo "Masters count is correct... Rechecking in 60 sec"
         sleep 60
