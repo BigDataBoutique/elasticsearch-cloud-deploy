@@ -89,7 +89,7 @@ locals {
   all_zones = compact(tolist(setunion(
     keys(var.masters_count),
     keys(var.datas_count),
-    keys(var.data_voters_count)
+    keys(var.data_voters_count),
     keys(var.clients_count),
     toset([var.singlenode_zone])
   )))
