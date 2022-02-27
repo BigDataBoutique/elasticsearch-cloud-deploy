@@ -11,7 +11,8 @@ set +e
 /opt/cloud-deploy-scripts/$cloud_provider/config-es.sh
 /opt/cloud-deploy-scripts/$cloud_provider/config-es-discovery.sh
 
-if [ "$is_voting_only" == "true" ] then
+if [ "$is_voting_only" == "true" ]
+then
   cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 node.roles: [ master, data, voting_only, ingest ]
 EOF
