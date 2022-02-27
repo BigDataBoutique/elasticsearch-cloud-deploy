@@ -1,4 +1,4 @@
-data "template_file" "data_userdata_script" {
+data "template_file" "data_voting_userdata_script" {
   template = file("${path.module}/../templates/gcp_user_data.sh")
   vars = merge(local.user_data_common, {
     heap_size      = "${var.data_heap_size}"
@@ -53,7 +53,7 @@ resource "google_compute_instance_template" "data-voters" {
 
   tags = ["${var.es_cluster}", "es-data-node", "es-master-node"]
 
-  metadata_startup_script = data.template_file.data_userdata_script.rendered
+  metadata_startup_script = data.template_file.data_voting_userdata_script.rendered
 
   labels = {
     environment = var.environment
