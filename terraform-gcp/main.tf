@@ -116,9 +116,8 @@ locals {
     client_pwd               = random_string.vm-login-password.result
     master                   = false
     data                     = false
-    data_voter               = false
     bootstrap_node           = false
-
+    is_voting_only           = false
     gcs_service_account_key = join("", google_service_account_key.gcs[*].private_key)
     ca_cert                 = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert               = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
