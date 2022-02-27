@@ -51,7 +51,7 @@ resource "google_compute_instance_template" "data-voters" {
   machine_type   = var.data_machine_type
   can_ip_forward = false
 
-  tags = ["${var.es_cluster}", "es-data-node"]
+  tags = ["${var.es_cluster}", "es-data-node", "es-master-node"]
 
   metadata_startup_script = data.template_file.data_userdata_script.rendered
 
