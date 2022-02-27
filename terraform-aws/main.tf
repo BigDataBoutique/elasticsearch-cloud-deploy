@@ -55,6 +55,7 @@ locals {
     master                   = false
     data                     = false
     bootstrap_node           = false
+    is_voting_only      = "false"
 
     ca_cert   = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""

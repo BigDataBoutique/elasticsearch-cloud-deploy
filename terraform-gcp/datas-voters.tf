@@ -2,7 +2,7 @@ data "template_file" "data_voting_userdata_script" {
   template = file("${path.module}/../templates/gcp_user_data.sh")
   vars = merge(local.user_data_common, {
     heap_size      = "${var.data_heap_size}"
-    is_voting      = "true"
+    is_voting_only      = "true"
     startup_script = "data.sh"
   })
 }
