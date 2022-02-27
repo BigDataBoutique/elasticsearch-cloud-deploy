@@ -166,3 +166,33 @@ variable "DEV_MODE_scripts_s3_bucket" {
   description = "S3 bucket to override init scripts from. Should not be used on production."
   default     = ""
 }
+
+variable "requires_bootstrapping" {
+  description = "Overrides cluster bootstrap state"
+  default     = true
+}
+
+variable "elasticsearch_packer_image" {
+  description = "The name of the image family for elasticsearch"
+  default     = "elasticsearch7-packer-image"
+}
+
+variable "kibana_packer_image" {
+  description = "The name of the image family for kibana"
+  default     = "kibana7-packer-image"
+}
+
+variable "ec2_vpc_endpoint_id" {
+  description = "Use to skip creation of ec2 VPC endpoint and reference your own"
+  default     = ""
+}
+
+variable "s3_vpc_endpoint_id" {
+  description = "Use to skip creation of s3 VPC endpoint and reference your own"
+  default     = ""
+}
+
+variable "autoscaling_vpc_endpoint_id" {
+  description = "Use to skip creation of autoscaling VPC endpoint and reference your own"
+  default     = ""
+}

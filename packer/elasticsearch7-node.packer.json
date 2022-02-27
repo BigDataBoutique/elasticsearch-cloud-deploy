@@ -15,7 +15,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "*ubuntu-bionic-18.04-amd64-server-*",
+          "name": "*ubuntu-focal-20.04-amd64-server-*",
           "root-device-type": "ebs"
         },
         "owners": ["099720109477"],
@@ -25,9 +25,7 @@
       "ssh_username": "ubuntu",
       "tags": {
         "ImageType": "elasticsearch7-packer-image"
-      },
-      "spot_price_auto_product": "Linux/UNIX (Amazon VPC)",
-      "spot_price": "auto"
+      }
     },
     {
       "name": "azure",

@@ -3,10 +3,9 @@
 # - es_cluster
 # - elasticsearch_data_dir
 
-INSTANCE_ROLE="$(gcloud compute instances describe $HOSTNAME --zone $GCP_ZONE --format json | jq -r ".labels.role")"
-echo "INSTANCE_ROLE: $INSTANCE_ROLE"
-
 while true; do
+    INSTANCE_ROLE="$(gcloud compute instances describe $HOSTNAME --zone $GCP_ZONE --format json | jq -r ".labels.role")"
+    echo "INSTANCE_ROLE: $INSTANCE_ROLE"
     UNATTACHED_VOLUME_ID="$(gcloud compute disks list --filter="zone:$GCP_ZONE AND labels.cluster-name:$es_cluster AND labels.auto-attach-group:$INSTANCE_ROLE" --format json | jq  -r '.[] | .name' | shuf -n 1)"
     echo "UNATTACHED_VOLUME_ID: $UNATTACHED_VOLUME_ID"
 
