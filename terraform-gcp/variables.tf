@@ -38,6 +38,12 @@ variable "datas_count" {
   description = "Data nodes count per GCP zone. If all node counts are empty, will run in singlenode mode."
 }
 
+variable "data_voters_count" {
+  type        = map(number)
+  default     = {}
+  description = "Data nodes count per GCP zone. If all node counts are empty, will run in singlenode mode."
+}
+
 variable "clients_count" {
   type        = map(number)
   default     = {}

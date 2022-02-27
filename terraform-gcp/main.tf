@@ -84,11 +84,12 @@ resource "google_storage_bucket_iam_member" "object-admin" {
 }
 
 locals {
-  masters_count = length(flatten([for _, count in var.masters_count : range(count)])) # sum(...) going to be added to TF0.12 soon
+  masters_count = sum(concat(values(var.masters_count), values(var.data_voters_count)))
 
   all_zones = compact(tolist(setunion(
     keys(var.masters_count),
     keys(var.datas_count),
+    keys(var.data_voters_count)
     keys(var.clients_count),
     toset([var.singlenode_zone])
   )))
@@ -115,6 +116,7 @@ locals {
     client_pwd               = random_string.vm-login-password.result
     master                   = false
     data                     = false
+    data_voter               = false
     bootstrap_node           = false
 
     gcs_service_account_key = join("", google_service_account_key.gcs[*].private_key)

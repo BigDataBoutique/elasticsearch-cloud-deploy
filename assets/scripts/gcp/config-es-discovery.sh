@@ -13,5 +13,5 @@ EOF
 if [ "$BIND_TO_ALL" == "true" ]; then
 	echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
 else
-	echo "network.host: _gce_,localhost" >> /etc/elasticsearch/elasticsearch.yml
+	echo "network.host: _gce_,_gce:hostname_,localhost" >> /etc/elasticsearch/elasticsearch.yml
 fi

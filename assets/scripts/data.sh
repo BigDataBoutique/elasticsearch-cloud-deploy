@@ -11,11 +11,17 @@ set +e
 /opt/cloud-deploy-scripts/$cloud_provider/config-es.sh
 /opt/cloud-deploy-scripts/$cloud_provider/config-es-discovery.sh
 
-cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+if [ "$is_voting" == "true" ] then
+  cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+node.roles: [ master, data, voting_only, ingest ]
+EOF
+else
+  cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 node.master: false
 node.data: true
 node.ingest: true
 EOF
+fi
 
 # Start Elasticsearch
 systemctl daemon-reload
