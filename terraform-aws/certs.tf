@@ -12,7 +12,7 @@ resource "tls_private_key" "ca" {
 resource "tls_self_signed_cert" "ca" {
   count = var.security_enabled ? 1 : 0
 
-  key_algorithm   = "RSA"
+  #key_algorithm   = "RSA"
   private_key_pem = join("", tls_private_key.ca[*].private_key_pem)
 
   subject {
@@ -39,7 +39,7 @@ resource "tls_private_key" "node" {
 resource "tls_cert_request" "node" {
   count = var.security_enabled ? 1 : 0
 
-  key_algorithm   = "RSA"
+  #key_algorithm   = "RSA"
   private_key_pem = join("", tls_private_key.node[*].private_key_pem)
 
   subject {
@@ -50,7 +50,7 @@ resource "tls_cert_request" "node" {
 resource "tls_locally_signed_cert" "node" {
   count = var.security_enabled ? 1 : 0
 
-  ca_key_algorithm   = "RSA"
+  #ca_key_algorithm   = "RSA"
   cert_request_pem   = join("", tls_cert_request.node[*].cert_request_pem)
   ca_private_key_pem = join("", tls_private_key.ca[*].private_key_pem)
   ca_cert_pem        = join("", tls_self_signed_cert.ca[*].cert_pem)

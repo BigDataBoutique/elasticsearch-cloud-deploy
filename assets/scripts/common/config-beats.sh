@@ -27,6 +27,5 @@ setup.ilm.enabled: false
 EOF
 
 systemctl daemon-reload
-systemctl enable filebeat.service
-systemctl start filebeat.service
+
 fi
