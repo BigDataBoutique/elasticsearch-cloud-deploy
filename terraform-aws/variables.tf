@@ -199,7 +199,7 @@ variable "autoscaling_vpc_endpoint_id" {
 
 variable "log_size" {
   description = "Retained log4j log size in MB"
-  default     = "10"
+  default     = "128"
 }
 
 variable "log_level" {
