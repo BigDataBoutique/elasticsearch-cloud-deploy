@@ -30,5 +30,7 @@ export bootstrap_node="${bootstrap_node}"
 export ca_cert="${ca_cert}"
 export node_cert="${node_cert}"
 export node_key="${node_key}"
+export log_level="${log_level}"
+export log_size="${log_size}"
 
 /opt/cloud-deploy-scripts/${startup_script}

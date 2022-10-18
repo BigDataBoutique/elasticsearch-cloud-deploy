@@ -88,11 +88,6 @@
     },
     {
       "type": "shell",
-      "script": "install-openjdk11.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
-    },
-    {
-      "type": "shell",
       "script": "install-elasticsearch7.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"

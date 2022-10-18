@@ -101,7 +101,7 @@ variable "security_enabled" {
 
 variable "monitoring_enabled" {
   description = "Whether or not to enable x-pack monitoring on the cluster"
-  default     = "true"
+  default     = false
 }
 
 variable "client_user" {
@@ -134,7 +134,7 @@ variable "xpack_monitoring_host" {
 
 variable "filebeat_monitoring_host" {
   description = "ES host to send filebeat data"
-  default     = ""
+  default     = false
 }
 
 variable "s3_backup_bucket" {
@@ -195,4 +195,14 @@ variable "s3_vpc_endpoint_id" {
 variable "autoscaling_vpc_endpoint_id" {
   description = "Use to skip creation of autoscaling VPC endpoint and reference your own"
   default     = ""
+}
+
+variable "log_size" {
+  description = "Retained log4j log size in MB"
+  default     = "10"
+}
+
+variable "log_level" {
+  description = "log4j log level"
+  default     = "WARN"
 }

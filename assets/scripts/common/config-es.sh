@@ -21,6 +21,10 @@ path.logs: $elasticsearch_logs_dir
 xpack.security.enabled: $security_enabled
 EOF
 
+# Configure log4j retention and level
+sudo sed -i "21 s,.*,appender.rolling.policies.size.size=${log_size}MB," /etc/elasticsearch/log4j2.properties
+sudo sed -i "55 s,.*,rootLogger.level = $log_level," /etc/elasticsearch/log4j2.properties
+
 # If security enabled
 if [ "$security_enabled" == "true" ]; then
 
