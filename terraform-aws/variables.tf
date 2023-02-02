@@ -12,6 +12,12 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "global_tags" {
+  description = "Tags which are propgated to all resources that support tags excluding auto scalling groups"
+  type        = map(string)
+  default     = {}
+}
+
 variable "clients_subnet_ids" {
   description = "Subnets to run client nodes in, defined as avalabilityZone -> subnets mapping. Will autofill to all available subnets in AZ when left empty."
   type        = map(list(string))
