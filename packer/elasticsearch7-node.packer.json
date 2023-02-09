@@ -113,7 +113,8 @@
     },
     {
       "type": "shell",
-	"environment_vars": [ "SUMO_TOKEN={{user `sumo_token`}}" ],
+	"environment_vars": [ "SUMO_ACCESS_ID={{user `sumo_acccess_id`}}", 
+	                    "SUMO_ACCESS_KEY={{user `sumo_acccess_key`}}" ],
       "script": "install-sumo.sh"
     }
   ]

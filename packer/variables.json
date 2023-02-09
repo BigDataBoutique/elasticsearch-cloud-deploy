@@ -1,7 +1,8 @@
 {
   "elasticsearch_version": "",
   "nr_license": "",
-  "sumo_token": "",
+  "sumo_acccess_id": "",
+  "sumo_acccess_key": "",
 
   "aws_region": "us-east-1",
   "aws_az": "us-east-1d",
