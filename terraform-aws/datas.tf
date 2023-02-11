@@ -42,6 +42,7 @@ resource "aws_autoscaling_group" "data_nodes" {
   desired_capacity   = var.datas_count[keys(var.datas_count)[count.index]]
   default_cooldown   = 30
   force_delete       = true
+  protect_from_scale_in = var.protect_data_from_scale_in
 
   vpc_zone_identifier = local.cluster_subnet_ids[keys(var.datas_count)[count.index]]
 
