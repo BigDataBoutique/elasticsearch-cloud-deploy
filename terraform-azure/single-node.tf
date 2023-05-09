@@ -1,7 +1,7 @@
 data "template_file" "singlenode_userdata_script" {
   template = "${file("${path.module}/../templates/user_data.sh")}"
 
-  vars {
+  vars = {
     cloud_provider          = "azure"
     volume_name             = ""
     elasticsearch_data_dir  = "${var.elasticsearch_data_dir}"
@@ -11,9 +11,10 @@ data "template_file" "singlenode_userdata_script" {
     es_environment          = "${var.environment}-${var.es_cluster}"
     security_groups         = ""
     availability_zones      = ""
-    minimum_master_nodes    = "${format("%d", var.masters_count / 2 + 1)}"
+    minimum_master_nodes    = "${floor(var.masters_count / 2 + 1)}"
     master                  = "true"
     data                    = "true"
+    node_roles              = "master,data,ingest"
     bootstrap_node          = "false"
     http_enabled            = "true"
     masters_count           = "${var.masters_count}"
@@ -33,7 +34,7 @@ resource "azurerm_public_ip" "single-node" {
   name                         = "es-${var.es_cluster}-single-node-public-ip"
   location                     = "${var.azure_location}"
   resource_group_name          = "${azurerm_resource_group.elasticsearch.name}"
-  public_ip_address_allocation = "static"
+  allocation_method            = "Static"
   domain_name_label            = "${azurerm_resource_group.elasticsearch.name}"
 }
 
@@ -49,7 +50,7 @@ resource "azurerm_network_interface" "single-node" {
     name                          = "es-${var.es_cluster}-singlenode-ip"
     subnet_id                     = "${azurerm_subnet.elasticsearch_subnet.id}"
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id          = "${azurerm_public_ip.single-node.id}"
+    public_ip_address_id          = "${azurerm_public_ip.single-node[count.index].id}"
   }
 }
 
@@ -60,7 +61,7 @@ resource "azurerm_virtual_machine" "single-node" {
   name                  = "es-${var.es_cluster}-singlenode"
   location              = "${var.azure_location}"
   resource_group_name   = "${azurerm_resource_group.elasticsearch.name}"
-  network_interface_ids = ["${azurerm_network_interface.single-node.id}"]
+  network_interface_ids = ["${azurerm_network_interface.single-node[count.index].id}"]
   vm_size               = "${var.data_instance_type}"
 
   storage_image_reference {
@@ -74,11 +75,11 @@ resource "azurerm_virtual_machine" "single-node" {
     managed_disk_type = "Standard_LRS"
   }
 
-  "os_profile" {
+  os_profile {
     computer_name = "es-${var.es_cluster}-singlenode"
     admin_username = "ubuntu"
     admin_password = "${random_string.vm-login-password.result}"
-    custom_data = "${data.template_file.singlenode_userdata_script.rendered}"
+    custom_data = base64encode(data.template_file.singlenode_userdata_script.rendered)
   }
 
   os_profile_linux_config {

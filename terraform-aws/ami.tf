@@ -6,7 +6,7 @@ data "aws_ami" "elasticsearch" {
   }
   filter {
     name = "tag:ImageType"
-    values = ["elasticsearch7-packer-image"]
+    values = ["elasticsearch8-packer-image"]
   }
   most_recent = true
   owners = ["self"]

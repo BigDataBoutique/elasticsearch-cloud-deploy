@@ -13,6 +13,7 @@ data "template_file" "data_userdata_script" {
     master                  = "false"
     data                    = "true"
     bootstrap_node          = "false"
+    node_roles              = "data,ingest"
     aws_region              = "${var.aws_region}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"

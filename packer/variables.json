@@ -4,10 +4,10 @@
   "aws_region": "us-east-1",
   "aws_az": "us-east-1d",
 
-  "azure_client_id": "",
-  "azure_client_secret": "",
-  "azure_subscription_id": "",
-  "azure_tenant_id": "",
+  "azure_client_id": "6040c376-aa26-4260-a385-478e93bf32cb",
+  "azure_client_secret": "tYK8Q~PPO0P7HeKuy7a3P7VW3qJsxA_rQrpO_ci3",
+  "azure_subscription_id": "dbf16028-3179-43d5-af2a-88dab8e664b9",
+  "azure_tenant_id": "de1c201d-b1c7-4220-83ad-8b7bf56fa264",
 
   "gcp_zone": "us-central1-a",
   "gcp_project_id": "elasticsearch",
@@ -15,5 +15,5 @@
 
   "azure_location": "East US",
   "azure_resource_group_name": "packer-elasticsearch-images",
-  "azure_elasticsearch_image_name": ""
+  "azure_elasticsearch_image_name": "elasticsearch8-2023-05-08T093455"
 }

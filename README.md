@@ -2,7 +2,7 @@
 
 This repository contains a set of tools and scripts to deploy an Elasticsearch cluster on the cloud, using best-practices and state of the art tooling.
 
-***Note:*** This branch supports Elasticsearch 7.x only. For other Elasticsearch versions see [elasticsearch-5.x](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/elasticsearch-5.x) and [elasticsearch-6.x](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/elasticsearch-6.x) branches.
+***Note:*** This branch supports Elasticsearch 8.x only. For other Elasticsearch versions see [elasticsearch-5.x](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/elasticsearch-5.x) and [elasticsearch-6.x](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/elasticsearch-6.x) branches.
 
 You need to use the latest version of Terraform and Packer for all features to work correctly.
 

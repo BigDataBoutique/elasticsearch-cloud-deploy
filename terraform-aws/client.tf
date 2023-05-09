@@ -13,6 +13,7 @@ data "template_file" "client_userdata_script" {
     master                  = "false"
     data                    = "false"
     bootstrap_node          = "false"
+    node_roles              = ""
     aws_region              = "${var.aws_region}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"

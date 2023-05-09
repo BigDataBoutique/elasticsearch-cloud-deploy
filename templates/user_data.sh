@@ -1,6 +1,11 @@
 #!/bin/bash
 
+set -ex
+
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+echo "node roles: ${node_roles}" >>/etc/dbg
+echo "azure_resource_group: ${azure_resource_group}" >>/etc/dbg
 
 function fetch_master_nodes_ips() {
     if [ "${cloud_provider}" == "aws" ]; then
@@ -9,14 +14,16 @@ function fetch_master_nodes_ips() {
     fi
 
     if [ "${cloud_provider}" == "azure" ]; then
-        echo "$(az vmss nic list -g ${azure_resource_group} --vmss-name ${azure_master_vmss_name} | jq -r '.[].ipConfigurations[0].privateIpAddress' | sort)"
+        echo "$(az vmss nic list -g ${azure_resource_group} --vmss-name ${azure_master_vmss_name} | jq -r '.[].ipConfigurations[].privateIPAddress' | sort)"
     fi
 }
 
 if [ "${cloud_provider}" == "azure" ]; then
     # Change node name to AWS-like hostname
     sudo sed -i -e "s/node.name: .*$/node.name: ip-$(hostname -I | tr . -)/ig" /etc/elasticsearch/elasticsearch.yml
+    sudo echo "network.host: _site_,localhost" >>/etc/elasticsearch/elasticsearch.yml
 fi
+
 
 
 if [ "${bootstrap_node}" == "true"  ]; then
@@ -55,23 +62,29 @@ cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
 cluster.name: ${es_cluster}
 
 # only data nodes should have ingest and http capabilities
-node.master: ${master}
-node.data: ${data}
-node.ingest: ${data}
+node.roles: [${node_roles}]
 xpack.security.enabled: ${security_enabled}
-xpack.monitoring.enabled: ${monitoring_enabled}
+xpack.security.transport.ssl.enabled: ${security_enabled}
+xpack.security.http.ssl.enabled: ${security_enabled}
 path.data: ${elasticsearch_data_dir}
 path.logs: ${elasticsearch_logs_dir}
 EOF
 
-if [ "${bootstrap_node}" == "true"  ]; then
-    echo "discovery.seed_hosts: $SEED_HOSTS" >>/etc/elasticsearch/elasticsearch.yml
-    echo "cluster.initial_master_nodes: ip-$(hostname -I | tr . -),$INITIAL_MASTER_NODES" >>/etc/elasticsearch/elasticsearch.yml
+if [ "${bootstrap_node}" != "true"  ]; then
+    MASTER_IPS="$(fetch_master_nodes_ips)"
+    SEED_HOSTS=`echo "$MASTER_IPS" | paste -sd ',' -`
+
+    echo "discovery.seed_hosts: [$SEED_HOSTS]" >>/etc/elasticsearch/elasticsearch.yml
 fi
 
-if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
-    echo "discovery.type: single-node" >>/etc/elasticsearch/elasticsearch.yml
+if [ "${bootstrap_node}" == "true"  ]; then
+    echo "discovery.seed_hosts: [$SEED_HOSTS]" >>/etc/elasticsearch/elasticsearch.yml
+    echo "cluster.initial_master_nodes: [$SEED_HOSTS]" >>/etc/elasticsearch/elasticsearch.yml
 fi
+
+# if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
+#     echo "discovery.type: single-node" >>/etc/elasticsearch/elasticsearch.yml
+# fi
 
 if [ "${xpack_monitoring_host}" != "self" ]; then
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
@@ -102,13 +115,13 @@ discovery:
 EOF
 fi
 
-if [ "${cloud_provider}" == "azure" ]; then
-    echo 'network.host: _site_,localhost' >>/etc/elasticsearch/elasticsearch.yml
+# if [ "${cloud_provider}" == "azure" ]; then
+#     echo 'network.host: _site_,localhost' >>/etc/elasticsearch/elasticsearch.yml
 
-    if [ "${bootstrap_node}" != "true"  ]; then
-        echo 'discovery.seed_hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-data000000"]' >>/etc/elasticsearch/elasticsearch.yml
-    fi
-fi
+#     if [ "${bootstrap_node}" != "true"  ]; then
+#         echo 'discovery.seed_hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-data000000"]' >>/etc/elasticsearch/elasticsearch.yml
+#     fi
+# fi
 
 cat <<'EOF' >>/etc/security/limits.conf
 

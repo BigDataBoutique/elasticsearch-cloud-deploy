@@ -5,7 +5,7 @@ data "local_file" "cluster_bootstrap_state" {
 data "template_file" "master_userdata_script" {
   template = "${file("${path.module}/../templates/user_data.sh")}"
 
-  vars {
+  vars = {
     cloud_provider          = "azure"
     volume_name             = ""
     elasticsearch_data_dir  = "/var/lib/elasticsearch"
@@ -17,6 +17,7 @@ data "template_file" "master_userdata_script" {
     availability_zones      = ""
     master                  = "true"
     data                    = "false"
+    node_roles              = "${var.datas_count == "0" ? "master" : "master, data, ingest"}"
     bootstrap_node          = "false"
     http_enabled            = "false"
     masters_count           = "${var.masters_count}"
@@ -26,7 +27,7 @@ data "template_file" "master_userdata_script" {
     client_pwd              = ""
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
     aws_region              = ""
-    azure_resource_group    = ""
+    azure_resource_group    = "${azurerm_resource_group.elasticsearch.name}"
     azure_master_vmss_name  = ""
   }
 }
@@ -34,7 +35,7 @@ data "template_file" "master_userdata_script" {
 data "template_file" "bootstrap_userdata_script" {
   template = "${file("${path.module}/../templates/user_data.sh")}"
 
-  vars {
+  vars = {
     cloud_provider          = "azure"
     volume_name             = ""
     elasticsearch_data_dir  = "/var/lib/elasticsearch"
@@ -47,8 +48,9 @@ data "template_file" "bootstrap_userdata_script" {
     master                  = "true"
     data                    = "false"
     bootstrap_node          = "true"
+    node_roles              = "master"
     azure_resource_group    = "${azurerm_resource_group.elasticsearch.name}"
-    azure_master_vmss_name  = "${azurerm_virtual_machine_scale_set.master-nodes.name}"
+    azure_master_vmss_name  = "${azurerm_linux_virtual_machine_scale_set.master-nodes[0].name}"
     masters_count           = "${var.masters_count}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"
@@ -67,22 +69,20 @@ resource "azurerm_user_assigned_identity" "bootstrap-node-identity" {
 
 resource "azurerm_role_assignment" "bootstrap-node-role-assignment" {
   scope                = "${data.azurerm_subscription.primary.id}"
-  role_definition_name = "Reader"
+  role_definition_name = "Contributor"
   principal_id         = "${azurerm_user_assigned_identity.bootstrap-node-identity.principal_id}"
 }
 
-resource "azurerm_virtual_machine_scale_set" "master-nodes" {
+resource "azurerm_linux_virtual_machine_scale_set" "master-nodes" {
   count = "${var.masters_count == "0" ? "0" : "1"}"
 
   name = "es-${var.es_cluster}-master-nodes"
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
   location = "${var.azure_location}"
-  "sku" {
-    name = "${var.master_instance_type}"
-    tier = "Standard"
-    capacity = "${var.masters_count}"
-  }
-  upgrade_policy_mode = "Manual"
+  sku = "${var.master_instance_type}"
+  instances = "${var.masters_count}"
+  
+  #upgrade_policy_mode = "Manual"
   overprovision = false
 
   identity {
@@ -90,49 +90,49 @@ resource "azurerm_virtual_machine_scale_set" "master-nodes" {
     identity_ids = ["${azurerm_user_assigned_identity.bootstrap-node-identity.id}"]
   }
 
-  "os_profile" {
-    computer_name_prefix = "${var.es_cluster}-master"
-    admin_username = "ubuntu"
-    admin_password = "${random_string.vm-login-password.result}"
-    custom_data = "${data.template_file.master_userdata_script.rendered}"
-  }
+  computer_name_prefix = "${var.es_cluster}-master"
+  admin_username = "ubuntu"
+  admin_password = "${random_string.vm-login-password.result}"
+  custom_data = base64encode(data.template_file.master_userdata_script.rendered)
 
-  "network_profile" {
+  network_interface {
     name = "es-${var.es_cluster}-net-profile"
     primary = true
 
-    "ip_configuration" {
+    ip_configuration {
       name = "es-${var.es_cluster}-ip-profile"
       primary = true
       subnet_id = "${azurerm_subnet.elasticsearch_subnet.id}"
     }
   }
 
-  storage_profile_image_reference {
-    id = "${data.azurerm_image.elasticsearch.id}"
+  source_image_id = "${data.azurerm_image.elasticsearch.id}"
+  
+
+  os_disk {
+    caching = "ReadWrite"
+    storage_account_type = "Standard_LRS"
   }
 
-  "storage_profile_os_disk" {
-    caching        = "ReadWrite"
-    create_option  = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-
-  storage_profile_data_disk {
+  data_disk {
     lun            = 0
     caching        = "ReadWrite"
     create_option  = "Empty"
-    disk_size_gb   = "10"
-    managed_disk_type = "Standard_LRS"
+    disk_size_gb   = "${var.datas_count == "0" ? "10" : "${var.elasticsearch_volume_size}"}"
+    storage_account_type = "Standard_LRS"
   }  
 
-  os_profile_linux_config {
-    disable_password_authentication = true
-    ssh_keys {
-      path     = "/home/ubuntu/.ssh/authorized_keys"
-      key_data = "${file(var.key_path)}"
-    }
+  admin_ssh_key {
+    username       = "ubuntu"
+    public_key     = "${file(var.key_path)}"
   }
+  # os_profile_linux_config {
+  #   disable_password_authentication = true
+  #   ssh_keys {
+  #     path     = "/home/ubuntu/.ssh/authorized_keys"
+  #     key_data = "${file(var.key_path)}"
+  #   }
+  # }
 }
 
 resource "azurerm_public_ip" "bootstrap" {
@@ -179,20 +179,23 @@ resource "azurerm_virtual_machine" "bootstrap_node" {
     identity_ids = ["${azurerm_user_assigned_identity.bootstrap-node-identity.id}"]
   }
 
-  "os_profile" {
+  os_profile {
     computer_name = "${var.es_cluster}-bootstrap-node"
     admin_username = "ubuntu"
     admin_password = "${random_string.vm-login-password.result}"
-    custom_data = "${data.template_file.bootstrap_userdata_script.rendered}"
+    custom_data = base64encode(data.template_file.bootstrap_userdata_script.rendered)
   }
+
 
   network_interface_ids = ["${azurerm_network_interface.bootstrap-node-nc.id}"]
 
-  # "network_profile" {
+  # Aligning the network interface with the other node types
+  # network_interface {
   #   name = "es-${var.es_cluster}-net-profile"
   #   primary = true
+  #   enable_accelerated_networking = true
 
-  #   "ip_configuration" {
+  #   ip_configuration {
   #     name = "es-${var.es_cluster}-ip-profile"
   #     primary = true
   #     subnet_id = "${azurerm_subnet.elasticsearch_subnet.id}"
@@ -224,9 +227,9 @@ resource "null_resource" "cluster_bootstrap_state" {
     command = "printf 1 > ${path.module}/cluster_bootstrap_state"
   }
   provisioner "local-exec" {
-    when    = "destroy"
+    when    = destroy
     command = "printf 0 > ${path.module}/cluster_bootstrap_state"
   }
 
-  depends_on = ["azurerm_virtual_machine.bootstrap_node"]
+  depends_on = [azurerm_virtual_machine.bootstrap_node]
 }

@@ -90,10 +90,11 @@ Similarly, using the Azure CLI is going to look something like below:
 export rgName=packer-elasticsearch-images
 az group create -n ${rgName} -l eastus
 
-az ad sp create-for-rbac --query "{ client_id: appId, client_secret: password, tenant_id: tenant }"
-# outputs client_id, client_secret and tenant_id
 az account show --query "{ subscription_id: id }"
 # outputs subscription_id
+az ad sp create-for-rbac -n elastic.deploy --role Contributor --scopes /subscriptions/[your subscription id] --query "{ client_id: appId, client_secret: password, tenant_id: tenant }"
+# outputs client_id, client_secret and tenant_id
+az role assignment create --assignee [your client id] --role "User Access Administrator" --scope /subscriptions/[your subscription id]
 ```
 
 ## Building
@@ -101,8 +102,8 @@ az account show --query "{ subscription_id: id }"
 Building the AMIs is done using the following commands:
 
 ```bash
-packer build -only=amazon-ebs -var-file=variables.json elasticsearch7-node.packer.json
-packer build -only=amazon-ebs -var-file=variables.json kibana7-node.packer.json
+packer build -only=azure-arm -var-file=variables.json elasticsearch8-node.packer.json
+packer build -only=azure-arm -var-file=variables.json kibana8-node.packer.json
 ```
 
 Replace the `-only` parameter to `azure-arm` to build images for Azure instead of AWS.

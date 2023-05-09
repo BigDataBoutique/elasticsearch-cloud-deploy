@@ -6,3 +6,4 @@ terraform.tfvars
 .terraform/
 .gcp*
 terraform-aws/cluster_bootstrap_state
+terraform-azure/cluster_bootstrap_state
