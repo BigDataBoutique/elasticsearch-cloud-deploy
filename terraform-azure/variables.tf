@@ -85,7 +85,7 @@ variable "master_heap_size" {
 }
 
 variable "masters_count" {
-  default = 0
+  default = 3
 }
 
 variable "datas_count" {

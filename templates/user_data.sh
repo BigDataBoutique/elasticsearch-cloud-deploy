@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -x
 
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
@@ -78,8 +78,9 @@ if [ "${bootstrap_node}" != "true"  ]; then
 fi
 
 if [ "${bootstrap_node}" == "true"  ]; then
+    ip=$(hostname -I)
     echo "discovery.seed_hosts: [$SEED_HOSTS]" >>/etc/elasticsearch/elasticsearch.yml
-    echo "cluster.initial_master_nodes: [$SEED_HOSTS]" >>/etc/elasticsearch/elasticsearch.yml
+    echo "cluster.initial_master_nodes: [$SEED_HOSTS,$ip]" >>/etc/elasticsearch/elasticsearch.yml
 fi
 
 # if [ "${master}" == "true"  ] && [ "${data}" == "true" ]; then
