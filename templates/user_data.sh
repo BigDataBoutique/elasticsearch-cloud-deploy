@@ -213,7 +213,7 @@ systemctl start elasticsearch.service
 
 
 if [ "${bootstrap_node}" == "true"  ]; then
-    print "Wait for the node to start listneing on port 9200"
+    print "Wait for the node to start listening on port 9200"
     sleep 5
     while true
     do
