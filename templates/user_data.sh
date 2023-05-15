@@ -29,10 +29,9 @@ fi
 
 
 if [ "${bootstrap_node}" == "true"  ]; then
-    # add bootstrap.password to the keystore, so that config-cluster scripts can run
-    # only done on bootstrap and singlenode nodes, before starting ES
+    # Run node reconfigure
     if [ "${security_enabled}" == "true" ]; then
-        echo "${client_pwd}" | sudo -u elasticsearch /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin bootstrap.password
+        sudo /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node
     fi
 
     rm -rf "${elasticsearch_data_dir}/*"
@@ -151,13 +150,6 @@ discovery:
 EOF
 fi
 
-# if [ "${cloud_provider}" == "azure" ]; then
-#     echo 'network.host: _site_,localhost' >>/etc/elasticsearch/elasticsearch.yml
-
-#     if [ "${bootstrap_node}" != "true"  ]; then
-#         echo 'discovery.seed_hosts: ["${es_cluster}-master000000", "${es_cluster}-master000001", "${es_cluster}-data000000"]' >>/etc/elasticsearch/elasticsearch.yml
-#     fi
-# fi
 
 cat <<'EOF' >>/etc/security/limits.conf
 
@@ -217,11 +209,35 @@ systemctl daemon-reload
 systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
+
+
+
 if [ "${bootstrap_node}" == "true"  ]; then
+    print "Wait for the node to start listneing on port 9200"
+    sleep 5
+    while true
+    do
+        NET_RESP=$(sudo ss -tulpn | grep -o ':9200')
+        if [ -z "$NET_RESP" ]; then
+            sleep 5
+        else
+            print "Resetting password"
+            printf "${client_pwd}\n${client_pwd}" | sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i -b
+        fi
+    done
+    # Set up health API
+    if [ "${security_enabled}" == "true" ]; then
+        HEALTH_API='http://localhost:9200/_cluster/health'
+        CREDS=""
+    else
+        HEALTH_API='https://localhost:9200/_cluster/health'
+        CREDS="-u elastic:'${client_pwd}'"
+    fi
+    # Wait for green
     while true
     do
         echo "Checking cluster health"
-        HEALTH="$(curl --silent http://localhost:9200/_cluster/health | jq -r '.status')"
+        HEALTH="$(curl --silent $CREDS $HEALTH_API | jq -r '.status')"
         if [ "$HEALTH" = "green" ]; then
             break
         fi
