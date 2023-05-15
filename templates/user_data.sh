@@ -225,6 +225,7 @@ if [ "${bootstrap_node}" == "true"  ]; then
                 print "Resetting password"
                 printf "${client_pwd}\n${client_pwd}" | sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i -b
             fi
+            break
         fi
     done
     # Set up health API
