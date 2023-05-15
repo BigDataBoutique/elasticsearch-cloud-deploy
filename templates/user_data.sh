@@ -221,8 +221,10 @@ if [ "${bootstrap_node}" == "true"  ]; then
         if [ -z "$NET_RESP" ]; then
             sleep 5
         else
-            print "Resetting password"
-            printf "${client_pwd}\n${client_pwd}" | sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i -b
+            if [ "${security_enabled}" == "true" ]; then
+                print "Resetting password"
+                printf "${client_pwd}\n${client_pwd}" | sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i -b
+            fi
         fi
     done
     # Set up health API
