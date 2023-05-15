@@ -1,11 +1,14 @@
 #!/bin/bash
 
-set -x
+set -ex
 
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
 echo "node roles: ${node_roles}" >>/etc/dbg
 echo "azure_resource_group: ${azure_resource_group}" >>/etc/dbg
+
+chown -R elasticsearch:elasticsearch /etc/elasticsearch
+chown -R elasticsearch:elasticsearch /var/log/elasticsearch
 
 function fetch_master_nodes_ips() {
     if [ "${cloud_provider}" == "aws" ]; then
@@ -25,12 +28,22 @@ if [ "${cloud_provider}" == "azure" ]; then
 fi
 
 
-
 if [ "${bootstrap_node}" == "true"  ]; then
+    # add bootstrap.password to the keystore, so that config-cluster scripts can run
+    # only done on bootstrap and singlenode nodes, before starting ES
+    if [ "${security_enabled}" == "true" ]; then
+        echo "${client_pwd}" | sudo -u elasticsearch /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin bootstrap.password
+    fi
+
+    rm -rf "${elasticsearch_data_dir}/*"
 
     if [ "${cloud_provider}" == "azure" ]; then
         az login -i
     fi
+
+    # if [ "${security_enabled}" == "true" ]; then
+    #     echo "${client_pwd}" | /usr/share/elasticsearch/bin/elasticsearch-keystore add --stdin bootstrap.password
+    # fi
 
     while true
     do
@@ -69,6 +82,28 @@ xpack.security.http.ssl.enabled: ${security_enabled}
 path.data: ${elasticsearch_data_dir}
 path.logs: ${elasticsearch_logs_dir}
 EOF
+
+# If security enabled
+if [ "${security_enabled}" == "true" ]; then
+
+    mkdir -p /etc/elasticsearch/config/certs/
+
+    echo -n "${ca_cert}" > /etc/elasticsearch/config/certs/ca.crt
+    echo -n "${node_cert}" > /etc/elasticsearch/config/certs/tls.crt
+    echo -n "${node_key}" > /etc/elasticsearch/config/certs/tls.key
+
+    cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+xpack.security.transport.ssl.verification_mode: "certificate"
+xpack.security.transport.ssl.key: "/etc/elasticsearch/config/certs/tls.key"
+xpack.security.transport.ssl.certificate: "/etc/elasticsearch/config/certs/tls.crt"
+xpack.security.transport.ssl.certificate_authorities: "/etc/elasticsearch/config/certs/ca.crt"
+
+xpack.security.http.ssl.verification_mode: "certificate"
+xpack.security.http.ssl.key: "/etc/elasticsearch/config/certs/tls.key"
+xpack.security.http.ssl.certificate: "/etc/elasticsearch/config/certs/tls.crt"
+xpack.security.http.ssl.certificate_authorities: "/etc/elasticsearch/config/certs/ca.crt"
+EOF
+fi
 
 if [ "${bootstrap_node}" != "true"  ]; then
     MASTER_IPS="$(fetch_master_nodes_ips)"
@@ -140,7 +175,7 @@ RestartSec=10
 EOF
 
 # Setup heap size and memory locking
-sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/init.d/elasticsearch
+# sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/init.d/elasticsearch
 sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/default/elasticsearch
 sudo sed -i "s/^-Xms.*/-Xms${heap_size}/" /etc/elasticsearch/jvm.options
 sudo sed -i "s/^-Xmx.*/-Xmx${heap_size}/" /etc/elasticsearch/jvm.options
@@ -155,7 +190,9 @@ sudo chown -R elasticsearch:elasticsearch ${elasticsearch_logs_dir}
 # we are assuming volume is declared and attached when data_dir is passed to the script
 if { [ "${master}" == "true" ] || [ "${data}" == "true" ]; } && [ "${bootstrap_node}" != "true" ]; then
     sudo mkdir -p ${elasticsearch_data_dir}
-    
+    chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
+
+    ls -la ${elasticsearch_data_dir}
     export DEVICE_NAME=$(lsblk -ip | tail -n +2 | grep -v " rom" | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | sed ':a;N;$!ba;s/\n|-/ /g' | grep -v MOUNTEDPART)
     if sudo mount -o defaults -t ext4 $DEVICE_NAME ${elasticsearch_data_dir}; then
         echo 'Successfully mounted existing disk'
@@ -166,6 +203,7 @@ if { [ "${master}" == "true" ] || [ "${data}" == "true" ]; } && [ "${bootstrap_n
     fi
     echo "$DEVICE_NAME ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
     sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
+    ls -la ${elasticsearch_data_dir}
 fi
 
 if [ -f "/etc/nginx/nginx.conf" ]; then

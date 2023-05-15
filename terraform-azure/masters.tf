@@ -2,6 +2,10 @@ data "local_file" "cluster_bootstrap_state" {
   filename = "${path.module}/cluster_bootstrap_state"
 }
 
+locals {
+  master_scaleset_name = "es-${var.es_cluster}-master-nodes"
+}
+
 data "template_file" "master_userdata_script" {
   template = "${file("${path.module}/../templates/user_data.sh")}"
 
@@ -28,7 +32,11 @@ data "template_file" "master_userdata_script" {
     xpack_monitoring_host   = "${var.xpack_monitoring_host}"
     aws_region              = ""
     azure_resource_group    = "${azurerm_resource_group.elasticsearch.name}"
-    azure_master_vmss_name  = ""
+    azure_master_vmss_name  = "${local.master_scaleset_name}"
+
+    ca_cert   = "${var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""}"
+    node_cert = "${var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""}"
+    node_key  = "${var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""}"
   }
 }
 
@@ -50,14 +58,18 @@ data "template_file" "bootstrap_userdata_script" {
     bootstrap_node          = "true"
     node_roles              = "master"
     azure_resource_group    = "${azurerm_resource_group.elasticsearch.name}"
-    azure_master_vmss_name  = "${azurerm_linux_virtual_machine_scale_set.master-nodes[0].name}"
+    azure_master_vmss_name  = "${local.master_scaleset_name}"
     masters_count           = "${var.masters_count}"
     security_enabled        = "${var.security_enabled}"
     monitoring_enabled      = "${var.monitoring_enabled}"
     client_user             = ""
-    client_pwd              = ""
+    client_pwd              = "${random_string.vm-login-password.result}"
     xpack_monitoring_host   = "self"
     aws_region              = ""
+
+    ca_cert   = "${var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""}"
+    node_cert = "${var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""}"
+    node_key  = "${var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""}"
   }
 }
 
@@ -76,7 +88,7 @@ resource "azurerm_role_assignment" "bootstrap-node-role-assignment" {
 resource "azurerm_linux_virtual_machine_scale_set" "master-nodes" {
   count = "${var.masters_count == "0" ? "0" : "1"}"
 
-  name = "es-${var.es_cluster}-master-nodes"
+  name = local.master_scaleset_name
   resource_group_name = "${azurerm_resource_group.elasticsearch.name}"
   location = "${var.azure_location}"
   sku = "${var.master_instance_type}"

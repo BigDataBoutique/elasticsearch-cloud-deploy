@@ -10,7 +10,7 @@ variable "azure_client_id" {
 
 variable "azure_client_secret" {
   type = string
-  default = "tYK8Q~PPO0P7HeKuy7a3P7VW3qJsxA_rQrpO_ci3"
+  default = "WAl8Q~iCtgRvwmwG2nFJ.u9CcWefZxRiQtuLaaxw"
 }
 
 variable "azure_subscription_id" {
@@ -25,7 +25,7 @@ variable "azure_tenant_id" {
 
 variable "es_cluster" {
   description = "Name of the elasticsearch cluster, used in node discovery"
-  default = "my-cluster"
+  default = "secure-cluster"
 }
 
 variable "key_path" {
@@ -98,7 +98,7 @@ variable "clients_count" {
 
 # whether or not to enable x-pack security on the cluster
 variable "security_enabled" {
-  default = "false"
+  default = "true"
 }
 
 # whether or not to enable x-pack monitoring on the cluster
@@ -108,7 +108,7 @@ variable "monitoring_enabled" {
 
 # client nodes have nginx installed on them, these credentials are used for basic auth
 variable "client_user" {
-  default = "exampleuser"
+  default = "elastic"
 }
 
 variable "xpack_monitoring_host" {
