@@ -5,22 +5,22 @@ variable "azure_location" {
 
 variable "azure_client_id" {
   type = string
-  default = "6040c376-aa26-4260-a385-478e93bf32cb"
+  default = ""
 }
 
 variable "azure_client_secret" {
   type = string
-  default = "WAl8Q~iCtgRvwmwG2nFJ.u9CcWefZxRiQtuLaaxw"
+  default = ""
 }
 
 variable "azure_subscription_id" {
   type = string
-  default = "dbf16028-3179-43d5-af2a-88dab8e664b9"
+  default = ""
 }
 
 variable "azure_tenant_id" {
   type = string
-  default = "de1c201d-b1c7-4220-83ad-8b7bf56fa264"
+  default = ""
 }
 
 variable "es_cluster" {
