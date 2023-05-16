@@ -17,6 +17,7 @@ function fetch_master_nodes_ips() {
     fi
 
     if [ "${cloud_provider}" == "azure" ]; then
+        az login -i
         echo "$(az vmss nic list -g ${azure_resource_group} --vmss-name ${azure_master_vmss_name} | jq -r '.[].ipConfigurations[].privateIPAddress' | sort)"
     fi
 }
@@ -30,9 +31,9 @@ fi
 
 if [ "${bootstrap_node}" == "true"  ]; then
     # Run node reconfigure
-    if [ "${security_enabled}" == "true" ]; then
-        sudo /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node
-    fi
+    # if [ "${security_enabled}" == "true" ]; then
+    #     sudo /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node
+    # fi
 
     rm -rf "${elasticsearch_data_dir}/*"
 
@@ -213,7 +214,7 @@ systemctl start elasticsearch.service
 
 
 if [ "${bootstrap_node}" == "true"  ]; then
-    print "Wait for the node to start listening on port 9200"
+    echo "Wait for the node to start listening on port 9200"
     sleep 5
     while true
     do
@@ -222,7 +223,7 @@ if [ "${bootstrap_node}" == "true"  ]; then
             sleep 5
         else
             if [ "${security_enabled}" == "true" ]; then
-                print "Resetting password"
+                echo "Resetting password"
                 printf "${client_pwd}\n${client_pwd}" | sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i -b
             fi
             break
