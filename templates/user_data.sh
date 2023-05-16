@@ -9,7 +9,9 @@ echo "azure_resource_group: ${azure_resource_group}" >>/etc/dbg
 
 chown -R elasticsearch:elasticsearch /etc/elasticsearch
 chown -R elasticsearch:elasticsearch /var/log/elasticsearch
-
+if [ "${cloud_provider}" == "azure" ]; then
+    az login -i
+fi
 function fetch_master_nodes_ips() {
     if [ "${cloud_provider}" == "aws" ]; then
         local master_instance_ids="$(aws ec2 describe-instances --region=${aws_region} --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=${es_environment} | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
@@ -17,7 +19,6 @@ function fetch_master_nodes_ips() {
     fi
 
     if [ "${cloud_provider}" == "azure" ]; then
-        az login -i
         echo "$(az vmss nic list -g ${azure_resource_group} --vmss-name ${azure_master_vmss_name} | jq -r '.[].ipConfigurations[].privateIPAddress' | sort)"
     fi
 }
