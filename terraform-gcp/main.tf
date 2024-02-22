@@ -1,12 +1,22 @@
+terraform {
+  required_providers {
+    tls = {
+      source  = "hashicorp/tls"
+      version = "3.1.0"
+    }
+  }
+}
+
+
 provider "google" {
-  credentials = var.gcp_credentials_path
+#  credentials = var.gcp_credentials_path
   project     = var.gcp_project_id
   region      = var.gcp_region
   zone        = var.gcp_zone
 }
 
 provider "google-beta" {
-  credentials = var.gcp_credentials_path
+#  credentials = var.gcp_credentials_path
   project     = var.gcp_project_id
   region      = var.gcp_region
   zone        = var.gcp_zone
@@ -14,6 +24,20 @@ provider "google-beta" {
 
 resource "random_string" "vm-login-password" {
   length  = 16
+  special = false
+}
+
+resource "random_string" "security-encryption-key" {
+  length  = 32
+  special = false
+}
+resource "random_string" "reporting-encryption-key" {
+  length  = 32
+  special = false
+}
+
+resource "random_string" "saved-objects-encryption-key" {
+  length  = 32
   special = false
 }
 
@@ -117,12 +141,19 @@ locals {
     master                   = false
     data                     = false
     bootstrap_node           = false
+    log_level                = var.log_level
+    log_size                 = var.log_size
+
     is_voting_only           = false
     gcs_service_account_key = join("", google_service_account_key.gcs[*].private_key)
     ca_cert                 = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert               = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
-    node_key                = var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : "",
+    node_key                = var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""
 
     DEV_MODE_scripts_gcs_bucket = var.DEV_MODE_scripts_gcs_bucket
+
+    security_encryption_key               = random_string.security-encryption-key.result
+    reporting_encryption_key              = random_string.reporting-encryption-key.result
+    saved_objects_encryption_key          = random_string.saved-objects-encryption-key.result
   }
 }

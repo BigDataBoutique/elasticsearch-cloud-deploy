@@ -18,9 +18,7 @@ fi
 /opt/cloud-deploy-scripts/$cloud_provider/config-es-discovery.sh
 
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-node.master: true
-node.data: true
-node.ingest: true
+node.roles: [ data_hot, data_content, ingest, transform, master ]
 discovery.type: single-node
 EOF
 

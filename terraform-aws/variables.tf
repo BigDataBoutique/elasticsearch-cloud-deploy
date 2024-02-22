@@ -174,12 +174,12 @@ variable "requires_bootstrapping" {
 
 variable "elasticsearch_packer_image" {
   description = "The name of the image family for elasticsearch"
-  default     = "elasticsearch7-packer-image"
+  default     = "elasticsearch8-packer-image"
 }
 
 variable "kibana_packer_image" {
   description = "The name of the image family for kibana"
-  default     = "kibana7-packer-image"
+  default     = "kibana8-packer-image"
 }
 
 variable "ec2_vpc_endpoint_id" {
@@ -204,5 +204,5 @@ variable "log_size" {
 
 variable "log_level" {
   description = "log4j log level"
-  default     = "WARN"
+  default     = "INFO"
 }

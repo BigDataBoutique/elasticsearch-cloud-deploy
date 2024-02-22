@@ -8,3 +8,4 @@ terraform.tfvars
 cluster_bootstrap_state
 gcp-account.json
 *.iml
+id_rsa.pub

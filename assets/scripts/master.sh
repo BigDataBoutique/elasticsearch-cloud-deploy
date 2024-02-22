@@ -12,9 +12,7 @@ set +e
 /opt/cloud-deploy-scripts/$cloud_provider/config-es-discovery.sh
 
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-node.master: true
-node.data: false
-node.ingest: false
+node.roles: [ master ]
 EOF
 
 # Start Elasticsearch

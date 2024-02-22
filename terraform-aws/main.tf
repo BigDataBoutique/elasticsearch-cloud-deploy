@@ -7,6 +7,20 @@ resource "random_string" "vm-login-password" {
   special = false
 }
 
+resource "random_string" "security-encryption-key" {
+  length  = 32
+  special = false
+}
+resource "random_string" "reporting-encryption-key" {
+  length  = 32
+  special = false
+}
+
+resource "random_string" "saved-objects-encryption-key" {
+  length  = 32
+  special = false
+}
+
 locals {
   masters_count = length(flatten([for _, count in var.masters_count : range(count)])) # sum(...) going to be added to TF0.12 soon
 
@@ -18,11 +32,11 @@ locals {
   )))
 
   cluster_subnet_ids = {
-    for i, az in local.all_availability_zones : az => lookup(var.cluster_subnet_ids, az, element(data.aws_subnet_ids.subnets-per-az.*.ids, i))
+    for i, az in local.all_availability_zones : az => lookup(var.cluster_subnet_ids, az, element(data.aws_subnets.subnets-per-az.*.ids, i))
   }
 
   clients_subnet_ids = {
-    for i, az in local.all_availability_zones : az => lookup(var.clients_subnet_ids, az, element(data.aws_subnet_ids.subnets-per-az.*.ids, i))
+    for i, az in local.all_availability_zones : az => lookup(var.clients_subnet_ids, az, element(data.aws_subnets.subnets-per-az.*.ids, i))
   }
 
   flat_cluster_subnet_ids = flatten(values(local.cluster_subnet_ids))
@@ -63,6 +77,10 @@ locals {
     node_key  = var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""
 
     DEV_MODE_scripts_s3_bucket = var.DEV_MODE_scripts_s3_bucket
+
+    security_encryption_key               = random_string.security-encryption-key.result
+    reporting_encryption_key              = random_string.reporting-encryption-key.result
+    saved_objects_encryption_key          = random_string.saved-objects-encryption-key.result
   }
 }
 
