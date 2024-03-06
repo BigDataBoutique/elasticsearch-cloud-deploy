@@ -106,9 +106,9 @@ resource "google_compute_region_backend_service" "internal-client" {
   }
 
   dynamic "backend" {
-    for_each = local.load_balance_data_nodes ? toset(keys(var.datas_count)) : []
+    for_each = local.load_balance_data_nodes ? toset(keys(var.data_voters_count)) : []
     content {
-      group = google_compute_instance_group_manager.data[backend.value].instance_group
+      group = google_compute_instance_group_manager.data-voters[backend.value].instance_group
     }
   }
 }
