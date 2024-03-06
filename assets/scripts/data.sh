@@ -14,11 +14,11 @@ set +e
 if [ "$is_voting_only" == "true" ]
 then
   cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-node.roles: [ data_hot, data_content, ingest, transform, master, voting_only ]
+node.roles: [ data_hot, data_content, ingest, transform, master, voting_only, remote_cluster_client]
 EOF
 else
   cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-node.roles: [ data_hot, data_content, ingest, transform ]
+node.roles: [ data_hot, data_content, ingest, transform, remote_cluster_client ]
 EOF
 fi
 

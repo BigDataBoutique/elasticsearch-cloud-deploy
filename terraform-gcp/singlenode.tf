@@ -11,7 +11,7 @@ resource "google_compute_target_pool" "singlenode" {
 }
 
 resource "google_compute_instance_group_manager" "singlenode" {
-  provider = google-beta
+  provider = google
 
   name    = "${var.es_cluster}-igm-singlenode"
   project = "${var.gcp_project_id}"
@@ -41,7 +41,7 @@ resource "google_compute_autoscaler" "singlenode" {
 }
 
 resource "google_compute_instance_template" "singlenode" {
-  provider = google-beta
+  provider = google
   name_prefix    = "${var.es_cluster}-instance-template-single"
 
   project      = "${var.gcp_project_id}"

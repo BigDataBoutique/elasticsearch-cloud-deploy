@@ -15,7 +15,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "*ubuntu-focal-20.04-amd64-server-*",
+            "name": "*ubuntu-jammy-22.04-amd64-server-*",
           "root-device-type": "ebs"
         },
         "owners": ["099720109477"],
@@ -51,7 +51,7 @@
       "name": "gcp",
       "type": "googlecompute",
       "project_id": "{{user `gcp_project_id`}}",
-      "source_image_family": "ubuntu-2004-lts",
+      "source_image_family": "ubuntu-2204-lts",
       "zone": "{{user `gcp_zone`}}",
       "image_family": "elasticsearch-8",
       "image_name": "elasticsearch8-{{isotime | clean_resource_name}}",

@@ -15,12 +15,12 @@ provider "google" {
   zone        = var.gcp_zone
 }
 
-provider "google-beta" {
-#  credentials = var.gcp_credentials_path
-  project     = var.gcp_project_id
-  region      = var.gcp_region
-  zone        = var.gcp_zone
-}
+#provider "google-beta" {
+##  credentials = var.gcp_credentials_path
+#  project     = var.gcp_project_id
+#  region      = var.gcp_region
+#  zone        = var.gcp_zone
+#}
 
 resource "random_string" "vm-login-password" {
   length  = 16
