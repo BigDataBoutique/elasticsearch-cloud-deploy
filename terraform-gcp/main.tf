@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    tls = {
+      source  = "hashicorp/tls"
+      version = "3.1.0"
+    }
+  }
+}
+
 provider "google" {
   credentials = var.gcp_credentials_path
   project     = var.gcp_project_id
