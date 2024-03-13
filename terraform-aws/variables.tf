@@ -12,6 +12,12 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "global_tags" {
+  description = "Tags which are propgated to all resources that support tags excluding auto scalling groups"
+  type        = map(string)
+  default     = {}
+}
+
 variable "clients_subnet_ids" {
   description = "Subnets to run client nodes in, defined as avalabilityZone -> subnets mapping. Will autofill to all available subnets in AZ when left empty."
   type        = map(list(string))
@@ -112,7 +118,7 @@ variable "client_user" {
 variable "public_facing" {
   description = "Whether or not the created cluster should be accessible from the public internet"
   type        = bool
-  default     = true
+  default     = false
 }
 
 # the ability to add additional existing security groups. In our case
@@ -205,4 +211,10 @@ variable "log_size" {
 variable "log_level" {
   description = "log4j log level"
   default     = "WARN"
+}
+
+variable "protect_data_from_scale_in" {
+   description = "Protect data instances from scale in events"
+   type = bool
+   default = true
 }

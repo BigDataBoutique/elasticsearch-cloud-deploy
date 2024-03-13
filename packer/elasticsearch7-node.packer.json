@@ -105,6 +105,17 @@
     {
       "type": "shell",
       "script": "install-custom.sh"
+    },
+    {
+      "type": "shell",
+	"environment_vars": [ "NR_LICENSE={{user `nr_license`}}" ],
+      "script": "install-newrelic.sh"
+    },
+    {
+      "type": "shell",
+	"environment_vars": [ "SUMO_ACCESS_ID={{user `sumo_acccess_id`}}", 
+	                    "SUMO_ACCESS_KEY={{user `sumo_acccess_key`}}" ],
+      "script": "install-sumo.sh"
     }
   ]
 }
