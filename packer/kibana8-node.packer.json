@@ -69,5 +69,11 @@
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     }
+  ],
+  "post-processors": [
+    {
+      "type": "manifest",
+      "output": "packer-kb-manifest.json"
+    }
   ]
 }

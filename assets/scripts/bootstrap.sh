@@ -29,9 +29,11 @@ set -e
 set +e
 
 /opt/cloud-deploy-scripts/$cloud_provider/config-cluster.sh
-
-if [ "$cloud_provider" == "aws" ]; then
-	shutdown -h now
-elif [ "$cloud_provider" == "gcp" ]; then
-	gcloud compute instances delete $HOSTNAME --zone $GCP_ZONE --quiet
+if [ "$debug_bootstrap" == "false" ]
+then
+  if [ "$cloud_provider" == "aws" ]; then
+  	shutdown -h now
+  elif [ "$cloud_provider" == "gcp" ]; then
+  	gcloud compute instances delete $HOSTNAME --zone $GCP_ZONE --quiet
+  fi
 fi

@@ -206,3 +206,8 @@ variable "log_level" {
   description = "log4j log level"
   default     = "INFO"
 }
+
+variable "debug_bootstrap" {
+  description = "prevent bootstrap node from shutting down"
+  default = false
+}

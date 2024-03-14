@@ -81,6 +81,7 @@ locals {
     security_encryption_key               = random_string.security-encryption-key.result
     reporting_encryption_key              = random_string.reporting-encryption-key.result
     saved_objects_encryption_key          = random_string.saved-objects-encryption-key.result
+    debug_bootstrap = var.debug_bootstrap
   }
 }
 
@@ -158,18 +159,6 @@ resource "aws_security_group" "elasticsearch_clients_security_group" {
   ingress {
     from_port       = 5601
     to_port         = 5601
-    protocol        = "tcp"
-    security_groups = [aws_security_group.elasticsearch-alb-sg.id]
-  }
-  ingress {
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.elasticsearch-alb-sg.id]
-  }
-  ingress {
-    from_port       = 9000
-    to_port         = 9000
     protocol        = "tcp"
     security_groups = [aws_security_group.elasticsearch-alb-sg.id]
   }

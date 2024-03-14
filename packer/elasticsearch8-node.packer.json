@@ -105,5 +105,11 @@
       "type": "shell",
       "script": "install-custom.sh"
     }
+  ],
+  "post-processors": [
+    {
+      "type": "manifest",
+      "output": "packer-es-manifest.json"
+    }
   ]
 }
