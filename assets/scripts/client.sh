@@ -15,9 +15,7 @@ fi
 /opt/cloud-deploy-scripts/$cloud_provider/config-es-discovery.sh
 
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-node.master: false
-node.data: false
-node.ingest: false
+node.roles: [ ingest, remote_cluster_client ]
 EOF
 
 # Start Elasticsearch

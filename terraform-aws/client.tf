@@ -47,8 +47,6 @@ resource "aws_autoscaling_group" "client_nodes" {
   target_group_arns = [
     aws_lb_target_group.esearch-p9200-tg.arn,
     aws_lb_target_group.kibana-p5601-tg[0].arn,
-    aws_lb_target_group.grafana-p3000-tg[0].arn,
-    aws_lb_target_group.cerebro-p9000-tg[0].arn,
   ]
 
   launch_template {

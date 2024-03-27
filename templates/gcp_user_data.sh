@@ -32,5 +32,12 @@ export bootstrap_node="${bootstrap_node}"
 export ca_cert="${ca_cert}"
 export node_cert="${node_cert}"
 export node_key="${node_key}"
+export log_level="${log_level}"
+export log_size="${log_size}"
+export security_encryption_key="${security_encryption_key}"
+export reporting_encryption_key="${reporting_encryption_key}"
+export saved_objects_encryption_key="${saved_objects_encryption_key}"
+export debug_bootstrap="${debug_bootstrap}"
+
 
 /opt/cloud-deploy-scripts/${startup_script}

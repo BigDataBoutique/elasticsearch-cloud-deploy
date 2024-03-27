@@ -9,7 +9,7 @@ data "template_file" "data_userdata_script" {
 resource "google_compute_instance_group_manager" "data" {
   for_each = toset(keys(var.datas_count))
 
-  provider = google-beta
+  provider = google
   name     = "${var.es_cluster}-igm-data-${each.value}"
   project  = var.gcp_project_id
   zone     = each.value
@@ -44,7 +44,7 @@ resource "google_compute_autoscaler" "data" {
 }
 
 resource "google_compute_instance_template" "data" {
-  provider       = google-beta
+  provider       = google
   name_prefix    = "${var.es_cluster}-instance-template-data"
   project        = var.gcp_project_id
   machine_type   = var.data_machine_type

@@ -155,3 +155,18 @@ variable "requires_bootstrapping" {
   description = "Overrides cluster bootstrap state"
   default     = true
 }
+
+variable "log_size" {
+  description = "Retained log4j log size in MB"
+  default     = "128"
+}
+
+variable "log_level" {
+  description = "log4j log level"
+  default     = "INFO"
+}
+
+variable "debug_bootstrap" {
+  description = "prevent bootstrap node from shutting down"
+  default = false
+}
