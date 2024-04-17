@@ -6,14 +6,14 @@
 while true
 do
     echo "Fetching masters..."
-    MASTER_INSTANCES="$(aws ec2 describe-instances --region=$aws_region --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=$es_environment | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
+    MASTER_INSTANCES="$(aws ec2 describe-instances --region=$aws_region --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master,data-voters Name=tag:Cluster,Values=$es_environment | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
     COUNT=`echo "$MASTER_INSTANCES" | wc -l`
 
     if [ "$COUNT" -eq "$masters_count" ]; then
         echo "Masters count is correct... Rechecking in 60 sec"
         sleep 60
-        MASTER_INSTANCES_RECHECK="$(aws ec2 describe-instances --region=$aws_region --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master Name=tag:Cluster,Values=$es_environment | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
-    
+        MASTER_INSTANCES_RECHECK="$(aws ec2 describe-instances --region=$aws_region --filters Name=instance-state-name,Values=running Name=tag:Role,Values=master,data-voters Name=tag:Cluster,Values=$es_environment | jq -r '.Reservations | map(.Instances[].InstanceId) | .[]' | sort)"
+
         if [ "$MASTER_INSTANCES" = "$MASTER_INSTANCES_RECHECK" ]; then
             break
         fi

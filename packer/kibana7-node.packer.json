@@ -57,7 +57,7 @@
       "source_image_family": "elasticsearch-7",
       "zone": "{{user `gcp_zone`}}",
       "image_family": "kibana-7",
-      "image_name": "kibana7-{{isotime \"20060102t030405\"}}",
+      "image_name": "kibana7-{{isotime | clean_resource_name}}",
       "preemptible": true,
       "ssh_username": "ubuntu"
     }
@@ -68,11 +68,12 @@
       "script": "install-kibana7.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
-    },
+    }
+  ],
+  "post-processors": [
     {
-      "type": "shell",
-      "script": "install-grafana.sh",
-      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+      "type": "manifest",
+      "output": "packer-kb-manifest.json"
     }
   ]
 }

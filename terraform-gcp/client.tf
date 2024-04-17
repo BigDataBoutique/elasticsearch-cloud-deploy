@@ -16,7 +16,7 @@ resource "google_compute_target_pool" "client" {
 resource "google_compute_instance_group_manager" "client" {
   for_each = toset(keys(var.clients_count))
 
-  provider = google-beta
+  provider = google
   name     = "${var.es_cluster}-igm-client-${each.value}"
   project  = "${var.gcp_project_id}"
   zone     = each.value
@@ -55,7 +55,7 @@ resource "google_compute_autoscaler" "client" {
 }
 
 resource "google_compute_instance_template" "client" {
-  provider       = google-beta
+  provider       = google
   name_prefix    = "${var.es_cluster}-instance-template-client"
   project        = "${var.gcp_project_id}"
   machine_type   = "${var.master_machine_type}"

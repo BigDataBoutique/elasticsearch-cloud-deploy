@@ -10,6 +10,12 @@ locals {
       for i in range(0, count) : jsonencode({ "az" = az, "index" = i, "name" = "${az}-${i}" })
     ]
   ]))
+
+  data_voters_az_flattened = toset(flatten([
+    for az, count in var.data_voters_count : [
+      for i in range(0, count) : jsonencode({ "az" = az, "index" = i, "name" = "${az}-${i}" })
+    ]
+  ]))
 }
 
 resource "aws_ebs_volume" "master" {
@@ -43,6 +49,23 @@ resource "aws_ebs_volume" "data" {
     AutoAttachGroup = "data"
   }
 }
+
+resource "aws_ebs_volume" "data-voter" {
+  for_each = local.data_voters_az_flattened
+
+  availability_zone = jsondecode(each.value)["az"]
+  size              = var.elasticsearch_volume_size
+  type              = "gp2"
+  encrypted         = var.volume_encryption
+
+  tags = {
+    Name            = "elasticsearch-${var.es_cluster}-data-voters-${jsondecode(each.value)["name"]}"
+    ClusterName     = var.es_cluster
+    VolumeIndex     = jsondecode(each.value)["index"]
+    AutoAttachGroup = "data-voters"
+  }
+}
+
 
 resource "aws_ebs_volume" "singlenode" {
   count = local.singlenode_mode ? 1 : 0

@@ -1,0 +1,22 @@
+aws_region="us-east-1"
+es_cluster="elastic-cluster"
+vpc_id="vpc-somevpc"
+key_name="keyname"
+masters_count = {
+  "us-east-1a" = 3
+}
+datas_count = {
+  "us-east-1a" = 1
+}
+clients_count = {
+  "us-east-1a" = 1
+}
+data_voters_count = {
+  "us-east-1a" = 2
+}
+
+security_enabled = true
+monitoring_enabled = false
+client_user = "someuser"
+public_facing = false
+debug_bootstrap = false

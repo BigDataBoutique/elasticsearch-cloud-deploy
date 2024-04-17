@@ -10,7 +10,7 @@ data "template_file" "data_voting_userdata_script" {
 resource "google_compute_instance_group_manager" "data-voters" {
   for_each = toset(keys(var.data_voters_count))
 
-  provider = google-beta
+  provider = google
   name     = "${var.es_cluster}-igm-data-voters-${each.value}"
   project  = var.gcp_project_id
   zone     = each.value
@@ -45,7 +45,7 @@ resource "google_compute_autoscaler" "data-voters" {
 }
 
 resource "google_compute_instance_template" "data-voters" {
-  provider       = google-beta
+  provider       = google
   name_prefix    = "${var.es_cluster}-instance-template-data-voters"
   project        = var.gcp_project_id
   machine_type   = var.data_machine_type

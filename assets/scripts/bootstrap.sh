@@ -10,9 +10,7 @@ set +e
 /opt/cloud-deploy-scripts/$cloud_provider/config-es-discovery.sh
 
 cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
-node.master: true
-node.data: false
-node.ingest: false
+node.roles: [ master ]
 EOF
 
 # add bootstrap.password to the keystore, so that config-cluster scripts can run
@@ -26,7 +24,9 @@ systemctl daemon-reload
 systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
+set -e
 /opt/cloud-deploy-scripts/common/config-cluster.sh
+set +e
 /opt/cloud-deploy-scripts/$cloud_provider/config-cluster.sh
 
 while true
@@ -37,9 +37,13 @@ do
     fi
     sleep 5
 done
+/opt/cloud-deploy-scripts/$cloud_provider/config-cluster.sh
 
-if [ "$cloud_provider" == "aws" ]; then
-	shutdown -h now
-elif [ "$cloud_provider" == "gcp" ]; then
-	gcloud compute instances delete $HOSTNAME --zone $GCP_ZONE --quiet
+if [ "$debug_bootstrap" != "true" ]
+then
+  if [ "$cloud_provider" == "aws" ]; then
+  	shutdown -h now
+  elif [ "$cloud_provider" == "gcp" ]; then
+  	gcloud compute instances delete $HOSTNAME --zone $GCP_ZONE --quiet
+  fi
 fi

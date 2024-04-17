@@ -7,22 +7,32 @@ resource "random_string" "vm-login-password" {
   special = false
 }
 
-locals {
-  masters_count = length(flatten([for _, count in var.masters_count : range(count)])) # sum(...) going to be added to TF0.12 soon
+resource "random_string" "security-encryption-key" {
+  length  = 32
+  special = false
+}
+resource "random_string" "reporting-encryption-key" {
+  length  = 32
+  special = false
+}
 
+locals {
+#  masters_count = length(flatten([for _, count in var.masters_count : range(count)])) # sum(...) going to be added to TF0.12 soon
+  masters_count = sum(concat(values(var.masters_count), values(var.data_voters_count)))
   all_availability_zones = compact(tolist(setunion(
     keys(var.masters_count),
     keys(var.datas_count),
     keys(var.clients_count),
+    keys(var.data_voters_count),
     toset([var.singlenode_az])
   )))
 
   cluster_subnet_ids = {
-    for i, az in local.all_availability_zones : az => lookup(var.cluster_subnet_ids, az, element(data.aws_subnet_ids.subnets-per-az.*.ids, i))
+    for i, az in local.all_availability_zones : az => lookup(var.cluster_subnet_ids, az, element(data.aws_subnets.subnets-per-az.*.ids, i))
   }
 
   clients_subnet_ids = {
-    for i, az in local.all_availability_zones : az => lookup(var.clients_subnet_ids, az, element(data.aws_subnet_ids.subnets-per-az.*.ids, i))
+    for i, az in local.all_availability_zones : az => lookup(var.clients_subnet_ids, az, element(data.aws_subnets.subnets-per-az.*.ids, i))
   }
 
   flat_cluster_subnet_ids = flatten(values(local.cluster_subnet_ids))
@@ -30,7 +40,7 @@ locals {
 
   bootstrap_node_subnet_id = var.bootstrap_node_subnet_id != "" ? var.bootstrap_node_subnet_id : coalescelist(local.flat_cluster_subnet_ids, [""])[0]
 
-  singlenode_mode      = (length(keys(var.masters_count)) + length(keys(var.datas_count)) + length(keys(var.clients_count))) == 0
+  singlenode_mode      = (length(keys(var.masters_count)) + length(keys(var.datas_count)) + length(keys(var.data_voters_count)) + length(keys(var.clients_count))) == 0
   singlenode_subnet_id = local.singlenode_mode ? local.cluster_subnet_ids[var.singlenode_az][0] : ""
 
   is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1" || !var.requires_bootstrapping
@@ -57,12 +67,17 @@ locals {
     bootstrap_node           = false
     log_level                = var.log_level
     log_size                 = var.log_size
+    is_voting_only           = false
 
     ca_cert   = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
     node_key  = var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""
 
     DEV_MODE_scripts_s3_bucket = var.DEV_MODE_scripts_s3_bucket
+
+    security_encryption_key               = random_string.security-encryption-key.result
+    reporting_encryption_key              = random_string.reporting-encryption-key.result
+    debug_bootstrap = var.debug_bootstrap
   }
 }
 
@@ -140,18 +155,6 @@ resource "aws_security_group" "elasticsearch_clients_security_group" {
   ingress {
     from_port       = 5601
     to_port         = 5601
-    protocol        = "tcp"
-    security_groups = [aws_security_group.elasticsearch-alb-sg.id]
-  }
-  ingress {
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.elasticsearch-alb-sg.id]
-  }
-  ingress {
-    from_port       = 9000
-    to_port         = 9000
     protocol        = "tcp"
     security_groups = [aws_security_group.elasticsearch-alb-sg.id]
   }

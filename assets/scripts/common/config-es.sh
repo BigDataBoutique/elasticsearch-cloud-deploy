@@ -101,6 +101,9 @@ if [ "$use_g1gc" = "true" ]; then
   sudo sed -i 's/[0-9]\+-:-XX:InitiatingHeapOccupancyPercent/10-:-XX:InitiatingHeapOccupancyPercent/ig' /etc/elasticsearch/jvm.options
 fi
 
+# Disable heap dumps
+echo "-XX:-HeapDumpOnOutOfMemoryError" | sudo tee -a /etc/elasticsearch/jvm.options
+
 # Create log and data dirs
 sudo mkdir -p $elasticsearch_logs_dir
 sudo mkdir -p $elasticsearch_data_dir
