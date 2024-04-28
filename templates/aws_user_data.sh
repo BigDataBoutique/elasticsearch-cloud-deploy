@@ -35,6 +35,6 @@ export log_level="${log_level}"
 export log_size="${log_size}"
 export security_encryption_key="${security_encryption_key}"
 export reporting_encryption_key="${reporting_encryption_key}"
-export debug_bootstrap="${debug_bootstrap}"
+export auto_shut_down_bootstrap_node="${auto_shut_down_bootstrap_node}"
 
 /opt/cloud-deploy-scripts/${startup_script}

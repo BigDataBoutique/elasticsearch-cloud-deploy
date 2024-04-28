@@ -39,7 +39,7 @@ do
 done
 /opt/cloud-deploy-scripts/$cloud_provider/config-cluster.sh
 
-if [ "$debug_bootstrap" != "true" ]
+if [ "$auto_shut_down_bootstrap_node" == "true" ]
 then
   if [ "$cloud_provider" == "aws" ]; then
   	shutdown -h now

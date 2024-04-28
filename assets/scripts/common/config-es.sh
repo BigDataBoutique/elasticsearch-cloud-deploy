@@ -83,6 +83,7 @@ EOF
 # Mitigate log4j lookup exploit
     cat <<EOF >>/etc/elasticsearch/jvm.options.d/log4j.options
 -Dlog4j2.formatMsgNoLookups=true
+-XX:-HeapDumpOnOutOfMemoryError
 EOF
 
 else
@@ -90,6 +91,8 @@ else
   sudo sed -i "s/^-Xms.*/-Xms$heap_size/" /etc/elasticsearch/jvm.options
   sudo sed -i "s/^-Xmx.*/-Xmx$heap_size/" /etc/elasticsearch/jvm.options
   echo "-Dlog4j2.formatMsgNoLookups=true" >> /etc/elasticsearch/jvm.options
+  # Disable heap dumps
+  echo "-XX:-HeapDumpOnOutOfMemoryError" | sudo tee -a /etc/elasticsearch/jvm.options
 fi
 
 # Setup GC
@@ -101,8 +104,6 @@ if [ "$use_g1gc" = "true" ]; then
   sudo sed -i 's/[0-9]\+-:-XX:InitiatingHeapOccupancyPercent/10-:-XX:InitiatingHeapOccupancyPercent/ig' /etc/elasticsearch/jvm.options
 fi
 
-# Disable heap dumps
-echo "-XX:-HeapDumpOnOutOfMemoryError" | sudo tee -a /etc/elasticsearch/jvm.options
 
 # Create log and data dirs
 sudo mkdir -p $elasticsearch_logs_dir

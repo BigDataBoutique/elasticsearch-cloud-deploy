@@ -166,7 +166,7 @@ variable "log_level" {
   default     = "INFO"
 }
 
-variable "debug_bootstrap" {
-  description = "prevent bootstrap node from shutting down"
-  default = false
+variable "auto_shut_down_bootstrap_node" {
+  description = "disable to prevent bootstrap node from shutting down"
+  default = true
 }

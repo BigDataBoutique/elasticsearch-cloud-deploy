@@ -19,4 +19,4 @@ security_enabled = true
 monitoring_enabled = false
 client_user = "someuser"
 public_facing = false
-debug_bootstrap = false
+auto_shut_down_bootstrap_node = true

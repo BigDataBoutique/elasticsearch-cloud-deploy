@@ -139,6 +139,6 @@ locals {
     DEV_MODE_scripts_gcs_bucket = var.DEV_MODE_scripts_gcs_bucket
     security_encryption_key               = random_string.security-encryption-key.result
     reporting_encryption_key              = random_string.reporting-encryption-key.result
-    debug_bootstrap = var.debug_bootstrap
+    auto_shut_down_bootstrap_node = var.auto_shut_down_bootstrap_node
   }
 }

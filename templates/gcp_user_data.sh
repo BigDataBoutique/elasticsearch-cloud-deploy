@@ -34,5 +34,5 @@ export node_cert="${node_cert}"
 export node_key="${node_key}"
 export log_level="${log_level}"
 export log_size="${log_size}"
-export debug_bootstrap="${debug_bootstrap}"
+export auto_shut_down_bootstrap_node="${auto_shut_down_bootstrap_node}"
 /opt/cloud-deploy-scripts/${startup_script}
