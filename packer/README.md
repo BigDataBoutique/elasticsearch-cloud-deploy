@@ -5,7 +5,7 @@ This Packer configuration will generate Ubuntu images with Elasticsearch, Kibana
 The output of running Packer here would be two machine images, as below:
 
 * elasticsearch node image, containing latest Elasticsearch installed (latest version 7.x) and configured with best-practices.
-* kibana node image, based on the elasticsearch node image, and with Kibana (7.x, latest), nginx with basic proxy and authentication setip, and Kopf.
+* kibana node image, based on the elasticsearch node image, and with Kibana (7.x, latest).
 
 ## On Amazon Web Services (AWS)
 

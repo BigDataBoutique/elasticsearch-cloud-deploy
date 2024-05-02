@@ -2,31 +2,46 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
-data "aws_subnet_ids" "all-subnets" {
-  vpc_id = var.vpc_id
+data "aws_subnets" "all-subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
 }
 
 data "aws_route_tables" "vpc_route_tables" {
   vpc_id = var.vpc_id
 }
 
-data "aws_subnet_ids" "subnets-per-az" {
+data "aws_subnets" "subnets-per-az" {
   count  = length(local.all_availability_zones)
-  vpc_id = var.vpc_id
 
   filter {
     name   = "availability-zone"
     values = [local.all_availability_zones[count.index]]
   }
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+
 }
 
 resource "aws_security_group" "vpc-endpoint" {
   vpc_id = var.vpc_id
 
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
