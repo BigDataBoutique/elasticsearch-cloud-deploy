@@ -164,7 +164,7 @@ variable "bootstrap_node_subnet_id" {
 }
 
 variable "use_g1gc" {
-  description = "Whether or not to enable G1GC in jvm.options ES config"
+  description = "Whether or not to enable G1GC in jvm.options ES config. Left in for backwards compatibility, deployments with Elasticsearch 7.7 and above should not use this."
   default     = false
 }
 
