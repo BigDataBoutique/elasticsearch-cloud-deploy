@@ -38,6 +38,4 @@ export security_encryption_key="${security_encryption_key}"
 export reporting_encryption_key="${reporting_encryption_key}"
 export saved_objects_encryption_key="${saved_objects_encryption_key}"
 export auto_shut_down_bootstrap_node="${auto_shut_down_bootstrap_node}"
-
-
 /opt/cloud-deploy-scripts/${startup_script}
