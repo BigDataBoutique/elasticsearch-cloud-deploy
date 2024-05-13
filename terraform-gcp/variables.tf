@@ -132,7 +132,7 @@ variable "filebeat_monitoring_host" {
 }
 
 variable "use_g1gc" {
-  description = "Whether or not to enable G1GC in jvm.options ES config"
+  description = "Whether or not to enable G1GC in jvm.options ES config. . Left in for backwards compatibility, deployments with Elasticsearch 7.7 and above should not use this."
   default     = false
 }
 
@@ -166,7 +166,7 @@ variable "log_level" {
   default     = "INFO"
 }
 
-variable "debug_bootstrap" {
-  description = "prevent bootstrap node from shutting down"
-  default = false
+variable "auto_shut_down_bootstrap_node" {
+  description = "disable to prevent bootstrap node from shutting down"
+  default = true
 }

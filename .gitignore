@@ -11,3 +11,5 @@ gcp-account.json
 id_rsa.pub
 packer-es-manifest.json
 packer-kb-manifest.json
+.terraform.lock.hcl
+plan.*

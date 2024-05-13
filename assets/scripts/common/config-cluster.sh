@@ -35,5 +35,5 @@ if [ "$security_enabled" == "true" ]; then
 
   curl $CURL_AUTH \
        -X PUT -H 'Content-Type: application/json' -k \
-       "$ES_HOST/_security/user/remote_monitoring_user/_password" -d '{ "password": "'"$client_pwd"'" }'  
+       "$ES_HOST/_security/user/remote_monitoring_user/_password" -d '{ "password": "'"$client_pwd"'" }'
 fi

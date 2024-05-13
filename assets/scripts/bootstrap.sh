@@ -27,9 +27,19 @@ systemctl start elasticsearch.service
 set -e
 /opt/cloud-deploy-scripts/common/config-cluster.sh
 set +e
-
 /opt/cloud-deploy-scripts/$cloud_provider/config-cluster.sh
-if [ "$debug_bootstrap" != "true" ]
+
+while true
+do
+    HEALTH="$(curl $CURL_AUTH --silent -k "$ES_HOST/_cluster/health" | jq -r '.status')"
+    if [ "$HEALTH" == "green" ]; then
+        break
+    fi
+    sleep 5
+done
+/opt/cloud-deploy-scripts/$cloud_provider/config-cluster.sh
+
+if [ "$auto_shut_down_bootstrap_node" == "true" ]
 then
   if [ "$cloud_provider" == "aws" ]; then
   	shutdown -h now

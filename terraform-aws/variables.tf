@@ -88,6 +88,12 @@ variable "datas_count" {
   description = "Data nodes count per avalabilityZone. If all node counts are empty, will run in singlenode mode."
 }
 
+variable "data_voters_count" {
+  type        = map(number)
+  default     = {}
+  description = "Data voter nodes count per avalabilityZone. If all node counts are empty, will run in singlenode mode."
+}
+
 variable "clients_count" {
   type        = map(number)
   default     = {}
@@ -158,7 +164,7 @@ variable "bootstrap_node_subnet_id" {
 }
 
 variable "use_g1gc" {
-  description = "Whether or not to enable G1GC in jvm.options ES config"
+  description = "Whether or not to enable G1GC in jvm.options ES config. Left in for backwards compatibility, deployments with Elasticsearch 7.7 and above should not use this."
   default     = false
 }
 
@@ -207,7 +213,7 @@ variable "log_level" {
   default     = "INFO"
 }
 
-variable "debug_bootstrap" {
-  description = "prevent bootstrap node from shutting down"
-  default = false
+variable "auto_shut_down_bootstrap_node" {
+  description = "disable to prevent bootstrap node from shutting down"
+  default = true
 }

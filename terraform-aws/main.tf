@@ -22,12 +22,13 @@ resource "random_string" "saved-objects-encryption-key" {
 }
 
 locals {
-  masters_count = length(flatten([for _, count in var.masters_count : range(count)])) # sum(...) going to be added to TF0.12 soon
-
+#  masters_count = length(flatten([for _, count in var.masters_count : range(count)])) # sum(...) going to be added to TF0.12 soon
+  masters_count = sum(concat(values(var.masters_count), values(var.data_voters_count)))
   all_availability_zones = compact(tolist(setunion(
     keys(var.masters_count),
     keys(var.datas_count),
     keys(var.clients_count),
+    keys(var.data_voters_count),
     toset([var.singlenode_az])
   )))
 
@@ -44,7 +45,7 @@ locals {
 
   bootstrap_node_subnet_id = var.bootstrap_node_subnet_id != "" ? var.bootstrap_node_subnet_id : coalescelist(local.flat_cluster_subnet_ids, [""])[0]
 
-  singlenode_mode      = (length(keys(var.masters_count)) + length(keys(var.datas_count)) + length(keys(var.clients_count))) == 0
+  singlenode_mode      = (length(keys(var.masters_count)) + length(keys(var.datas_count)) + length(keys(var.data_voters_count)) + length(keys(var.clients_count))) == 0
   singlenode_subnet_id = local.singlenode_mode ? local.cluster_subnet_ids[var.singlenode_az][0] : ""
 
   is_cluster_bootstrapped = data.local_file.cluster_bootstrap_state.content == "1" || !var.requires_bootstrapping
@@ -71,6 +72,7 @@ locals {
     bootstrap_node           = false
     log_level                = var.log_level
     log_size                 = var.log_size
+    is_voting_only           = false
 
     ca_cert   = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
@@ -81,7 +83,7 @@ locals {
     security_encryption_key               = random_string.security-encryption-key.result
     reporting_encryption_key              = random_string.reporting-encryption-key.result
     saved_objects_encryption_key          = random_string.saved-objects-encryption-key.result
-    debug_bootstrap = var.debug_bootstrap
+     auto_shut_down_bootstrap_node = var.auto_shut_down_bootstrap_node
   }
 }
 

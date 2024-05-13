@@ -15,7 +15,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-            "name": "*ubuntu-jammy-22.04-amd64-server-*",
+          "name": "*ubuntu-jammy-22.04-amd64-server-*",
           "root-device-type": "ebs"
         },
         "owners": ["099720109477"],
@@ -50,6 +50,7 @@
     {
       "name": "gcp",
       "type": "googlecompute",
+      "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
       "source_image_family": "ubuntu-2204-lts",
       "zone": "{{user `gcp_zone`}}",

@@ -1,0 +1,28 @@
+es_cluster = "elastic-cluster"
+gcp_project_id = "some_project"
+# see main.tf for using environment credentials
+gcp_credentials_path = "credentials.json"
+gcp_zone = "us-east1-b"
+gcp_region = "us-east1"
+environment = "test"
+masters_count = {
+  "us-east1-b" = 1
+}
+datas_count = {
+  "us-east1-b" = 2
+}
+data_voters_count = {
+  "us-east1-b" = 2
+}
+clients_count = {
+  "us-east1-b" = 1
+}
+security_enabled = true
+monitoring_enabled = false
+client_user = "someuser"
+public_facing = false
+data_machine_type         = "n2-highmem-2"
+elasticsearch_volume_size = "200"
+data_heap_size            = "8g"
+gcp_ssh_pub_key_file = "id_rsa.pub"
+enable_direct_data_access = true

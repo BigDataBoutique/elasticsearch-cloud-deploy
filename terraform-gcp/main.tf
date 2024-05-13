@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-
 provider "google" {
 #  credentials = var.gcp_credentials_path
   project     = var.gcp_project_id
@@ -136,7 +135,6 @@ locals {
     bootstrap_node           = false
     log_level                = var.log_level
     log_size                 = var.log_size
-
     is_voting_only           = false
     gcs_service_account_key = join("", google_service_account_key.gcs[*].private_key)
     ca_cert                 = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
@@ -148,6 +146,6 @@ locals {
     security_encryption_key               = random_string.security-encryption-key.result
     reporting_encryption_key              = random_string.reporting-encryption-key.result
     saved_objects_encryption_key          = random_string.saved-objects-encryption-key.result
-    debug_bootstrap = var.debug_bootstrap
+    auto_shut_down_bootstrap_node = var.auto_shut_down_bootstrap_node
   }
 }

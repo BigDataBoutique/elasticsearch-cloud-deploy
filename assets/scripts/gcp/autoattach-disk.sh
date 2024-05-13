@@ -6,9 +6,8 @@
 while true; do
     INSTANCE_ROLE="$(gcloud compute instances describe $HOSTNAME --zone $GCP_ZONE --format json | jq -r ".labels.role")"
     echo "INSTANCE_ROLE: $INSTANCE_ROLE"
-    UNATTACHED_VOLUME_ID="$(gcloud compute disks list --filter="zone=$GCP_ZONE AND labels.cluster-name=$es_cluster AND labels.auto-attach-group=$INSTANCE_ROLE" --format json | jq  -r '.[] | .name' | shuf -n 1)"
+    UNATTACHED_VOLUME_ID="$(gcloud compute disks list --filter="zone=$GCP_ZONE AND labels.cluster-name=$es_cluster AND labels.auto-attach-group=$INSTANCE_ROLE" --format json | jq -r '.[] | .name' | shuf -n 1)"
     echo "UNATTACHED_VOLUME_ID: $UNATTACHED_VOLUME_ID"
-
     gcloud compute instances attach-disk $HOSTNAME --disk $UNATTACHED_VOLUME_ID --device-name "espersistent" --zone $GCP_ZONE
     if [ "$?" == "0" ]; then
         break
