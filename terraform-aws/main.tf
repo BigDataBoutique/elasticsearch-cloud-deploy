@@ -16,6 +16,11 @@ resource "random_string" "reporting-encryption-key" {
   special = false
 }
 
+resource "random_string" "saved-objects-encryption-key" {
+  length  = 32
+  special = false
+}
+
 locals {
 #  masters_count = length(flatten([for _, count in var.masters_count : range(count)])) # sum(...) going to be added to TF0.12 soon
   masters_count = sum(concat(values(var.masters_count), values(var.data_voters_count)))
@@ -77,7 +82,8 @@ locals {
 
     security_encryption_key               = random_string.security-encryption-key.result
     reporting_encryption_key              = random_string.reporting-encryption-key.result
-    auto_shut_down_bootstrap_node = var.auto_shut_down_bootstrap_node
+    saved_objects_encryption_key          = random_string.saved-objects-encryption-key.result
+     auto_shut_down_bootstrap_node = var.auto_shut_down_bootstrap_node
   }
 }
 

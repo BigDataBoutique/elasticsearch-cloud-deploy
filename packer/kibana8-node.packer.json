@@ -5,7 +5,7 @@
       "name": "aws",
       "type": "amazon-ebs",
 
-      "ami_name": "kibana7-{{isotime | clean_resource_name}}",
+      "ami_name": "kibana8-{{isotime | clean_resource_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
       "instance_type": "t2.medium",
@@ -16,7 +16,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "elasticsearch7-*",
+          "name": "elasticsearch8-*",
           "root-device-type": "ebs"
         },
         "owners": [
@@ -27,7 +27,7 @@
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "ImageType": "kibana7-packer-image"
+        "ImageType": "kibana8-packer-image"
       }
     },
     {
@@ -40,7 +40,7 @@
       "subscription_id": "{{user `azure_subscription_id`}}",
 
       "managed_image_resource_group_name": "{{user `azure_resource_group_name`}}",
-      "managed_image_name": "kibana7-{{isotime \"2006-01-02T030405\"}}",
+      "managed_image_name": "kibana8-{{isotime \"2006-01-02T030405\"}}",
 
       "os_type": "Linux",
       "custom_managed_image_name": "{{user `azure_elasticsearch_image_name`}}",
@@ -54,10 +54,10 @@
       "type": "googlecompute",
       "account_file": "{{user `gcp_account_file`}}",
       "project_id": "{{user `gcp_project_id`}}",
-      "source_image_family": "elasticsearch-7",
+      "source_image_family": "elasticsearch-8",
       "zone": "{{user `gcp_zone`}}",
-      "image_family": "kibana-7",
-      "image_name": "kibana7-{{isotime | clean_resource_name}}",
+      "image_family": "kibana-8",
+      "image_name": "kibana8-{{isotime | clean_resource_name}}",
       "preemptible": true,
       "ssh_username": "ubuntu"
     }
@@ -65,7 +65,7 @@
   "provisioners": [
     {
       "type": "shell",
-      "script": "install-kibana7.sh",
+      "script": "install-kibana8.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
     }

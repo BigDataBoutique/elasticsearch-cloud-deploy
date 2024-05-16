@@ -14,7 +14,6 @@
 # Configure elasticsearch
 cat <<EOF >>/etc/elasticsearch/elasticsearch.yml
 cluster.name: $es_cluster
-xpack.monitoring.enabled: $monitoring_enabled
 xpack.monitoring.collection.enabled: $monitoring_enabled
 path.data: $elasticsearch_data_dir
 path.logs: $elasticsearch_logs_dir
@@ -51,6 +50,12 @@ xpack.monitoring.exporters.xpack_remote:
 EOF
 fi
 
+# Disable HTTP SSL. Configurations may vary for HTTP SSL - see here.
+#https://www.elastic.co/guide/en/elasticsearch/reference/current/security-settings.html#security-http-tls-ssl-key-trusted-certificate-settings
+# When not using it, we need to outright disable it for the cluster to start.
+cat <<'EOF' >>/etc/elasticsearch/elasticsearch.yml
+xpack.security.http.ssl.enabled: false
+EOF
 
 cat <<'EOF' >>/etc/security/limits.conf
 
@@ -68,7 +73,6 @@ RestartSec=10
 EOF
 
 # Setup heap size and memory locking
-sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/init.d/elasticsearch
 sudo sed -i 's/#MAX_LOCKED_MEMORY=.*$/MAX_LOCKED_MEMORY=unlimited/' /etc/default/elasticsearch
 
 # Set java heap size
@@ -103,7 +107,6 @@ if [ "$use_g1gc" = "true" ]; then
   sudo sed -i 's/[0-9]\+-:-XX:G1ReservePercent/10-:-XX:G1ReservePercent/ig' /etc/elasticsearch/jvm.options
   sudo sed -i 's/[0-9]\+-:-XX:InitiatingHeapOccupancyPercent/10-:-XX:InitiatingHeapOccupancyPercent/ig' /etc/elasticsearch/jvm.options
 fi
-
 
 # Create log and data dirs
 sudo mkdir -p $elasticsearch_logs_dir

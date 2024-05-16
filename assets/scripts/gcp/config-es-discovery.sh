@@ -9,7 +9,8 @@ cloud.gce.project_id: ${gcp_project_id}
 cloud.gce.zone: ${gcp_zones}
 discovery.seed_providers: gce
 EOF
-
+# It is required to bind to all interfaces for discovery on GCP to work
+# echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
 if [ "$BIND_TO_ALL" == "true" ]; then
 	echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
 else

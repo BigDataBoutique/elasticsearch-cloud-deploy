@@ -8,8 +8,7 @@ terraform {
 }
 
 provider "google" {
-  # comment out to use environment credentials
-  credentials = var.gcp_credentials_path
+#  credentials = var.gcp_credentials_path
   project     = var.gcp_project_id
   region      = var.gcp_region
   zone        = var.gcp_zone
@@ -25,6 +24,11 @@ resource "random_string" "security-encryption-key" {
   special = false
 }
 resource "random_string" "reporting-encryption-key" {
+  length  = 32
+  special = false
+}
+
+resource "random_string" "saved-objects-encryption-key" {
   length  = 32
   special = false
 }
@@ -136,9 +140,12 @@ locals {
     ca_cert                 = var.security_enabled ? join("", tls_self_signed_cert.ca[*].cert_pem) : ""
     node_cert               = var.security_enabled ? join("", tls_locally_signed_cert.node[*].cert_pem) : ""
     node_key                = var.security_enabled ? join("", tls_private_key.node[*].private_key_pem) : ""
+
     DEV_MODE_scripts_gcs_bucket = var.DEV_MODE_scripts_gcs_bucket
+
     security_encryption_key               = random_string.security-encryption-key.result
     reporting_encryption_key              = random_string.reporting-encryption-key.result
+    saved_objects_encryption_key          = random_string.saved-objects-encryption-key.result
     auto_shut_down_bootstrap_node = var.auto_shut_down_bootstrap_node
   }
 }
