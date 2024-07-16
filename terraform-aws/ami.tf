@@ -25,4 +25,3 @@ data "aws_ami" "kibana_client" {
   most_recent = true
   owners      = ["self"]
 }
-

@@ -4,8 +4,8 @@ This Packer configuration will generate Ubuntu images with Elasticsearch, Kibana
 
 The output of running Packer here would be two machine images, as below:
 
-* elasticsearch node image, containing latest Elasticsearch installed (latest version 7.x) and configured with best-practices.
-* kibana node image, based on the elasticsearch node image, and with Kibana (7.x, latest).
+* elasticsearch node image, containing latest Elasticsearch installed (latest version 8.x) and configured with best-practices.
+* kibana node image, based on the elasticsearch node image, and with Kibana (8.x, latest).
 
 ## On Amazon Web Services (AWS)
 
@@ -98,8 +98,8 @@ az account show --query "{ subscription_id: id }"
 Building the AMIs is done using the following commands:
 
 ```bash
-packer build -only=aws -var-file=variables.json elasticsearch7-node.packer.json
-packer build -only=aws -var-file=variables.json kibana7-node.packer.json
+packer build -only=aws -var-file=variables.json elasticsearch8-node.packer.json
+packer build -only=aws -var-file=variables.json kibana8-node.packer.json
 ```
 
 Replace the `-only` parameter to `azure` to build images for Azure instead of AWS.

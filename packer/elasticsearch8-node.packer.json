@@ -4,7 +4,7 @@
     {
       "name": "aws",
       "type": "amazon-ebs",
-      "ami_name": "elasticsearch7-{{isotime | clean_resource_name}}",
+      "ami_name": "elasticsearch8-{{isotime | clean_resource_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
       "instance_type": "t2.micro",
@@ -24,7 +24,7 @@
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
-        "ImageType": "elasticsearch7-packer-image"
+        "ImageType": "elasticsearch8-packer-image"
       }
     },
     {
@@ -37,7 +37,7 @@
       "subscription_id": "{{user `azure_subscription_id`}}",
 
       "managed_image_resource_group_name": "{{user `azure_resource_group_name`}}",
-      "managed_image_name": "elasticsearch7-{{isotime \"2006-01-02T030405\"}}",
+      "managed_image_name": "elasticsearch8-{{isotime \"2006-01-02T030405\"}}",
 
       "os_type": "Linux",
       "image_publisher": "Canonical",
@@ -54,8 +54,8 @@
       "project_id": "{{user `gcp_project_id`}}",
       "source_image_family": "ubuntu-2204-lts",
       "zone": "{{user `gcp_zone`}}",
-      "image_family": "elasticsearch-7",
-      "image_name": "elasticsearch7-{{isotime | clean_resource_name}}",
+      "image_family": "elasticsearch-8",
+      "image_name": "elasticsearch8-{{isotime | clean_resource_name}}",
       "preemptible": true,
       "ssh_username": "ubuntu"
     }
@@ -88,7 +88,7 @@
     },
     {
       "type": "shell",
-      "script": "install-elasticsearch7.sh",
+      "script": "install-elasticsearch8.sh",
       "environment_vars": [ "ES_VERSION={{user `elasticsearch_version`}}" ],
       "execute_command": "echo '' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
     },
