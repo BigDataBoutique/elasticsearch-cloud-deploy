@@ -2,7 +2,6 @@
   "description": "Elasticsearch Image",
   "builders": [
     {
-      "profile": "saml",
       "name": "aws",
       "type": "amazon-ebs",
       "ami_name": "elasticsearch7-{{isotime | clean_resource_name}}",
@@ -22,7 +21,6 @@
         "owners": ["099720109477"],
         "most_recent": true
       },
-      "subnet_id": "{{user `subnet_id`}}",
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
       "tags": {
