@@ -2,6 +2,8 @@
   "description": "Kibana Image",
   "builders": [
     {
+
+      "profile": "saml",
       "name": "aws",
       "type": "amazon-ebs",
 
@@ -26,6 +28,8 @@
       },
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
+
+      "subnet_id": "{{user `subnet_id`}}",
       "tags": {
         "ImageType": "kibana7-packer-image"
       }
