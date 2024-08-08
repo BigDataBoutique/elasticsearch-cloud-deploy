@@ -3,10 +3,8 @@
   "builders": [
     {
 
-      "profile": "saml",
       "name": "aws",
       "type": "amazon-ebs",
-
       "ami_name": "kibana7-{{isotime | clean_resource_name}}",
       "availability_zone": "{{user `aws_az`}}",
       "iam_instance_profile": "packer",
@@ -28,8 +26,6 @@
       },
       "ssh_timeout": "10m",
       "ssh_username": "ubuntu",
-
-      "subnet_id": "{{user `subnet_id`}}",
       "tags": {
         "ImageType": "kibana7-packer-image"
       }
