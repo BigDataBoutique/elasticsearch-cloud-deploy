@@ -1,16 +1,11 @@
-data "template_file" "singlenode_userdata_script" {
-  template = file("${path.module}/../templates/aws_user_data.sh")
-  vars = merge(local.user_data_common, {
-    startup_script = "singlenode.sh",
-    heap_size = var.master_heap_size
-  })
-}
-
 resource "aws_launch_template" "single_node" {
   name_prefix   = "elasticsearch-${var.es_cluster}-single-node"
   image_id      = data.aws_ami.kibana_client.id
   instance_type = var.data_instance_type
-  user_data     = base64encode(data.template_file.singlenode_userdata_script.rendered)
+  user_data     = base64encode(templatefile("${path.module}/../templates/aws_user_data.sh",merge(local.user_data_common, {
+    startup_script = "singlenode.sh",
+    heap_size = var.master_heap_size
+  })))
   key_name      = var.key_name
 
   ebs_optimized = var.ebs_optimized

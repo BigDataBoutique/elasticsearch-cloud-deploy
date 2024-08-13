@@ -28,7 +28,7 @@ echo 'Waiting for 30 seconds for the disk to become mountable...'
 sleep 30
 
 sudo mkdir -p $elasticsearch_data_dir
-export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | grep -v MOUNTEDPART)
+export DEVICE_NAME=$(lsblk -ip | tail -n +2 | awk '{print $1 " " ($7? "MOUNTEDPART" : "") }' | sed ':a;N;$!ba;s/\n`/ /g' | sed ':a;N;$!ba;s/\n|-/ /g' | grep -v MOUNTEDPART)
 if sudo mount -o defaults -t ext4 $DEVICE_NAME $elasticsearch_data_dir; then
     echo 'Successfully mounted existing disk'
 else

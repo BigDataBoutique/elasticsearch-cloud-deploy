@@ -1,16 +1,11 @@
-data "template_file" "client_userdata_script" {
-  template = file("${path.module}/../templates/aws_user_data.sh")
-  vars = merge(local.user_data_common, {
-    startup_script = "client.sh",
-    heap_size = var.client_heap_size
-  })
-}
-
 resource "aws_launch_template" "client" {
   name_prefix   = "elasticsearch-${var.es_cluster}-client-nodes"
   image_id      = data.aws_ami.kibana_client.id
   instance_type = var.master_instance_type
-  user_data     = base64encode(data.template_file.client_userdata_script.rendered)
+  user_data     = base64encode(templatefile("${path.module}/../templates/aws_user_data.sh",merge(local.user_data_common, {
+    startup_script = "client.sh",
+    heap_size = var.client_heap_size
+  })))
   key_name      = var.key_name
 
   iam_instance_profile {
