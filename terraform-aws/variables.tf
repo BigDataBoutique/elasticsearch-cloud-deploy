@@ -217,3 +217,8 @@ variable "auto_shut_down_bootstrap_node" {
   description = "disable to prevent bootstrap node from shutting down"
   default = true
 }
+
+variable "disk_type" {
+  description = "disk type"
+  default = "gp3"
+}
