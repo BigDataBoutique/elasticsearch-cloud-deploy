@@ -23,7 +23,7 @@ resource "aws_ebs_volume" "master" {
 
   availability_zone = jsondecode(each.value)["az"]
   size              = 10
-  type              = "gp2"
+  type              = var.disk_type
   encrypted         = var.volume_encryption
 
   tags = {
@@ -39,7 +39,7 @@ resource "aws_ebs_volume" "data" {
 
   availability_zone = jsondecode(each.value)["az"]
   size              = var.elasticsearch_volume_size
-  type              = "gp2"
+  type              = var.disk_type
   encrypted         = var.volume_encryption
 
   tags = {
@@ -55,7 +55,7 @@ resource "aws_ebs_volume" "data-voter" {
 
   availability_zone = jsondecode(each.value)["az"]
   size              = var.elasticsearch_volume_size
-  type              = "gp2"
+  type              = var.disk_type
   encrypted         = var.volume_encryption
 
   tags = {
@@ -72,7 +72,7 @@ resource "aws_ebs_volume" "singlenode" {
 
   availability_zone = var.singlenode_az
   size              = var.elasticsearch_volume_size
-  type              = "gp2"
+  type              = var.disk_type
   encrypted         = var.volume_encryption
 
   tags = {
