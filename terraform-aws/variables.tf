@@ -220,5 +220,5 @@ variable "auto_shut_down_bootstrap_node" {
 
 variable "disk_type" {
   description = "disk type"
-  default = "gp3"
+  default = "gp2"
 }
