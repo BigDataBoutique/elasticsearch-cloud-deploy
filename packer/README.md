@@ -94,6 +94,17 @@ az account show --query "{ subscription_id: id }"
 ```
 
 ## Building
+Install packer.
+https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli
+Alternatively, install pkenv which allows better control over the installed version, and then install packer. 
+https://github.com/iamhsa/pkenv
+
+Install the relevant plugin by running one of the following:
+```
+packer plugins install github.com/hashicorp/amazon
+packer plugins install github.com/hashicorp/googlecompute
+packer plugins install github.com/hashicorp/azure
+```
 
 Building the AMIs is done using the following commands:
 
