@@ -2,19 +2,23 @@
 
 This repository contains a set of tools and scripts to deploy an Elasticsearch cluster on the cloud, using best-practices and state of the art tooling.
 
-***Note:*** This branch supports Elasticsearch 7.x only. For other Elasticsearch versions see [elasticsearch-5.x](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/elasticsearch-5.x) and [elasticsearch-6.x](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/elasticsearch-6.x) branches.
+Need to monitor and optimize your cluster after setting it up? Consider using [Pulse](https://pulse.support/).
+
+***Note:*** This branch supports Elasticsearch 8.x only. For 7.x see [the master branch](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/master), for other versions see [elasticsearch-5.x](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/elasticsearch-5.x) and [elasticsearch-6.x](https://github.com/BigDataBoutique/elasticsearch-cloud-deploy/tree/elasticsearch-6.x) branches.
 
 You need to use the latest version of Terraform and Packer for all features to work correctly.
 
 Features:
 
-* Deployment of data and master nodes as separate nodes
-* Client node with Kibana, Cerebro, Grafana and authenticated Elasticsearch access
+* Deployment of data and master nodes as separate nodes, as well as data-voters
+* Client node with Kibana and authenticated Elasticsearch access
+* Single node cluster support
 * DNS and load-balancing access to client nodes
 * Sealed from external access, only accessible via password-protected external facing client nodes
 * AWS deployment support (under `terraform-aws`)
-* Azure deployment (under `terraform-azure`)
-* Google Cloud Platform deployment (coming soon)
+* Google Cloud Platform deployment (under `terraform-gcp`)
+* Packer scripts for both GCP and AWS (under `packer`)
+* Azure deployment - not maintained at the moment (under `terraform-azure`)
 
 ## Usage
 
